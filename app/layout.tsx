@@ -11,8 +11,8 @@ import { LandingPage } from '@/components'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'ASENSO',
-  description: 'ASENSO by BTC'
+  title: 'DOCUMENT TRACKER',
+  description: 'DOCUMENT TRACKER by BTC'
 }
 
 // do not cache this layout
