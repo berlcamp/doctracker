@@ -7,10 +7,10 @@ export async function Pdf (item) {
   const doc = new jsPDF()
 
   // Header Logo
-  const ozamizLogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/ozamiz.png`
-  const aologo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/ao.png`
-  doc.addImage(ozamizLogo, 'PNG', 60, 5, 18, 18)
-  doc.addImage(aologo, 'PNG', 132, 6, 20, 0)
+  const dumingaglogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/dumingag.png`
+  // const aologo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/ao.png`
+  doc.addImage(dumingaglogo, 'PNG', 60, 5, 18, 18)
+  // doc.addImage(aologo, 'PNG', 132, 6, 20, 0)
 
   // Header Text
   doc.setFont('helvetica', 'bold')
@@ -18,14 +18,10 @@ export async function Pdf (item) {
   doc.text('REPUBLIC OF THE PHILIPPINES', 105, 9, 'center')
   doc.setTextColor('#0000FF')
   doc.setFontSize(10)
-  doc.text('OFFICE OF THE CITY MAYOR', 105, 13, 'center')
+  doc.text('MUNICIPAL MAYOR\'S OFFICE', 105, 13, 'center')
   doc.setTextColor('#000')
   doc.setFontSize(13)
-  doc.text('CITY OF OZAMIZ', 105, 19, 'center')
-  doc.setFontSize(6)
-  doc.text('TELEFAX NO. (088) 521-1390', 105, 23, 'center')
-  doc.text('MOBILE NO. (+63) 910-734-2013', 105, 26, 'center')
-  doc.text('EMAIL: ASENSOOZAMIZMAYOR@GMAIL.COM', 105, 28, 'center')
+  doc.text('MUNICIPALITY OF DUMINGAG', 105, 19, 'center')
   doc.setTextColor('#FF0000')
   doc.setFontSize(7)
   doc.text('==============================================================', 105, 32, 'center')
