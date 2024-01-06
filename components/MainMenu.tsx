@@ -9,6 +9,8 @@ const MainMenu: React.FC = () => {
   const { hasAccess } = useFilter()
   const { session } = useSupabase()
 
+  const email: string = session.user.email
+
   return (
     <div className="py-1">
       <div className='px-4 py-4'>
@@ -30,7 +32,7 @@ const MainMenu: React.FC = () => {
                 </Link>
             }
             {
-              superAdmins.includes(session.user.email) &&
+              superAdmins.includes(email) &&
                 <>
                   <Link href='/settings/system'>
                   <div className='app__menu_item'>

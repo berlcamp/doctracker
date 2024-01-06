@@ -6,7 +6,7 @@ import uuid from 'react-uuid'
 import { PaperClipIcon, XCircleIcon } from '@heroicons/react/24/solid'
 import RepliesBox from './RepliesBox'
 import { useFilter } from '@/context/FilterContext'
-import { documentTypes, statusList, departments, trackerStatus } from '@/constants/TrackerConstants'
+import { documentTypes, statusList } from '@/constants/TrackerConstants'
 import ConfirmModal from '@/components/ConfirmModal'
 import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
@@ -440,22 +440,6 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
                   <table className='w-full'>
                     <thead><tr><th className='w-40'></th><th></th></tr></thead>
                     <tbody>
-                      <tr>
-                        <td className='px-2 py-2 font-semibold text-right'>Tracker:</td>
-                        <td>
-                          <select
-                            value={tracker}
-                            onChange={e => setTracker(e.target.value)}
-                            className='w-full text-sm py-0 px-1 text-gray-600 border border-gray-200 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'>
-                            <option value=''>Select Type</option>
-                            {
-                              trackerStatus?.map(item =>
-                                <option key={uuid()} value={item.status}>{item.status}</option>
-                              )
-                            }
-                          </select>
-                        </td>
-                      </tr>
                       <tr>
                         <td className='px-2 py-2 font-semibold text-right'>Document Status:</td>
                         <td>

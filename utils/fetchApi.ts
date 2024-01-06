@@ -18,8 +18,8 @@ export interface DocumentFilterTypes {
 export async function fetchDocuments (filters: DocumentFilterTypes, perPageCount: number, rangeFrom: number) {
   try {
     let query = supabase
-      .from('document_trackers')
-      .select('*, document_tracker_replies(*)', { count: 'exact' })
+      .from('dum_document_trackers')
+      .select('*, dum_document_tracker_replies(*)', { count: 'exact' })
 
     // Full text search
     if (typeof filters.filterKeyword !== 'undefined' && filters.filterKeyword.trim() !== '') {
@@ -85,7 +85,7 @@ export async function fetchDocuments (filters: DocumentFilterTypes, perPageCount
 export async function fetchActivities (today: string, endDate: Date) {
   try {
     const { data, count, error } = await supabase
-      .from('document_trackers')
+      .from('dum_document_trackers')
       .select('*, document_tracker_stickies(id)', { count: 'exact' })
       .gte('activity_date', today)
       .lt('activity_date', endDate.toISOString())
