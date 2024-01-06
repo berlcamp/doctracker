@@ -44,8 +44,8 @@ export const assigneeList = [
 ]
 
 export const statusList = [
-  { status: 'Received at OCM', color: '#ff5722' },
-  { status: 'Received at CADM', color: '#000' },
+  { status: 'Received at MMO', color: '#ff5722' },
+  { status: 'Received at MTO', color: '#000' },
   { status: 'Resolved', color: '#287f00' },
   { status: 'Pending for approval', color: '#997c00' },
   { status: 'Approved', color: '#287f00' },
@@ -55,8 +55,8 @@ export const statusList = [
   { status: 'For Further Instruction', color: '#997c00' },
   { status: 'Cancelled', color: '#e02626' },
   { status: 'Forwarded', color: '#2154db' },
-  { status: 'Forwarded to CADM', color: '#1249ed' },
-  { status: 'Forwarded to Atty Rhea', color: '#a44508' },
+  { status: 'Forwarded to MMO', color: '#a44508' },
+  { status: 'Forwarded to MTO', color: '#1249ed' },
   { status: 'Others', color: '#000' }
 ]
 
