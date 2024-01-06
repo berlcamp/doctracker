@@ -86,7 +86,7 @@ export async function fetchActivities (today: string, endDate: Date) {
   try {
     const { data, count, error } = await supabase
       .from('dum_document_trackers')
-      .select('*, document_tracker_stickies(id)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .gte('activity_date', today)
       .lt('activity_date', endDate.toISOString())
       .eq('is_deleted', false)
