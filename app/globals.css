@@ -2,26 +2,219 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.app__main {
+  @apply lg:ml-64 mt-20 pb-20
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.app__home {
+  @apply pb-0
 }
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.app__title {
+  @apply flex items-center space-x-2 px-4 mt-4 py-2 border-gray-200 border-b
+}
+.app__filters {
+  @apply mx-4 py-4
+}
+.app__warning_text {
+  @apply mx-4 my-2 py-2 px-4 text-sm border bg-yellow-100 text-gray-600
+}
+.app__warning_title {
+  @apply font-semibold
+}
+.app__content {
+  @apply px-4 mt-10
+}
+.app__table {
+  @apply w-full text-sm text-left text-gray-600 border-t
+}
+.app__thead {
+  @apply text-xs border-b uppercase bg-gray-100
+}
+.app__tr {
+  @apply bg-gray-50 text-xs border-b hover:bg-amber-50
+}
+.app__th {
+  @apply py-2 px-2 text-gray-900
+}
+.app__th_firstcol {
+  @apply py-2 px-2 text-gray-800 font-medium
+}
+.app__td {
+  @apply py-2 px-2
+}
+.app__menu_container {
+  @apply relative inline-block text-left mr-2
+}
+.app__dropdown_btn {
+  @apply inline-flex w-full justify-center focus:outline-none focus:ring-0
+}
+.app__dropdown_items {
+  @apply absolute left-0 z-50 mt-2 w-96 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none
+}
+.app__dropdown_item {
+  @apply flex items-center space-x-2 cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-4 py-2 text-xs
+}
+.app__dropdown_item2 {
+  @apply flex items-center space-x-2 px-4 py-2
+}
+.app__btn_red {
+  @apply bg-red-500 hover:bg-red-600 active:bg-red-500 border border-red-600 font-bold px-2 py-1 text-xs text-white rounded-sm
+}
+.app__btn_red_xs {
+  @apply bg-red-500 hover:bg-red-600 active:bg-red-500 border border-red-600 px-1 py-px text-xs text-white rounded-sm
+}
+.app__menu_btn {
+  @apply inline-flex w-full justify-center focus:outline-none focus:ring-0
+}
+.app__btn_green_xs {
+  @apply bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-500 border border-emerald-600 font-bold px-2 py-px text-[10px] text-white rounded-sm
+}
+.app__btn_green {
+  @apply bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-500 border border-emerald-600 font-bold px-2 py-1 text-xs text-white rounded-sm
+}
+.app__btn_orange {
+  @apply bg-orange-500 hover:bg-orange-600 active:bg-orange-500 border border-orange-600 font-bold px-2 py-1 text-xs text-white rounded-sm
+}
+.app__btn_orange_xs {
+  @apply bg-orange-500 hover:bg-orange-600 active:bg-orange-500 border border-orange-600 px-1 py-px text-xs text-white rounded-sm
+}
+.app__btn_green_sm {
+  @apply bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-500 border border-emerald-600 font-bold px-2 py-1 text-sm text-white rounded-sm
+}
+.app__btn_gray {
+  @apply bg-gray-500 hover:bg-gray-600 border active:bg-gray-500 border-gray-600 font-bold px-2 py-1 text-xs text-white rounded-sm
+}
+.app__btn_gray_sm {
+  @apply bg-gray-500 hover:bg-gray-600 border active:bg-gray-500 border-gray-600 font-bold px-2 py-1 text-sm text-white rounded-sm
+}
+.app__btn_blue {
+  @apply bg-blue-500 hover:bg-blue-600 border active:bg-blue-500 border-blue-600 font-bold px-2 py-1 text-xs text-white rounded-sm
+}
+.app__dialog_panel {
+  @apply relative w-full max-w-lg max-h-[90vh] overflow-y-auto transform rounded-md bg-white p-4 text-left shadow-xl transition-all flex flex-col gap-5
+}
+.app__input_standard {
+  @apply w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none
+}
+.app__input_standard_half {
+  @apply w-1/2 text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none
+}
+.app__select_standard {
+  @apply w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none
+}
+.app__input_noborder {
+  @apply w-full text-sm py-1 px-2 text-gray-600 border-gray-300 rounded-sm focus:ring-0 focus:outline-none
+}
+.app__search_user_results_container {
+  @apply absolute top-7 left-0 z-50 w-full bg-gray-200 border
+}
+.app__search_user_results {
+  @apply p-1 w-full text-gray-700 cursor-pointer hover:bg-gray-300 text-sm
+}
+.app__selected_users_container {
+  @apply bg-white p-1 border border-gray-300 rounded-sm
+}
+.app__selected_user {
+  @apply inline-flex items-center text-sm  border border-gray-400 rounded-sm px-1 bg-gray-300
+}
+.app__error_message {
+  @apply mt-1 text-xs text-red-600 font-bold
+}
+.app__modal_wrapper {
+  @apply z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50
+}
+.app__modal_wrapper2 {
+  @apply sm:h-[calc(100%-3rem)] max-w-lg my-6 mx-auto relative w-auto pointer-events-none
+}
+.app__modal_wrapper2_medium {
+  @apply sm:h-[calc(100%-3rem)] w-4/6 lg:w-3/6 my-6 mx-auto relative pointer-events-none
+}
+.app__modal_wrapper2_large {
+  @apply sm:h-[calc(100%-3rem)] w-5/6 lg:w-4/6 my-6 mx-auto relative pointer-events-none
+}
+.app__modal_wrapper3 {
+  @apply max-h-full overflow-hidden border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600
+}
+.app__modal_header {
+  @apply flex flex-shrink-0 items-center justify-between p-4 border-b border-gray-200 rounded-t-md
+}
+.app__modal_header_text {
+  @apply text-sm font-bold leading-normal text-gray-800 dark:text-gray-300
+}
+.app__modal_header_btn {
+  @apply box-content w-4 h-4 p-1 text-black border-none rounded-none opacity-50 focus:shadow-none focus:outline-none focus:opacity-100 hover:text-black hover:opacity-75 hover:no-underline
+}
+.app__modal_footer {
+  @apply flex items-center justify-end space-x-2
+}
+.app__modal_body {
+  @apply relative p-4 overflow-x-scroll
+}
+.app__listbox_btn {
+  @apply relative flex items-center w-full rounded-lg text-gray-500 border border-gray-300 cursor-default bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm
+}
+.app__listbox_field {
+  @apply relative flex items-center w-full text-gray-700 border border-gray-300 cursor-default bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm
+}
+.app__listbox_icon {
+  @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2
+}
+.app__listbox_options {
+  @apply absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm
+}
+.app__filter_input {
+  @apply w-48 text-gray-500  focus:ring-0 focus:outline-none text-xs py-1 text-left inline-flex items-center dark:bg-gray-300
+}
+.app__filter_input_date {
+  @apply w-32 text-gray-500  focus:ring-0 focus:outline-none text-xs py-1 text-left inline-flex items-center dark:bg-gray-300
+}
+.app__filter_container {
+  @apply inline-flex items-center border border-gray-300 rounded-lg mr-1 px-2 py-1 bg-white dark:bg-gray-300
+}
+.app__norecordsfound {
+  @apply text-sm p-4 text-gray-700
+}
+.app__menu_item {
+  @apply flex items-start space-x-2 rounded-lg p-2 hover:bg-gray-100
+}
+.app__menu_item_label {
+  @apply text-sm font-semibold whitespace-nowrap
+}
+.app__menu_item_label_description {
+  @apply text-xs
+}
+.app__user_menu_items {
+  @apply py-2 my-1 px-2 flex items-center space-x-2 cursor-pointer whitespace-nowrap rounded-lg hover:bg-gray-200
+}
+.app__menu_link {
+  @apply flex items-center p-2 text-sm font-light rounded-lg text-gray-300  hover:bg-gray-600
+}
+.app_menu_link_active {
+  @apply bg-gray-700
+}
+.app__list_mobile_view {
+  @apply font-light space-y-1
+}
+.app__form_field_container {
+  @apply grid grid-cols-1 gap-4 mb-4
+}
+.app__form_field_inline_half {
+  @apply inline-flex w-full md:w-5/12 mr-8 mb-4
+}
+.app__label_standard {
+  @apply text-gray-600 font-medium text-sm mb-1
+}
+.app__label_value {
+  @apply text-gray-600 font-bold text-sm mb-1
+}
+.app__status_container_green {
+  @apply font-medium text-green-600 border px-1 py-px border-green-400 bg-green-100
+}
+.app__status_container_red {
+  @apply font-medium text-red-600 border px-1 py-px border-red-400 bg-red-100
+}
+.app__status_container_orange {
+  @apply font-medium text-orange-600 border px-1 py-px border-orange-400 bg-orange-100
+}
+.app__status_container_blue {
+  @apply font-medium text-blue-600 border px-1 py-px border-blue-400 bg-blue-100
 }
