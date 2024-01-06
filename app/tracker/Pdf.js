@@ -8,20 +8,23 @@ export async function Pdf (item) {
 
   // Header Logo
   const dumingaglogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/dumingag.png`
-  // const aologo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/ao.png`
+  const zdslogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/zds.png`
   doc.addImage(dumingaglogo, 'PNG', 60, 5, 18, 18)
-  // doc.addImage(aologo, 'PNG', 132, 6, 20, 0)
+  doc.addImage(zdslogo, 'PNG', 132, 5, 18, 18)
 
   // Header Text
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8)
   doc.text('REPUBLIC OF THE PHILIPPINES', 105, 9, 'center')
+  doc.setFontSize(8)
+  doc.text('PROVINCE OF ZAMBOANGA DEL SUR', 105, 13, 'center')
+  doc.setFontSize(8)
   doc.setTextColor('#0000FF')
-  doc.setFontSize(10)
-  doc.text('MUNICIPAL MAYOR\'S OFFICE', 105, 13, 'center')
+  doc.text('MUNICIPALITY OF DUMINGAG', 105, 17, 'center')
+  doc.setFontSize(8)
   doc.setTextColor('#000')
-  doc.setFontSize(13)
-  doc.text('MUNICIPALITY OF DUMINGAG', 105, 19, 'center')
+  doc.text('OFFICE OF THE MUNICIPAL MAYOR', 105, 21, 'center')
+  doc.setTextColor('#000')
   doc.setTextColor('#FF0000')
   doc.setFontSize(7)
   doc.text('==============================================================', 105, 32, 'center')
@@ -175,9 +178,9 @@ export async function Pdf (item) {
       if (i === 0 && j === 2) headerText = 'TIME'
       if (i === 0 && j === 3) headerText = 'SIGN'
 
-      if (i === 1 && j === 0) headerText = 'OCM'
-      if (i === 1 && j === 1) headerText = item.date
-      if (i === 1 && j === 2) headerText = item.time
+      // if (i === 1 && j === 0) headerText = 'OCM'
+      // if (i === 1 && j === 1) headerText = item.date
+      // if (i === 1 && j === 2) headerText = item.time
 
       doc.text(headerText, x, y, { align: 'left', baseline: 'middle', width: cellWidth, height: cellHeight })
     }

@@ -134,6 +134,7 @@ export interface DocumentType {
   name: string
   particulars: string
   status: string
+  remarks: string
   date: string
   time: string
   received_by: string
@@ -144,6 +145,7 @@ export interface DocumentType {
   routing_no: string
   routing_slip_no: string
   date_received_cadm: string
+  dum_document_tracker_replies: any
 }
 
 export interface RequirementTypes {

@@ -69,7 +69,7 @@ export default function ActivitiesModal ({ hideModal, activitiesData }) {
                               <div>
                                 {item.id < 100209 && <div>{item.remarks}</div>}
                                 {
-                                  item.document_tracker_replies?.map(reply => (
+                                  item.dum_document_tracker_replies?.map(reply => (
                                     <div key={uuid()}>
                                       {
                                         (!reply.is_private && reply.reply_type !== 'system') &&
@@ -86,7 +86,7 @@ export default function ActivitiesModal ({ hideModal, activitiesData }) {
                         </th>
                         <td className="py-2 px-2">
                           {/* {
-                            (item.document_tracker_stickies.length > 0 && item.document_tracker_stickies.user_id === session.user.id)
+                            (item.dum_document_tracker_stickies.length > 0 && item.dum_document_tracker_stickies.user_id === session.user.id)
                               ? <StarIcon className='w-4 h-4 text-yellow-500'/>
                               : <button
                                   onClick={() => handleAddToStickies(item, index)}
@@ -106,7 +106,7 @@ export default function ActivitiesModal ({ hideModal, activitiesData }) {
                           <div>
                             {item.id < 100209 && <div>{item.remarks}</div>}
                             {
-                              item.document_tracker_replies?.map(reply => (
+                              item.dum_document_tracker_replies?.map(reply => (
                                 <div key={uuid()}>
                                   {
                                     (!reply.is_private && reply.reply_type !== 'system') &&

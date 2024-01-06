@@ -18,7 +18,7 @@ export default function CommentBox ({ replyId, handleInsertToList }) {
       is_private: false
     }
     const { data, error } = await supabase
-      .from('document_tracker_replies')
+      .from('dum_document_tracker_replies')
       .insert(newData)
       .select()
 

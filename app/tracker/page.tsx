@@ -134,6 +134,7 @@ const Page: React.FC = () => {
 
   // Update list whenever list in redux updates
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     setList(globallist)
   }, [globallist])
 
@@ -149,9 +150,10 @@ const Page: React.FC = () => {
   }, [])
 
   const isDataEmpty = !Array.isArray(list) || list.length < 1 || !list
+  const email: string = session.user.email
 
   // Check access from permission settings or Super Admins
-  if (!hasAccess('document_tracker') && !superAdmins.includes(session.user.email)) return <Unauthorized/>
+  if (!hasAccess('document_tracker') && !superAdmins.includes(email)) return <Unauthorized/>
 
   return (
     <>
@@ -227,7 +229,7 @@ const Page: React.FC = () => {
               </thead>
               <tbody>
                 {
-                  !isDataEmpty && list.map((item: any) => (
+                  !isDataEmpty && list.map((item: DocumentType) => (
                     <tr
                       key={uuid()}
                       className="app__tr">
@@ -324,7 +326,7 @@ const Page: React.FC = () => {
                             <span className='font-light'>Remarks: </span>
                             <div>
                               {
-                                item.document_tracker_replies?.map((reply: any) => (
+                                item.dum_document_tracker_replies?.map((reply: any) => (
                                   <React.Fragment key={uuid()}>
                                     {
                                       (reply.reply_type !== 'system' && !reply.is_private) &&
@@ -364,7 +366,7 @@ const Page: React.FC = () => {
                       <td className="hidden md:table-cell py-2 px-2">
                         <div>
                           {
-                            item.document_tracker_replies?.map((reply: any) => (
+                            item.dum_document_tracker_replies?.map((reply: any) => (
                               <React.Fragment key={uuid()}>
                                 {
                                   (reply.reply_type !== 'system' && !reply.is_private) &&
@@ -374,13 +376,13 @@ const Page: React.FC = () => {
                             ))
                           }
                           {
-                            item.id < 100209 && <div>{item.remarks}</div>
+                            Number(item.id) < 100209 && <div>{item.remarks}</div>
                           }
                         </div>
                       </td>
                       <td className="hidden md:table-cell py-2 px-2">
                         {
-                          item.id > 100209
+                          Number(item.id) > 100209
                             // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                             ? <div>{format(new Date(item.date + ' ' + item.time), 'dd MMM yyyy hh:mm')}</div>
                             : <div>{item.date} {item.time}</div>

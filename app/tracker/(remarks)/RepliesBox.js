@@ -37,7 +37,7 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
   // fetch comments
   const fetchComments = async () => {
     const { data: repliesData } = await supabase
-      .from('document_tracker_replies')
+      .from('dum_document_tracker_replies')
       .select('*,asenso_users:sender_id(*)')
       .eq('parent_document_reply_id', reply.id)
       .order('id', { ascending: false })
@@ -65,7 +65,7 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
   const handleDeleteReply = async () => {
     try {
       const { error } = await supabase
-        .from('document_tracker_replies')
+        .from('dum_document_tracker_replies')
         .delete()
         .eq('id', selectedId)
 
@@ -92,7 +92,7 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
   const handleUpdateRemarks = async () => {
     try {
       const { error } = await supabase
-        .from('document_tracker_replies')
+        .from('dum_document_tracker_replies')
         .update({
           message: remarks
         })

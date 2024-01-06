@@ -15,14 +15,14 @@ export default function RemarksModal ({ hideModal, documentId }) {
     // Fetch Document Data
     const { data: documents } = await supabase
       .from('dum_document_trackers')
-      .select('*, document_tracker_replies(*), asenso_users:user_id(firstname)')
+      .select('*, dum_document_tracker_replies(*), asenso_users:user_id(firstname)')
       .eq('id', documentId)
       .limit(1)
       .single()
 
     // Fetch Document Replies
     const { data: repliesData } = await supabase
-      .from('document_tracker_replies')
+      .from('dum_document_tracker_replies')
       .select('*,asenso_users:sender_id(*)')
       .eq('document_tracker_id', documentId)
       .order('id', { ascending: false })

@@ -39,7 +39,7 @@ export default function ReplyBox ({ document, handleInsertToList }) {
     }
 
     // Update the remarks context
-    const newRemarks = [...document.document_tracker_replies, { is_private: replyType === 'Private Note', reply_type: '', message: remarks }]
+    const newRemarks = [...document.dum_document_tracker_replies, { is_private: replyType === 'Private Note', reply_type: '', message: remarks }]
     const updatedList = { document_tracker_replies: newRemarks, id: document.id }
     handleUpdateList(updatedList)
 

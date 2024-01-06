@@ -64,7 +64,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
     await Promise.all(
       selectedImages.map(async file => {
         const { error } = await supabase.storage
-          .from('documents')
+          .from('dum_documents')
           .upload(`${id}/${file.name}`, file)
         if (error) {
           console.log(error)
@@ -160,7 +160,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
     // if (!remarks[0].is_private) {
     //   // Get latest document data from database
     //   const { data: latestDocument, error: latestError } = await supabase
-    //     .from('document_trackers')
+    //     .from('dum_document_trackers')
     //     .select('remarks')
     //     .eq('id', documentData.id)
     //     .limit(1)
@@ -170,7 +170,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
     //   const updatedRemarks = latestDocument.remarks.replace(remarks[0].message, '')
 
     //   const { error } = await supabase
-    //     .from('document_trackers')
+    //     .from('dum_document_trackers')
     //     .update({
     //       remarks: updatedRemarks
     //     })
@@ -271,7 +271,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
 
       if (hasChanges) {
         await supabase
-          .from('document_tracker_replies')
+          .from('dum_document_tracker_replies')
           .insert({
             document_tracker_id: documentData.id,
             sender_id: session.user.id,
@@ -587,27 +587,6 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
                         handleUpdateRemarksList={handleUpdateRemarksList}
                         reply={reply}/>
                     ))
-                  }
-                  {
-                    documentData?.id < 100209 &&
-                    <div className='w-full border-b flex-col space-y-1 px-4 py-4 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
-                      <div className='w-full group mb-5'>
-                        <div className='flex items-center space-x-2'>
-                          <div className='flex flex-1 items-center space-x-2'>
-                            <div>
-                              <div className='font-bold'>
-                                <span>System:&nbsp;</span>
-                              </div>
-                              <div className='mt-1'>
-                                <div className='mt-2 bg-blue-100 p-2 border border-blue-200 rounded-sm'>
-                                  <p><span className='font-bold'>Remarks:</span> {documentData?.remarks}</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   }
                   <div className='w-full border-b flex-col space-y-1 px-4 py-4 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
                     <div className='w-full group mb-5'>

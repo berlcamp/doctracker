@@ -35,7 +35,7 @@ export default function CommentsBox ({ reply, handleRemoveFromList }) {
   const handleDeleteReply = async () => {
     try {
       const { error } = await supabase
-        .from('document_tracker_replies')
+        .from('dum_document_tracker_replies')
         .delete()
         .eq('id', selectedId)
 
