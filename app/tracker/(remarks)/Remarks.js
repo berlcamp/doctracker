@@ -93,7 +93,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
   const handleDownloadFile = async (file) => {
     const { data, error } = await supabase
       .storage
-      .from('documents')
+      .from('dum_documents')
       .download(`${documentData.id}/${file}`)
 
     if (error) console.error(error)
@@ -125,7 +125,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
   const handleDeleteFile = async () => {
     const { error } = await supabase
       .storage
-      .from('documents')
+      .from('dum_documents')
       .remove([`${documentData.id}/${selectedFile}`])
 
     if (error) {
@@ -140,7 +140,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
   const fetchAttachments = async () => {
     const { data, error } = await supabase
       .storage
-      .from('documents')
+      .from('dum_documents')
       .list(`${documentData.id}`, {
         limit: 100,
         offset: 0,
@@ -229,7 +229,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
       }
 
       const { error } = await supabase
-        .from('document_trackers')
+        .from('dum_document_trackers')
         .update(newData)
         .eq('id', documentData.id)
 
@@ -315,7 +315,7 @@ export default function Remarks ({ documentData, repliesData, modalTitle, hideMo
 
   const getLatestRoutingNo = async (shortcut) => {
     const { data, error } = await supabase
-      .from('document_trackers')
+      .from('dum_document_trackers')
       .select('routing_no')
       .not('routing_no', 'is', null)
       .neq('is_archive', 'true')

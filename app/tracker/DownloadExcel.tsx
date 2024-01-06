@@ -74,7 +74,7 @@ const DownloadExcelButton = ({ filterKeyword, filterAgency, filterDateFrom, filt
   const fetchData = async () => {
     // Data for the Excel file
     let query = supabase
-      .from('document_trackers')
+      .from('dum_document_trackers')
       .select()
       .eq('is_deleted', false)
 
@@ -99,7 +99,7 @@ const DownloadExcelButton = ({ filterKeyword, filterAgency, filterDateFrom, filt
 
     // Filter type
     if (typeof filters.types !== 'undefined' && filters.types.length > 0) {
-      const statement: any = []
+      const statement: string[] = []
       filterTypes.forEach((type: string) => {
         const str = `type.eq.${type}`
         statement.push(str)

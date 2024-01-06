@@ -1,6 +1,5 @@
 import type { AccountTypes } from '@/types'
 import { createBrowserClient } from '@supabase/ssr'
-import { format } from 'date-fns'
 // import { fullTextQuery } from './text-helper'
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -94,55 +93,6 @@ export async function fetchActivities (today: string, endDate: Date) {
       .neq('is_archive', 'true')
       .order('activity_date', { ascending: true })
       .limit(30)
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    return { data, count }
-  } catch (error) {
-    console.error('fetch error', error)
-    return { data: [], count: 0 }
-  }
-}
-
-export async function fetchDistrictAssistance (filters: { filterKeyword?: string, filterHospital?: string, filterFrom?: string, filterTo?: string }, perPageCount: number, rangeFrom: number) {
-  try {
-    let query = supabase
-      .from('asenso_district_assistance')
-      .select('*', { count: 'exact' })
-
-    // Search match
-    if (filters.filterKeyword && filters.filterKeyword !== '') {
-      query = query.or(`fullname.ilike.%${filters.filterKeyword}%,referral.ilike.%${filters.filterKeyword}%`)
-    }
-
-    // filter filterHospital
-    if (filters.filterHospital && filters.filterHospital !== '') {
-      query = query.eq('hospital', filters.filterHospital)
-    }
-
-    // filter approve "From"
-    if (filters.filterFrom && filters.filterFrom !== '') {
-      query = query.gte('date_approved', format(new Date(filters.filterFrom), 'yyyy-MM-dd'))
-    }
-
-    // filter approve "To"
-    if (filters.filterTo && filters.filterTo !== '') {
-      query = query.lte('date_approved', format(new Date(filters.filterTo), 'yyyy-MM-dd'))
-    }
-
-    // Per Page from context
-    const from = rangeFrom
-    const to = from + (perPageCount - 1)
-
-    // Per Page from context
-    query = query.range(from, to)
-
-    // Order By
-    query = query.order('id', { ascending: false })
-
-    const { data, error, count } = await query
 
     if (error) {
       throw new Error(error.message)

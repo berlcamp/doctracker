@@ -29,7 +29,7 @@ export default function ReplyBox ({ document, handleInsertToList }) {
     }
     // Insert into replies database table
     const { data, error } = await supabase
-      .from('document_tracker_replies')
+      .from('dum_document_tracker_replies')
       .insert(newData)
       .select()
 

@@ -115,7 +115,7 @@ export default function AddEditModal ({ editData, hideModal }) {
       }
 
       const { data, error } = await supabase
-        .from('document_trackers')
+        .from('dum_document_trackers')
         .insert(newData)
         .select()
 
@@ -145,7 +145,7 @@ export default function AddEditModal ({ editData, hideModal }) {
 
   const getLatestRoutingNo = async (shortcut) => {
     const { data, error } = await supabase
-      .from('document_trackers')
+      .from('dum_document_trackers')
       .select('routing_no')
       .not('routing_no', 'is', null)
       .neq('is_archive', 'true')
@@ -169,7 +169,7 @@ export default function AddEditModal ({ editData, hideModal }) {
     await Promise.all(
       selectedImages.map(async file => {
         const { error } = await supabase.storage
-          .from('documents')
+          .from('dum_documents')
           .upload(`${id}/${file.name}`, file)
         if (error) console.log(error)
       })
@@ -193,7 +193,7 @@ export default function AddEditModal ({ editData, hideModal }) {
   const handleDownloadFile = async (file) => {
     const { data, error } = await supabase
       .storage
-      .from('documents')
+      .from('dum_documents')
       .download(`${editData.id}/${file}`)
 
     if (error) console.error(error)
@@ -225,7 +225,7 @@ export default function AddEditModal ({ editData, hideModal }) {
   const handleDeleteFile = async () => {
     const { error } = await supabase
       .storage
-      .from('documents')
+      .from('dum_documents')
       .remove([`${editData.id}/${selectedFile}`])
 
     if (error) {
@@ -240,7 +240,7 @@ export default function AddEditModal ({ editData, hideModal }) {
   const fetchAttachments = async () => {
     const { data, error } = await supabase
       .storage
-      .from('documents')
+      .from('dum_documents')
       .list(`${editData.id}`, {
         limit: 100,
         offset: 0,
