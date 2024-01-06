@@ -8,9 +8,9 @@ export async function Pdf (item) {
 
   // Header Logo
   const dumingaglogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/dumingag.png`
-  // const zdslogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/zds.png`
+  const zdslogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/zds.png`
   doc.addImage(dumingaglogo, 'PNG', 60, 5, 18, 18)
-  // doc.addImage(zdslogo, 'PNG', 132, 5, 18, 18)
+  doc.addImage(zdslogo, 'PNG', 132, 5, 18, 18)
 
   // Header Text
   doc.setFont('helvetica', 'bold')
