@@ -71,6 +71,9 @@
 .app__btn_green {
   @apply bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-500 border border-emerald-600 font-bold px-2 py-1 text-xs text-white rounded-sm
 }
+.app__btn_green_large {
+  @apply bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-500 border border-emerald-600 font-bold px-2 py-1 text-sm text-white rounded-sm
+}
 .app__btn_orange {
   @apply bg-orange-500 hover:bg-orange-600 active:bg-orange-500 border border-orange-600 font-bold px-2 py-1 text-xs text-white rounded-sm
 }

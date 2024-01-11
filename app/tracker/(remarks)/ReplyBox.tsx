@@ -5,24 +5,23 @@ import React, { Fragment, useState } from 'react'
 import { format } from 'date-fns'
 import { useFilter } from '@/context/FilterContext'
 import { useSupabase } from '@/context/SupabaseProvider'
+import type { AccountTypes, RepliesDataTypes } from '@/types'
 
-// Redux staff
-import { useSelector, useDispatch } from 'react-redux'
-import { updateList } from '@/GlobalRedux/Features/listSlice'
+interface ModalProps {
+  documentId: string
+  handleInsertToList: (data: RepliesDataTypes) => void
+}
 
-export default function ReplyBox ({ document, handleInsertToList }) {
-  const { supabase, session } = useSupabase()
+export default function ReplyBox ({ documentId, handleInsertToList }: ModalProps) {
+  const { supabase, session, systemUsers } = useSupabase()
   const { setToast } = useFilter()
-
-  const globallist = useSelector((state) => state.list.value)
-  const dispatch = useDispatch()
 
   const [replyType, setReplyType] = useState('Public')
   const [remarks, setRemarks] = useState('')
 
   const handleSubmitReply = async () => {
     const newData = {
-      document_tracker_id: document.id,
+      document_tracker_id: documentId,
       sender_id: session.user.id,
       message: remarks,
       is_private: replyType === 'Private Note'
@@ -38,19 +37,19 @@ export default function ReplyBox ({ document, handleInsertToList }) {
       return
     }
 
-    // Update the remarks context
-    const newRemarks = [...document.dum_document_tracker_replies, { is_private: replyType === 'Private Note', reply_type: '', message: remarks }]
-    const updatedList = { document_tracker_replies: newRemarks, id: document.id }
-    handleUpdateList(updatedList)
+    const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
 
     // Update the list from parent component
-    const updatedNewData = {
+    const updatedNewData: RepliesDataTypes = {
       ...newData,
       id: data[0].id,
       new: true,
       created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
-      asenso_users: { firstname: session.user.email.split('@')[0] }
+      dum_users: user,
+      parent_document_tracker_id: '',
+      reply_type: ''
     }
+
     handleInsertToList(updatedNewData)
 
     setRemarks('')
@@ -59,19 +58,10 @@ export default function ReplyBox ({ document, handleInsertToList }) {
     setToast('success', 'Remarks successfully added.')
   }
 
-  const handleUpdateList = (updatedData) => {
-    const items = [...globallist] // use spread operator to make array mutable
-    const foundIndex = items.findIndex(x => x.id === updatedData.id)
-    items[foundIndex] = { ...items[foundIndex], ...updatedData }
-
-    // Update redux
-    dispatch(updateList(items))
-  }
-
   return (
     <div className='w-full flex-col space-y-2 px-4 py-4 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
       <div className='flex space-x-2'>
-        <span className='font-bold'>Write remarks:</span>
+        <span className='font-bold'>Remarks:</span>
       </div>
 
       <textarea

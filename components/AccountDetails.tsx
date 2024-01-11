@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client'
 import React, { type ChangeEvent, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -12,6 +13,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 
 import { generateReferenceCode } from '@/utils/text-helper'
+import { useRouter } from 'next/navigation'
 
 interface ModalProps {
   hideModal: () => void
@@ -28,6 +30,8 @@ interface FormTypes {
 const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
   const { setToast } = useFilter()
   const { supabase, session } = useSupabase()
+
+  const router = useRouter()
 
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -56,10 +60,11 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
     }
     try {
       const { error } = await supabase
-        .from('asenso_users')
+        .from('dum_users')
         .update(newData)
         .eq('id', id)
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (error) throw new Error(error.message)
     } catch (e) {
       console.error(e)
@@ -90,25 +95,29 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
         setUploading(true)
 
         // delete the existing user avatar on supabase storage
-        const { data: files, error: error3 } = await supabase.storage.from('asenso').list(`user_avatar/${id}`)
+        const { data: files, error: error3 } = await supabase.storage.from('dum').list(`user_avatar/${id}`)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (error3) throw new Error(error3.message)
         if (files.length > 0) {
           const filesToRemove = files.map((x: { name: string }) => `user_avatar/${id}/${x.name}`)
-          const { error: error4 } = await supabase.storage.from('asenso').remove(filesToRemove)
+          const { error: error4 } = await supabase.storage.from('dum').remove(filesToRemove)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           if (error4) throw new Error(error4.message)
         }
 
         // upload the new avatar
         const file = e.target.files?.[0]
         const newFileName = generateReferenceCode()
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
         const customFilePath = `user_avatar/${id}/${newFileName}.` + (file.name.split('.').pop() as string)
         const { error } = await supabase
           .storage
-          .from('asenso')
+          .from('dum')
           .upload(`${customFilePath}`, file, {
             cacheControl: '3600',
             upsert: true
           })
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (error) throw new Error(error.message)
 
         // get the newly uploaded file public path
@@ -116,6 +125,7 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
       } catch (error) {
         console.error('Error uploading file:', error)
       } finally {
+        router.refresh()
         setUploading(false)
       }
     }
@@ -126,14 +136,14 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
       // get the public avatar url
       const { data, error } = await supabase
         .storage
-        .from('asenso')
+        .from('dum')
         .getPublicUrl(`${path}`)
 
       if (error) throw new Error(error.message)
 
-      // update avatar url on asenso_users table
+      // update avatar url on dum_users table
       const { error2 } = await supabase
-        .from('asenso_users')
+        .from('dum_users')
         .update({ avatar_url: data.publicUrl })
         .eq('id', id)
 
@@ -151,7 +161,7 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
       setLoading(true)
       try {
         const { data, error } = await supabase
-          .from('asenso_users')
+          .from('dum_users')
           .select()
           .eq('id', id)
           .limit(1)

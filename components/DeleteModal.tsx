@@ -38,6 +38,7 @@ export default function DeleteModal ({ selectedId, title, table, hideModal, setR
         .delete()
         .eq('id', selectedId)
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (error) throw new Error(error.message)
     } catch (e) {
       console.error(e)

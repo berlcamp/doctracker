@@ -2,9 +2,15 @@
 import React, { Fragment, useState } from 'react'
 import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
+import type { AccountTypes } from '@/types'
 
-export default function CommentBox ({ replyId, handleInsertToList }) {
-  const { supabase, session } = useSupabase()
+interface ModalProps {
+  replyId: string
+  handleInsertToList: (d: any) => void
+}
+
+export default function CommentBox ({ replyId, handleInsertToList }: ModalProps) {
+  const { supabase, session, systemUsers } = useSupabase()
 
   const [reply, setReply] = useState('')
   const [showCommentInput, setShowCommentInput] = useState(false)
@@ -27,12 +33,14 @@ export default function CommentBox ({ replyId, handleInsertToList }) {
       return
     }
 
+    const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
+
     // Insert the list from parent component
     const updatedNewData = {
       ...newData,
       id: data[0].id,
       created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
-      asenso_users: { firstname: session.user.email.split('@')[0] }
+      dum_users: { name: user.name }
     }
     handleInsertToList(updatedNewData)
 

@@ -4,9 +4,9 @@ import { fetchDocuments, fetchActivities } from '@/utils/fetchApi'
 import React, { Fragment, useEffect, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon, TrashIcon, PrinterIcon } from '@heroicons/react/20/solid'
-import { Sidebar, PerPage, TopBar, DeleteModal, TableRowLoading, CustomButton, ShowMore, TrackerSideBar, Title, Unauthorized } from '@/components'
-import AddEditModal from './AddEditModal'
-import RemarksModal from './RemarksModal'
+import { Sidebar, PerPage, TopBar, DeleteModal, TableRowLoading, CustomButton, ShowMore, TrackerSideBar, Title, Unauthorized, UserBlock } from '@/components'
+import AddDocumentModal from './AddDocumentModal'
+import DetailsModal from './DetailsModal'
 import ActivitiesModal from './ActivitiesModal'
 import uuid from 'react-uuid'
 import Filters from './Filters'
@@ -14,7 +14,7 @@ import { format } from 'date-fns'
 import { Pdf } from './Pdf'
 
 // Types
-import type { DocumentType } from '@/types'
+import type { AccountTypes, DocumentTypes } from '@/types'
 
 // Redux imports
 import { useSelector, useDispatch } from 'react-redux'
@@ -22,29 +22,35 @@ import { updateList } from '@/GlobalRedux/Features/listSlice'
 import { statusList, superAdmins } from '@/constants/TrackerConstants'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { useFilter } from '@/context/FilterContext'
+import DownloadExcelButton from './DownloadExcel'
+import { useSearchParams } from 'next/navigation'
 
 const Page: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showRemarksModal, setShowRemarksModal] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [viewActivity, setViewActivity] = useState(false)
   const [selectedId, setSelectedId] = useState<string>('')
+  const [selectedItem, setSelectedItem] = useState<DocumentTypes | null>(null)
   const [filterKeyword, setFilterKeyword] = useState<string>('')
   const [filterTypes, setFilterTypes] = useState<any[] | []>([])
   const [filterAgency, setFilterAgency] = useState<string>('')
   const [filterDateFrom, setFilterDateFrom] = useState<string>('')
   const [filterDateTo, setFilterDateTo] = useState<string>('')
   const [filterStatus, setFilterStatus] = useState<string>('')
-  const [list, setList] = useState<DocumentType[]>([])
-  const [editData, setEditData] = useState<DocumentType | null>(null)
+  const [list, setList] = useState<DocumentTypes[]>([])
   const [perPageCount, setPerPageCount] = useState<number>(10)
   const [showingCount, setShowingCount] = useState<number>(0)
   const [resultsCount, setResultsCount] = useState<number>(0)
-  const [activitiesData, setActivitiesData] = useState<DocumentType[]>([])
+  const [activitiesData, setActivitiesData] = useState<DocumentTypes[]>([])
 
-  const { session } = useSupabase()
+  const searchParams = useSearchParams()
+
+  const { session, systemUsers } = useSupabase()
   const { hasAccess } = useFilter()
+
+  const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
@@ -54,7 +60,8 @@ const Page: React.FC = () => {
     setLoading(true)
 
     try {
-      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, perPageCount, 0)
+      const filterUrl = searchParams.get('filter')
+      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, user, perPageCount, 0)
 
       // update the list in redux
       dispatch(updateList(result.data))
@@ -73,7 +80,8 @@ const Page: React.FC = () => {
     setLoading(true)
 
     try {
-      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, perPageCount, list.length)
+      const filterUrl = searchParams.get('filter')
+      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, user, perPageCount, list.length)
 
       // update the list in redux
       const newList = [...list, ...result.data]
@@ -90,7 +98,6 @@ const Page: React.FC = () => {
 
   const handleAdd = () => {
     setShowAddModal(true)
-    setEditData(null)
   }
 
   const handleDelete = (id: string) => {
@@ -98,16 +105,16 @@ const Page: React.FC = () => {
     setShowDeleteModal(true)
   }
 
-  const handleShowRemarksModal = (id: string) => {
-    setShowRemarksModal(true)
-    setSelectedId(id)
+  const handleShowDetailsModal = (item: DocumentTypes) => {
+    setShowDetailsModal(true)
+    setSelectedItem(item)
   }
 
   const handleViewActivities = () => {
     setViewActivity(true)
   }
 
-  const handlePrintPdf = (item: DocumentType) => {
+  const handlePrintPdf = (item: DocumentTypes) => {
     void Pdf(item)
   }
 
@@ -143,7 +150,7 @@ const Page: React.FC = () => {
     setList([])
     void fetchData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus, perPageCount])
+  }, [filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, searchParams, filterStatus, perPageCount])
 
   useEffect(() => {
     void fetchActivitiesData()
@@ -191,6 +198,11 @@ const Page: React.FC = () => {
               setFilterTypes={setFilterTypes}/>
           </div>
 
+          {/* Download Excel */}
+          {
+            !isDataEmpty && <div className='flex justify-end mb-2'><DownloadExcelButton documents={list}/></div>
+          }
+
           {/* Per Page */}
           <PerPage
             showingCount={showingCount}
@@ -220,16 +232,13 @@ const Page: React.FC = () => {
                             Particulars
                         </th>
                         <th className="hidden md:table-cell py-2 px-2">
-                            Remarks
-                        </th>
-                        <th className="hidden md:table-cell py-2 px-2">
-                            Date&nbsp;Received
+                            Origin
                         </th>
                   </tr>
               </thead>
               <tbody>
                 {
-                  !isDataEmpty && list.map((item: DocumentType) => (
+                  !isDataEmpty && list.map((item: DocumentTypes) => (
                     <tr
                       key={uuid()}
                       className="app__tr">
@@ -285,7 +294,7 @@ const Page: React.FC = () => {
                         </div>
                         <div className='mt-2'>
                           <button
-                            onClick={() => handleShowRemarksModal(item.id)}
+                            onClick={() => handleShowDetailsModal(item)}
                             className="bg-emerald-500 hover:bg-emerald-600 border border-emerald-600 font-medium px-1 py-px text-xs text-white rounded-sm"
                             >Tracker</button>
                         </div>
@@ -300,12 +309,12 @@ const Page: React.FC = () => {
                         <div>
                           <div className="md:hidden py-2">
                             <span className='font-light'>Status: </span>
-                            <span className='' style={{ color: `${getStatusColor(item.status)}` }}>{item.status}</span>
+                            <span className='' style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'}  {item.current_department.name}</span>
                           </div>
                         </div>
                         <div>
                           <div className="md:hidden py-2">
-                            <span className='font-light'>Name: </span>
+                          <span className='font-light'>Name:</span>
                             <span className='font-semibold'>{item.name}</span>
                           </div>
                         </div>
@@ -323,32 +332,17 @@ const Page: React.FC = () => {
                         </div>
                         <div>
                           <div className="md:hidden py-2">
-                            <span className='font-light'>Remarks: </span>
-                            <div>
-                              {
-                                item.dum_document_tracker_replies?.map((reply: any) => (
-                                  <React.Fragment key={uuid()}>
-                                    {
-                                      (reply.reply_type !== 'system' && !reply.is_private) &&
-                                        <div>{reply.message}</div>
-                                    }
-                                  </React.Fragment>
-                                ))
-                              }
-                            </div>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="md:hidden py-2">
-                            <span className='font-light'>Date&nbsp;Received: </span>
-                            <span className='font-semibold'>{item.date} - {item.time}</span>
+                            <span className='font-light'>Origin: </span>
+                            <div className='font-bold'>{item.dum_departments.name}</div>
+                            <div className='text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
+                            <UserBlock user={item.dum_users}/>
                           </div>
                         </div>
                         {/* End - Mobile View */}
 
                       </th>
                       <td className="hidden md:table-cell py-2 px-2">
-                        <span className='' style={{ color: `${getStatusColor(item.status)}` }}>{item.status}</span>
+                        <span className='font-bold' style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</span>
                       </td>
                       <td className="hidden md:table-cell py-2 px-2">
                         <div>{item.name}</div>
@@ -363,35 +357,16 @@ const Page: React.FC = () => {
                       <td className="hidden md:table-cell py-2 px-2">
                         {item.particulars}
                       </td>
-                      <td className="hidden md:table-cell py-2 px-2">
-                        <div>
-                          {
-                            item.dum_document_tracker_replies?.map((reply: any) => (
-                              <React.Fragment key={uuid()}>
-                                {
-                                  (reply.reply_type !== 'system' && !reply.is_private) &&
-                                    <div>{reply.message}</div>
-                                }
-                              </React.Fragment>
-                            ))
-                          }
-                          {
-                            Number(item.id) < 100209 && <div>{item.remarks}</div>
-                          }
-                        </div>
-                      </td>
-                      <td className="hidden md:table-cell py-2 px-2">
-                        {
-                          Number(item.id) > 100209
-                            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-                            ? <div>{format(new Date(item.date + ' ' + item.time), 'dd MMM yyyy hh:mm')}</div>
-                            : <div>{item.date} {item.time}</div>
-                        }
+                      <td
+                        className="hidden md:table-cell app__td">
+                        <div className='font-bold'>{item.dum_departments.name}</div>
+                        <div className='text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
+                        <UserBlock user={item.dum_users}/>
                       </td>
                     </tr>
                   ))
                 }
-                { loading && <TableRowLoading cols={8} rows={2}/> }
+                { loading && <TableRowLoading cols={7} rows={2}/> }
               </tbody>
             </table>
             {
@@ -410,18 +385,17 @@ const Page: React.FC = () => {
           {/* Add/Edit Modal */}
           {
             showAddModal && (
-              <AddEditModal
-                editData={editData}
+              <AddDocumentModal
                 hideModal={() => setShowAddModal(false)}/>
             )
           }
 
-          {/* Remarks Modal */}
+          {/* Details Modal */}
           {
-              showRemarksModal && (
-                <RemarksModal
-                  documentId={selectedId}
-                  hideModal={() => setShowRemarksModal(false)}/>
+              (showDetailsModal && selectedItem) && (
+                <DetailsModal
+                  documentData={selectedItem}
+                  hideModal={() => setShowDetailsModal(false)}/>
               )
             }
 
@@ -429,7 +403,7 @@ const Page: React.FC = () => {
           {
             showDeleteModal && (
               <DeleteModal
-                table='document_trackers'
+                table='dum_document_trackers'
                 selectedId={selectedId}
                 showingCount={showingCount}
                 setShowingCount={setShowingCount}

@@ -3,15 +3,14 @@ import React, { useContext, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { OfflinePage } from '@/components'
-import { CheckIfSchoolHead } from '@/utils/database-helper'
 
-const FilterContext = React.createContext()
+const FilterContext = React.createContext<any | ''>('')
 
 export function useFilter () {
   return useContext(FilterContext)
 }
 
-export function FilterProvider ({ children }) {
+export function FilterProvider ({ children }: { children: React.ReactNode }) {
   const { systemSettings, session } = useSupabase()
   const [isOnline, setIsOnline] = useState(true)
   const [filters, setFilters] = useState({})
@@ -19,7 +18,7 @@ export function FilterProvider ({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [ipcrfTotalScore, setIpcrfTotalScore] = useState([])
 
-  const setToast = (type, message) => {
+  const setToast = (type: string, message: string) => {
     if (type === 'success') {
       toast.success(message)
     }
@@ -28,22 +27,17 @@ export function FilterProvider ({ children }) {
     }
   }
 
-  const hasAccess = (page) => {
-    const systemAccess = systemSettings.filter(item => item.type === 'system_access')
-    const access = systemAccess[0].data.filter(item => item.access_type === page)
+  const hasAccess = (page: string) => {
+    const systemAccess = systemSettings.filter((item: { type: string }) => item.type === 'system_access')
+    const access = systemAccess[0].data.filter((item: { access_type: string }) => item.access_type === page)
 
     if (access.length === 0) return false
 
     const accessList = access[0].data
-    if (!accessList.some(el => el.id === session?.user.id)) {
+    if (!accessList.some((el: { id: string }) => el.id === session?.user.id)) {
       return false
     }
     return true
-  }
-
-  // Check if school head
-  const isSchoolHead = async () => {
-    return await CheckIfSchoolHead(session.user.id)
   }
 
   useEffect(() => {
@@ -68,7 +62,6 @@ export function FilterProvider ({ children }) {
     filters,
     setFilters,
     hasAccess,
-    isSchoolHead,
     setToast,
     perPage,
     setPerPage,

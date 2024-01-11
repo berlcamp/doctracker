@@ -14,11 +14,11 @@ export interface DocumentFilterTypes {
   filterTypes?: any[]
 }
 
-export async function fetchDocuments (filters: DocumentFilterTypes, perPageCount: number, rangeFrom: number) {
+export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: string | null, user: AccountTypes, perPageCount: number, rangeFrom: number) {
   try {
     let query = supabase
       .from('dum_document_trackers')
-      .select('*, dum_document_tracker_replies(*)', { count: 'exact' })
+      .select('*, dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
 
     // Full text search
     if (typeof filters.filterKeyword !== 'undefined' && filters.filterKeyword.trim() !== '') {
@@ -52,8 +52,14 @@ export async function fetchDocuments (filters: DocumentFilterTypes, perPageCount
     }
 
     // Filter Status
-    if (typeof filters.filterStatus !== 'undefined' && filters.filterStatus !== '') {
-      query = query.eq('status', filters.filterStatus)
+    // if (typeof filters.filterStatus !== 'undefined' && filters.filterStatus !== '') {
+    //   query = query.eq('status', filters.filterStatus)
+    // }
+
+    // Filter Status 2
+    if (filterUrl && filterUrl === 'toreceive') {
+      query = query.eq('current_status', 'Forwarded')
+      query = query.eq('current_department_id', user.dum_departments.id)
     }
 
     // Perform count before paginations
@@ -107,7 +113,7 @@ export async function fetchActivities (today: string, endDate: Date) {
 
 export async function searchActiveEmployees (searchTerm: string, excludedItems: any[]) {
   let query = supabase
-    .from('asenso_users')
+    .from('dum_users')
     .select()
     .eq('status', 'active')
     .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
@@ -133,13 +139,13 @@ export async function searchActiveEmployees (searchTerm: string, excludedItems: 
 export async function fetchAccounts (filters: { filterKeyword?: string, filterStatus?: string }, perPageCount: number, rangeFrom: number) {
   try {
     let query = supabase
-      .from('asenso_users')
-      .select('*', { count: 'exact' })
+      .from('dum_users')
+      .select('*, dum_departments:department_id(id,name)', { count: 'exact' })
       .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
 
     // Search match
     if (filters.filterKeyword && filters.filterKeyword !== '') {
-      query = query.or(`name.ilike.%${filters.filterKeyword}%`)
+      query = query.or(`firstname.ilike.%${filters.filterKeyword}%`)
     }
 
     // filter status
@@ -164,6 +170,48 @@ export async function fetchAccounts (filters: { filterKeyword?: string, filterSt
     }
 
     const data: AccountTypes[] = userData
+
+    return { data, count }
+  } catch (error) {
+    console.error('fetch error', error)
+    return { data: [], count: 0 }
+  }
+}
+
+export async function fetchDepartments (filters: { filterKeyword?: string, filterStatus?: string }, perPageCount: number, rangeFrom: number) {
+  try {
+    let query = supabase
+      .from('dum_departments')
+      .select('*, dum_users:created_by(name,avatar_url)', { count: 'exact' })
+      .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
+
+    // Search match
+    if (filters.filterKeyword && filters.filterKeyword !== '') {
+      query = query.or(`name.ilike.%${filters.filterKeyword}%`)
+    }
+
+    // filter status
+    if (filters.filterStatus && filters.filterStatus !== '') {
+      query = query.eq('status', filters.filterStatus)
+    } else {
+      query = query.eq('status', 'Active')
+    }
+
+    // Per Page from context
+    const from = rangeFrom
+    const to = from + (perPageCount - 1)
+
+    // Per Page from context
+    query = query.range(from, to)
+
+    // Order By
+    query = query.order('id', { ascending: false })
+
+    const { data, error, count } = await query
+
+    if (error) {
+      throw new Error(error.message)
+    }
 
     return { data, count }
   } catch (error) {

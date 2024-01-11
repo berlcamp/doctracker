@@ -32,8 +32,8 @@ const Notifications = ({ darkMode }: propTypes) => {
   const [count, setCount] = useState(0)
 
   const fetchData = async () => {
-    const { data, error } = await supabase
-      .from('asenso_notifications')
+    const { data, error }: { data: NotificationTypes[], error: any } = await supabase
+      .from('dum_notifications')
       .select()
       .eq('user_id', userId)
       // .order('is_read', { ascending: true })
@@ -56,7 +56,7 @@ const Notifications = ({ darkMode }: propTypes) => {
     }
 
     let query = supabase
-      .from('asenso_notifications')
+      .from('dum_notifications')
       .select()
       .eq('user_id', userId)
 
@@ -86,8 +86,8 @@ const Notifications = ({ darkMode }: propTypes) => {
   }
 
   const countUnread = async () => {
-    const { count: unreadCount } = await supabase
-      .from('asenso_notifications')
+    const { count: unreadCount }: { count: number } = await supabase
+      .from('dum_notifications')
       .select('*', { count: 'exact' })
       .eq('is_read', false)
       .eq('user_id', userId)
@@ -99,7 +99,7 @@ const Notifications = ({ darkMode }: propTypes) => {
   const handleClick = async (notification: NotificationTypes) => {
     // mark as read code here..
     await supabase
-      .from('asenso_notifications')
+      .from('dum_notifications')
       .update({
         is_read: true
       })
@@ -112,8 +112,8 @@ const Notifications = ({ darkMode }: propTypes) => {
 
   useEffect(() => {
     const countTotal = async () => {
-      const { count: notiTotal } = await supabase
-        .from('asenso_notifications')
+      const { count: notiTotal }: { count: number } = await supabase
+        .from('dum_notifications')
         .select('id', { count: 'exact' })
         .eq('user_id', userId)
 
@@ -142,7 +142,7 @@ const Notifications = ({ darkMode }: propTypes) => {
       .channel('realtime notifications')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'asenso_notifications', filter: `user_id=eq.${userId}` },
+        { event: '*', schema: 'public', table: 'dum_notifications', filter: `user_id=eq.${userId}` },
         () => {
           void fetchData()
         })

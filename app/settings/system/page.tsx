@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client'
 import TopBar from '@/components/TopBar'
 import { Sidebar, SettingsSideBar, Title, Unauthorized } from '@/components'
@@ -86,10 +87,7 @@ const Page: React.FC = () => {
               {
                 results && (
                   <>
-                  <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='document_tracker' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'document_tracker') : []} title='Who can access Document Tracker'/>
-                  <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='ofop' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'ofop') : []} title='Who can access OFOP'/>
-                  <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='district_assistance' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'district_assistance') : []} title='Who can District Assistance'/>
-                  <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='voters' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'voters') : []} title='Who can Voters'/>
+                  <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='document_tracker' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'document_tracker') : []} title='Who can Manage Entire Document Tracker System'/>
                   </>
                 )
               }

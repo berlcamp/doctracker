@@ -34,7 +34,7 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
     const searchSplit = (e.target.value).split(' ')
 
     let query = supabase
-      .from('asenso_users')
+      .from('dum_users')
       .select('id, firstname, middlename, lastname, name')
       .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
 

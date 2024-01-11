@@ -20,9 +20,9 @@ export default function Login () {
 
     setSigningIn(true)
 
-    // Check if the user is on asenso_users table
+    // Check if the user is on dum_users table
     const { data: user, error: userError } = await supabase
-      .from('asenso_users')
+      .from('dum_users')
       .select()
       .eq('email', email)
       .eq('status', 'Active')

@@ -186,5 +186,5 @@ export async function Pdf (item) {
     }
   }
 
-  doc.save('a4.pdf')
+  doc.save('RoutingSlip.pdf')
 }

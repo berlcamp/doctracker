@@ -2,8 +2,7 @@ import React, { Fragment, useState } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon, MagnifyingGlassIcon, TagIcon, UsersIcon } from '@heroicons/react/20/solid'
 import { CustomButton, FilterDateRange } from '@/components'
-import { documentTypes, statusList } from '@/constants/TrackerConstants'
-import DownloadExcelButton from './DownloadExcel'
+import { docTypes, statusList } from '@/constants/TrackerConstants'
 
 interface PropTypes {
   setFilterKeyword: (keyword: string) => void
@@ -84,7 +83,7 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
               className="app__filter_input"/>
           </div>
         </form>
-        <div className="inline-flex">
+        <div className="inline-flex hidden">
           <div className='app__filter_container'>
             <UsersIcon className="w-4 h-4 text-gray-500 mr-1"/>
             <input
@@ -123,7 +122,7 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
                 leaveTo="opacity-0"
               >
                 <Listbox.Options className="app__listbox_options">
-                  {documentTypes.map((item, itemIdx) => (
+                  {docTypes.map((item, itemIdx) => (
                     <Listbox.Option
                       key={itemIdx}
                       className={({ active }) =>
@@ -160,7 +159,7 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
             </div>
           </Listbox>
         </div>
-        <div className="inline-flex">
+        <div className="inline-flex hidden">
           <Listbox value={status} onChange={setStatus}>
             <div className="relative w-56">
               <Listbox.Button className="app__listbox_btn">
@@ -233,14 +232,6 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
             btnType='button'
             handleClick={handleClear}
           />
-        <DownloadExcelButton
-          filterKeyword={keyword}
-          filterAgency={agency}
-          filterDateFrom={dateFrom}
-          filterDateTo={dateTo}
-          filterTypes={selectedTypes}
-          filterStatus={status}
-        />
       </div>
     </div>
   )

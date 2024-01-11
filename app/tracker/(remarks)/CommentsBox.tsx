@@ -1,16 +1,20 @@
 'use client'
 import ConfirmModal from '@/components/ConfirmModal'
-import DeleteModal from '@/components/DeleteModal'
 import { useFilter } from '@/context/FilterContext'
 import { useSupabase } from '@/context/SupabaseProvider'
+import type { CommentDataTypes } from '@/types'
 import { Menu, Transition } from '@headlessui/react'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { EllipsisHorizontalIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import React, { Fragment, useState } from 'react'
 
-export default function CommentsBox ({ reply, handleRemoveFromList }) {
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [selectedId, setSelectedId] = useState(null)
+interface ModalProps {
+  reply: CommentDataTypes
+  handleRemoveFromList: (d: any) => void
+}
+
+export default function CommentsBox ({ reply, handleRemoveFromList }: ModalProps) {
+  const [selectedId, setSelectedId] = useState('')
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const { supabase, session } = useSupabase()
@@ -20,13 +24,13 @@ export default function CommentsBox ({ reply, handleRemoveFromList }) {
   const isAuthor = reply.sender_id === session.user.id
 
   // Delete confirmation
-  const deleteComment = (id) => {
+  const deleteComment = (id: string) => {
     setShowConfirmation(true)
     setSelectedId(id)
   }
   const handleCancel = () => {
     setShowConfirmation(false)
-    setSelectedId(null)
+    setSelectedId('')
   }
   const handleConfirm = async () => {
     await handleDeleteReply()
@@ -39,14 +43,14 @@ export default function CommentsBox ({ reply, handleRemoveFromList }) {
         .delete()
         .eq('id', selectedId)
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (error) throw new Error(error.message)
-    } catch (e) {
-      console.error(e)
-    } finally {
-      handleRemoveFromList(selectedId)
 
+      handleRemoveFromList(selectedId)
       // pop up the success message
       setToast('success', 'Successfully Deleted!')
+    } catch (e) {
+      console.error(e)
     }
   }
 
@@ -57,11 +61,9 @@ export default function CommentsBox ({ reply, handleRemoveFromList }) {
           <div className='flex flex-1 items-center space-x-2'>
             <UserCircleIcon className='w-10 h-10'/>
             <div>
-            <div className='font-bold'>{reply.asenso_users?.firstname}:</div>
+            <div className='font-bold'>{reply.dum_users?.name}:</div>
               <div
-                className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center"
-                data-bs-toggle="dropdown"
-                type="button">
+                className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
                   { reply.created_at }
               </div>
             </div>
@@ -106,6 +108,8 @@ export default function CommentsBox ({ reply, handleRemoveFromList }) {
       {
         showConfirmation && (
           <ConfirmModal
+            btnText='Yes'
+            header='Confirmation'
             message="Are you sure you want to perform this action?"
             onConfirm={handleConfirm}
             onCancel={handleCancel}

@@ -24,6 +24,13 @@ const SettingsSideBar = () => {
         </li>
         <li>
             <Link
+              href="/settings/departments"
+              className={`app__menu_link ${currentRoute === '/settings/departments' ? 'app_menu_link_active' : ''}`}>
+              <span className="flex-1 ml-3 whitespace-nowrap">Departments</span>
+            </Link>
+        </li>
+        <li>
+            <Link
               href="/accounts"
               className={`app__menu_link ${currentRoute === '/accounts' ? 'app_menu_link_active' : ''}`}>
               <span className="flex-1 ml-3 whitespace-nowrap">User Accounts</span>

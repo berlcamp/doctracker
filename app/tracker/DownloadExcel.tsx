@@ -1,33 +1,13 @@
 'use client'
 import React from 'react'
 import Excel from 'exceljs'
-import { useFilter } from '@/context/FilterContext'
 import { saveAs } from 'file-saver'
-import { createBrowserClient } from '@supabase/ssr'
+import type { DocumentTypes } from '@/types'
+import { ArrowDownTrayIcon } from '@heroicons/react/20/solid'
 
-// types
-import type { DocumentType } from '@/types'
-
-interface PropTypes {
-  filterKeyword: string
-  filterAgency: string
-  filterDateFrom: string
-  filterDateTo: string
-  filterTypes: any[]
-  filterStatus: string
-}
-
-const DownloadExcelButton = ({ filterKeyword, filterAgency, filterDateFrom, filterDateTo, filterTypes, filterStatus }: PropTypes) => {
-  const { filters, setToast } = useFilter()
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-
+const DownloadExcelButton = ({ documents }: { documents: DocumentTypes[] | [] }) => {
+  //
   const handleDownload = async () => {
-    if (filterDateFrom === '' || filterDateTo === '') {
-      // pop up the error message
-      setToast('error', 'Please select Date Range')
-      return
-    }
     // Create a new workbook and add a worksheet
     const workbook = new Excel.Workbook()
     const worksheet = workbook.addWorksheet('Sheet 1')
@@ -44,11 +24,11 @@ const DownloadExcelButton = ({ filterKeyword, filterAgency, filterDateFrom, filt
       // Add more columns based on your data structure
     ]
 
-    const results: DocumentType[] | null = await fetchData()
+    const results: DocumentTypes[] | [] = documents
 
     // Data for the Excel file
     const data: any[] = []
-    results?.forEach((item: DocumentType, index) => {
+    results?.forEach((item: DocumentTypes, index) => {
       data.push({
         no: index + 1,
         routing_no: item.routing_slip_no,
@@ -67,60 +47,14 @@ const DownloadExcelButton = ({ filterKeyword, filterAgency, filterDateFrom, filt
     // Generate the Excel file
     await workbook.xlsx.writeBuffer().then((buffer) => {
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-      saveAs(blob, 'Summary.xlsx')
+      saveAs(blob, 'Document Tracker Data.xlsx')
     })
-  }
-
-  const fetchData = async () => {
-    // Data for the Excel file
-    let query = supabase
-      .from('dum_document_trackers')
-      .select()
-      .eq('is_deleted', false)
-
-    // Full text search
-    if (filterKeyword.trim() !== '') {
-      query = query.or(`particulars.ilike.%${filterKeyword}%,name.ilike.%${filterKeyword}%,routing_slip_no.ilike.%${filterKeyword}%,amount.ilike.%${filterKeyword}%`)
-    }
-
-    // Filter agency
-    if (filterAgency.trim() !== '') {
-      query = query.or(`agency.ilike.%${filterAgency}%`)
-    }
-
-    // Filter Status
-    if (filterStatus.trim() !== '') {
-      query = query.or(`status.ilike.%${filterStatus}%`)
-    }
-
-    // Filter Date
-    query = query.gte('date', filterDateFrom)
-    query = query.lte('date', filterDateTo)
-
-    // Filter type
-    if (typeof filters.types !== 'undefined' && filters.types.length > 0) {
-      const statement: string[] = []
-      filterTypes.forEach((type: string) => {
-        const str = `type.eq.${type}`
-        statement.push(str)
-      })
-      query = query.or(statement.join(', '))
-    }
-
-    // Order By
-    query = query.order('id', { ascending: false })
-
-    const { data, error } = await query
-
-    if (error) console.error(error)
-
-    return data
   }
 
   return (
     <button
-      className='bg-blue-500 hover:bg-blue-600 border border-blue-600 font-bold px-2 py-1 text-xs text-white rounded-sm'
-      onClick={handleDownload}>Download Excel</button>
+      className='flex items-center justify-end space-x-2 font-bold px-2 py-1 text-xs text-gray-500 rounded-sm'
+      onClick={handleDownload}><span>Export to Excel</span> <ArrowDownTrayIcon className='h-5 w-5'/></button>
   )
 }
 

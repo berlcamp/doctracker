@@ -1,4 +1,4 @@
-export const documentTypes = [
+export const docTypes = [
   { type: 'Business Permit', shortcut: 'BUSS-PER' },
   { type: 'Case', shortcut: 'CASE' },
   { type: 'Certification', shortcut: 'CERT' },
@@ -44,79 +44,17 @@ export const assigneeList = [
 ]
 
 export const statusList = [
-  { status: 'Received at MMO', color: '#ff5722' },
-  { status: 'Received at MTO', color: '#000' },
-  { status: 'Resolved', color: '#287f00' },
-  { status: 'Pending for approval', color: '#997c00' },
-  { status: 'Approved', color: '#287f00' },
-  { status: 'Disapproved', color: '#e02626' },
-  { status: 'For File', color: '#000' },
-  { status: 'Confidential', color: '#000' },
-  { status: 'For Further Instruction', color: '#997c00' },
-  { status: 'Cancelled', color: '#e02626' },
-  { status: 'Forwarded', color: '#2154db' },
-  { status: 'Forwarded to MMO', color: '#a44508' },
-  { status: 'Forwarded to MTO', color: '#1249ed' },
-  { status: 'Others', color: '#000' }
+  { status: 'Received', color: '#e02626' },
+  { status: 'Tracker Created', color: '#997c00' },
+  { status: 'Resolved', color: '#a44508' },
+  { status: 'Completed', color: '#2154db' },
+  { status: 'Forwarded', color: '#287f00' }
 ]
 
 export const superAdmins = [
   'berlcamp@gmail.com',
-  'berlcampomanes@gmail.com'
-]
-
-export const barangays = [
-  '50TH DISTRICT',
-  'AGUADA',
-  'BACOLOD',
-  'BAGAKAY',
-  'BALINTAWAK',
-  'BANADERO',
-  'BAYBAY SAN ROQUE',
-  'BAYBAY SANTA CRUZ',
-  'BAYBAY TRIUNFO',
-  'BONGBONG',
-  'CALABAYAN',
-  'CAPUCAO C',
-  'CAPUCAO P',
-  'CARANGAN',
-  'CARMEN ANNEX',
-  'CATADMAN-MANABAY',
-  'CAVINTE',
-  'COGON',
-  'DALAPANG',
-  'DIGUAN',
-  'DIMALUNA',
-  'DONA CONSUELO',
-  'EMBARGO',
-  'GALA',
-  'GANGO',
-  'GOTOCAN DAKU',
-  'GOTOCAN DIOT',
-  'GUIMAD',
-  'GUINGONA',
-  'KINUMAN NORTE',
-  'KINUMAN SUR',
-  'LABINAY',
-  'LABO',
-  'LAM-AN',
-  'LIPOSONG',
-  'LITAPAN',
-  'MALAUBANG',
-  'MANAKA',
-  'MANINGCOL',
-  'MENTERING',
-  'MOLICAY',
-  'PANTAON',
-  'PULOT',
-  'SAN ANTONIO',
-  'SANGAY DAKU',
-  'SANGAY DIOT',
-  'SINUSA',
-  'STIMSON ABORDO',
-  'TABID',
-  'TINAGO',
-  'TRIGOS'
+  'berlcampomanes@gmail.com',
+  'arfelbomes@gmail.com'
 ]
 
 export const reqList = [

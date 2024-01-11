@@ -5,13 +5,14 @@ import { CustomButton, OneColLayoutLoading } from '@/components'
 import axios from 'axios'
 
 // Types
-import type { AccountTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes } from '@/types'
 
 // Redux imports
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 import { updateResultCounter } from '@/GlobalRedux/Features/resultsCounterSlice'
 import { useSupabase } from '@/context/SupabaseProvider'
+import { fetchDepartments } from '@/utils/fetchApi'
 
 interface ModalProps {
   hideModal: () => void
@@ -22,6 +23,8 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
   const { setToast } = useFilter()
   const { supabase } = useSupabase()
   const [saving, setSaving] = useState(false)
+  const [departments, setDepartments] = useState<DepartmentTypes[] | []>([])
+  const [departmentId, setDepartmentId] = useState(editData ? (editData.department_id ? editData.department_id : '') : '')
 
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
@@ -60,9 +63,10 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
       }).then(async function (response) {
         console.log(response.data)
         const { error: error2 } = await supabase
-          .from('asenso_users')
+          .from('dum_users')
           .insert({ ...newData, id: response.data.insert_id })
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (error2) throw new Error(error2.message)
 
         // Append new data in redux
@@ -99,10 +103,11 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
 
     try {
       const { error } = await supabase
-        .from('asenso_users')
+        .from('dum_users')
         .update(newData)
         .eq('id', editData.id)
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (error) throw new Error(error.message)
     } catch (e) {
       console.error(e)
@@ -134,6 +139,14 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
     })
   }, [editData, reset])
 
+  useEffect(() => {
+    const fetchDepartmentsData = async () => {
+      const result = await fetchDepartments({}, 300, 0)
+      setDepartments(result.data.length > 0 ? result.data : [])
+    }
+    void fetchDepartmentsData()
+  }, [])
+
   const tempPassword = Math.floor(Math.random() * 8999) + 1000
 
   return (
@@ -161,6 +174,26 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
                           type='text'
                           className='app__select_standard'/>
                         {errors.name && <div className='app__error_message'>Name is required</div>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className='app__form_field_container'>
+                    <div className='w-full'>
+                      <div className='app__label_standard'>Department:</div>
+                      <div>
+                        <select
+                          {...register('department_id', { required: true })}
+                          value={departmentId}
+                          onChange={e => setDepartmentId(e.target.value)}
+                          className='app__select_standard'>
+                            <option value=''>Choose Department</option>
+                            {
+                              departments?.map((item, index) => (
+                                <option key={index} value={item.id}>{item.name}</option>
+                              ))
+                            }
+                        </select>
+                        {errors.department_id && <div className='app__error_message'>Department is required</div>}
                       </div>
                     </div>
                   </div>

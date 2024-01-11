@@ -9,7 +9,7 @@ export async function verifyAuth () {
 
   // Check if exist on registration data before redirecting to main page
   const { error } = await supabase
-    .from('asenso_users')
+    .from('dum_users')
     .upsert({
       id: session?.user.id,
       firstname: session?.user.user_metadata.firstname,

@@ -23,7 +23,7 @@ export default function LoginBox () {
 
     // Check if the user is on rdt_users table
     const { data: user, error: userError } = await supabase
-      .from('asenso_users')
+      .from('dum_users')
       .select()
       .eq('email', email)
       .eq('status', 'Active')
