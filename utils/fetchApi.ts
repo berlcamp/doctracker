@@ -18,7 +18,7 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
   try {
     let query = supabase
       .from('dum_document_trackers')
-      .select('*, dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
+      .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
 
     // Full text search
     if (typeof filters.filterKeyword !== 'undefined' && filters.filterKeyword.trim() !== '') {
@@ -145,7 +145,7 @@ export async function fetchAccounts (filters: { filterKeyword?: string, filterSt
 
     // Search match
     if (filters.filterKeyword && filters.filterKeyword !== '') {
-      query = query.or(`firstname.ilike.%${filters.filterKeyword}%`)
+      query = query.or(`name.ilike.%${filters.filterKeyword}%`)
     }
 
     // filter status

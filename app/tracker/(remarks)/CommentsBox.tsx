@@ -5,8 +5,11 @@ import { useSupabase } from '@/context/SupabaseProvider'
 import type { CommentDataTypes } from '@/types'
 import { Menu, Transition } from '@headlessui/react'
 import { TrashIcon } from '@heroicons/react/24/outline'
-import { EllipsisHorizontalIcon, UserCircleIcon } from '@heroicons/react/24/solid'
+import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid'
+import { format } from 'date-fns'
+import Image from 'next/image'
 import React, { Fragment, useState } from 'react'
+import Avatar from 'react-avatar'
 
 interface ModalProps {
   reply: CommentDataTypes
@@ -59,12 +62,18 @@ export default function CommentsBox ({ reply, handleRemoveFromList }: ModalProps
       <div className='w-full group flex-col space-y-2 px-4 pt-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
         <div className='flex items-center space-x-2'>
           <div className='flex flex-1 items-center space-x-2'>
-            <UserCircleIcon className='w-10 h-10'/>
+            {
+              reply.dum_users.avatar_url !== null
+                ? <div className='relative flex items-center justify-center bg-black overflow-hidden'>
+                    <Image src={reply.dum_users?.avatar_url} width={30} height={30} alt='user'/>
+                  </div>
+                : <Avatar round={false} size="30" name={reply.dum_users.name}/>
+            }
             <div>
             <div className='font-bold'>{reply.dum_users?.name}:</div>
               <div
                 className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
-                  { reply.created_at }
+                  { format(new Date(reply.created_at), 'dd MMM yyyy h:mm a') }
               </div>
             </div>
           </div>
@@ -72,7 +81,7 @@ export default function CommentsBox ({ reply, handleRemoveFromList }: ModalProps
               <Menu as="div" className="relative inline-block text-left mr-2">
                 <div>
                   <Menu.Button className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
-                    <EllipsisHorizontalIcon className='w-8 h-8'/>
+                    <EllipsisHorizontalIcon className='w-6 h-6'/>
                   </Menu.Button>
                 </div>
 

@@ -16,8 +16,10 @@ import { ConfirmModal, CustomButton } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 import { useFilter } from '@/context/FilterContext'
-import { XCircleIcon } from '@heroicons/react/20/solid'
+import { StarIcon, XCircleIcon } from '@heroicons/react/20/solid'
 import { generateRandomNumber } from '@/utils/text-helper'
+import { statusList } from '@/constants/TrackerConstants'
+import AddStickyModal from './AddStickyModal'
 
 interface ModalProps {
   hideModal: () => void
@@ -39,9 +41,12 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [updateStatusFlow, setUpdateStatusFlow] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<DocumentTypes | null>(null)
+  const [showAddStickyModal, setShowAddStickyModal] = useState(false)
+  // const [isFollowing, setIsFollowing] = useState(originalData.dum_document_followers.find(item => (item.tracker_id.toString() === originalData.id && item.user_id === user.id)))
 
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [showConfirmation, setShowConfirmation] = useState(false)
+  // const [selectedFile, setSelectedFile] = useState(null)
+  // const [showConfirmation, setShowConfirmation] = useState(false)
   const [selectedImages, setSelectedImages] = useState<any>([])
 
   const { setToast } = useFilter()
@@ -61,7 +66,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       .order('id', { ascending: false })
 
     const remarksFormatted: RepliesDataTypes[] = repliesData.map((item: RepliesDataTypes) => {
-      return { ...item, created_at: format(new Date(item.created_at), 'dd MMM yyyy HH:mm') }
+      return { ...item, created_at: format(new Date(item.created_at), 'dd MMM yyyy h:mm a') }
     })
     const remarksFiltered: RepliesDataTypes[] = remarksFormatted.filter((item: RepliesDataTypes) => item.reply_type !== 'system')
 
@@ -74,6 +79,20 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
     setRepliesData(remarksFiltered)
     setLogs(sysLogs)
+  }
+
+  const handleFollow = async () => {
+    try {
+      const { error } = await supabase
+        .from('dum_document_followers')
+        .insert({
+          tracker_id: documentData.id,
+          user_id: user.id
+        })
+      if (error) throw new Error(error.message)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const handleConfirmedComplete = async () => {
@@ -147,6 +166,34 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         })
 
       if (error2) throw new Error(error2.message)
+
+      // bulk insert to notifications
+      const { data } = await supabase
+        .from('dum_users')
+        .select('id')
+        .eq('department_id', departmentId)
+
+      const userNotifications = data.map((user: AccountTypes) => {
+        return {
+          message: `A New document with Routing No. ${documentData.routing_slip_no} has been forwarded to your department.`,
+          url: `/tracker?code=${documentData.routing_slip_no}`,
+          type: 'Forwarded',
+          user_id: user.id,
+          reference_id: documentData.id,
+          reference_table: 'dum_document_trackers'
+        }
+      })
+
+      if (userNotifications.length > 0) {
+        // insert to notifications
+        const { error: error3 } = await supabase
+          .from('dum_notifications')
+          .insert(userNotifications)
+
+        if (error3) {
+          throw new Error(error3.message)
+        }
+      }
 
       const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
 
@@ -265,34 +312,34 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop })
 
-  const handleConfirm = () => {
-    setShowConfirmation(false)
-    void handleDeleteFile()
-  }
+  // const handleConfirm = () => {
+  //   setShowConfirmation(false)
+  //   void handleDeleteFile()
+  // }
 
-  const handleCancel = () => {
-    setShowConfirmation(false)
-  }
+  // const handleCancel = () => {
+  //   setShowConfirmation(false)
+  // }
 
-  const handleDeleteClick = (file: any) => {
-    setSelectedFile(file)
-    setShowConfirmation(true)
-  }
+  // const handleDeleteClick = (file: any) => {
+  //   setSelectedFile(file)
+  //   setShowConfirmation(true)
+  // }
 
-  const handleDeleteFile = async () => {
-    const { error } = await supabase
-      .storage
-      .from('dum_documents')
-      .remove([`${documentData.id}/${selectedFile}`])
+  // const handleDeleteFile = async () => {
+  //   const { error } = await supabase
+  //     .storage
+  //     .from('dum_documents')
+  //     .remove([`${documentData.id}/${selectedFile}`])
 
-    if (error) {
-      console.error(error)
-    } else {
-      const newAttachments = attachments.filter(item => item.name !== selectedFile)
-      setAttachments(newAttachments)
-      setToast('success', 'Successfully deleted.')
-    }
-  }
+  //   if (error) {
+  //     console.error(error)
+  //   } else {
+  //     const newAttachments = attachments.filter(item => item.name !== selectedFile)
+  //     setAttachments(newAttachments)
+  //     setToast('success', 'Successfully deleted.')
+  //   }
+  // }
 
   const handleUploadFiles = async () => {
     const id = documentData.id.toString()
@@ -336,6 +383,20 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
     </div>
   ))
 
+  const handleAddToStickies = async (item: DocumentTypes) => {
+    setShowAddStickyModal(true)
+    setSelectedItem(item)
+  }
+
+  const getStatusColor = (status: string): string => {
+    const statusArr = statusList.filter(item => item.status === status)
+    if (statusArr.length > 0) {
+      return statusArr[0].color
+    } else {
+      return '#000000'
+    }
+  }
+
   useEffect(() => {
     void fetchReplies()
     void fetchAttachments()
@@ -354,11 +415,80 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       <div className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
         <div className="sm:h-[calc(100%-3rem)] w-5/6 my-6 mx-auto relative pointer-events-none">
           <div className="max-h-full border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600">
-            <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-gray-200 rounded-t-md">
+            <div className="flex space-x-2 items-center justify-start p-4 border-b bg-slate-200 border-gray-200 rounded-t-md">
               <h5 className="text-md font-bold leading-normal text-gray-800 dark:text-gray-300">
                 {documentData.routing_slip_no}
               </h5>
-              <button onClick={hideModal} type="button" className="btn-close box-content w-4 h-4 p-1 text-black border-none rounded-none opacity-50 focus:shadow-none focus:outline-none focus:opacity-100 hover:text-black hover:opacity-75 hover:no-underline">&times;</button>
+              <div className="flex flex-1 space-x-2 items-center justify-center">
+                {
+                  ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
+                    <>
+                      <span className='font-bold text-sm'>Forward&nbsp;To</span>
+                      <select
+                        value={departmentId}
+                        onChange={e => setDepartmentId(e.target.value)}
+                        className='text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none'>
+                          <option value=''>Choose Department</option>
+                          {
+                            departments?.map((item, index) => (
+                              <option key={index} value={item.id}>{item.name}</option>
+                            ))
+                          }
+                      </select>
+                      <CustomButton
+                        containerStyles='app__btn_green'
+                        title={saving ? 'Saving...' : 'Submit'}
+                        btnType='button'
+                        handleClick={() => setShowConfirmForwardModal(true)}
+                      />
+                    </>
+                }
+              </div>
+              {
+                (documentData.current_status === 'Forwarded' && user.department_id === documentData.current_department_id) &&
+                  <CustomButton
+                    containerStyles='app__btn_blue'
+                    btnType='button'
+                    isDisabled={saving}
+                    title={saving ? 'Saving...' : 'Mark as Received'}
+                    handleClick={() => setShowConfirmReceivedModal(true)}
+                  />
+              }
+              {
+                ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
+                  <CustomButton
+                    containerStyles='app__btn_orange'
+                    btnType='button'
+                    isDisabled={saving}
+                    title={saving ? 'Saving...' : 'Mark as Completed'}
+                    handleClick={() => setShowConfirmCompleteModal(true)}
+                  />
+              }
+              {
+                <CustomButton
+                    containerStyles='app__btn_blue'
+                    btnType='button'
+                    isDisabled={saving}
+                    title={saving ? 'Saving...' : 'Follow'}
+                    handleClick={handleFollow}
+                  />
+              }
+              {
+                <CustomButton
+                    containerStyles='app__btn_blue flex space-x-2'
+                    btnType='button'
+                    isDisabled={saving}
+                    title={saving ? 'Saving...' : 'Add To Stickies'}
+                    handleClick={() => handleAddToStickies(documentData)}
+                    rightIcon={<StarIcon className='w-4 h-4 text-yellow-500'/>}
+                  />
+              }
+              <CustomButton
+                containerStyles='app__btn_gray'
+                title='Close'
+                btnType='button'
+                handleClick={hideModal}
+              />
             </div>
 
             <div className="modal-body relative overflow-x-scroll">
@@ -370,41 +500,47 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       <thead><tr><th className='w-40'></th><th></th></tr></thead>
                       <tbody>
                         <tr>
-                          <td className='px-2 py-2 font-semibold text-right'>Type:</td>
-                          <td>{documentData.type}</td>
+                          <td className='px-2 py-2 font-medium text-right'>Current Status:</td>
+                          <td>
+                            <span className='font-bold text-sm' style={{ color: `${getStatusColor(documentData.current_status)}` }}>{documentData.current_status} {documentData.current_status === 'Forwarded' ? 'to' : 'at'}  {documentData.current_department.name}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className='px-2 py-2 font-medium text-right'>Type:</td>
+                          <td className='text-sm font-bold'>{documentData.type}</td>
                         </tr>
                         {
                           documentData.activity_date &&
                             <tr>
-                              <td className='px-2 py-2 font-semibold text-right'>Activity Date:</td>
-                              <td>{documentData.activity_date}</td>
+                              <td className='px-2 py-2 font-medium text-right'>Activity Date:</td>
+                              <td className='text-sm font-bold'>{documentData.activity_date}</td>
                             </tr>
                         }
                         {
                           documentData.cheque_no &&
                             <tr>
-                              <td className='px-2 py-2 font-semibold text-right'>Cheque No:</td>
-                              <td>{documentData.cheque_no}</td>
+                              <td className='px-2 py-2 font-medium text-right'>Cheque No:</td>
+                              <td className='text-sm font-bold'>{documentData.cheque_no}</td>
                             </tr>
                         }
                         {
                           documentData.amount &&
                             <tr>
-                              <td className='px-2 py-2 font-semibold text-right'>Amount:</td>
-                              <td>{documentData.amount}</td>
+                              <td className='px-2 py-2 font-medium text-right'>Amount:</td>
+                              <td className='text-sm font-bold'>{documentData.amount}</td>
                             </tr>
                         }
                         <tr>
-                          <td className='px-2 py-2 font-semibold text-right'>Agency / Department:</td>
-                          <td>{documentData.agency}</td>
+                          <td className='px-2 py-2 font-medium text-right'>Agency / Department:</td>
+                          <td className='text-sm font-bold'>{documentData.agency}</td>
                         </tr>
                         <tr>
-                          <td className='px-2 py-2 font-semibold text-right'>Name / Payee:</td>
-                          <td>{documentData.name}</td>
+                          <td className='px-2 py-2 font-medium text-right'>Name / Payee:</td>
+                          <td className='text-sm font-bold'>{documentData.name}</td>
                         </tr>
                         <tr>
-                          <td className='px-2 py-2 font-semibold text-right align-top'>Particulars:</td>
-                          <td>{documentData.particulars}</td>
+                          <td className='px-2 py-2 font-medium text-right align-top'>Particulars:</td>
+                          <td className='text-sm font-bold'>{documentData.particulars}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -414,15 +550,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       <thead><tr><th className='w-40'></th><th></th></tr></thead>
                       <tbody>
                         <tr>
-                          <td className='px-2 py-2 font-semibold text-right'>Status:</td>
-                          <td>
-                            <div className='text-sm font-bold'>
-                              {documentData.current_status} at {documentData.current_department.name}
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className='px-2 py-2 font-semibold text-right align-top'>Attachments:</td>
+                          <td className='px-2 py-2 font-medium text-right align-top'>Attachments:</td>
                           <td>
                             <div>
                             {
@@ -433,7 +561,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                                     className='flex space-x-2 items-center cursor-pointer'>
                                     <PaperClipIcon
                                       className='w-4 h-4 text-green-700 '/>
-                                    <span className='text-green-700 font-medium text-xs'>{file.name.substring(0, 10)}</span>
+                                    <span className='text-green-700 font-medium text-xs'>{file.name}</span>
                                   </div>
                                   {/* <span
                                     onClick={() => handleDeleteClick(file.name)}
@@ -473,68 +601,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                   </div>
                 </div>
               </div>
-              {/* User Actions */}
-              {
-                ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
-                  <div className="flex-col space-x-2 items-center justify-center py-4 bg-blue-200 rounded-b-md">
-                    <div className="flex space-x-2 items-center justify-center">
-                        <span className='font-bold text-sm'>Forward&nbsp;To</span>
-                        <select
-                              value={departmentId}
-                              onChange={e => setDepartmentId(e.target.value)}
-                              className='text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none'>
-                                <option value=''>Choose Department</option>
-                                {
-                                  departments?.map((item, index) => (
-                                    <option key={index} value={item.id}>{item.name}</option>
-                                  ))
-                                }
-                            </select>
-                            <CustomButton
-                              containerStyles='app__btn_green'
-                              title={saving ? 'Saving...' : 'Submit'}
-                              btnType='button'
-                              handleClick={() => setShowConfirmForwardModal(true)}
-                            />
-                    </div>
-                    <div className="flex space-x-2 items-center justify-center italic font-medium my-2">
-                      -- Or --
-                    </div>
-                    <div className="flex space-x-2 items-center justify-center italic font-medium my-2">
-                    <CustomButton
-                              containerStyles='app__btn_green'
-                              btnType='button'
-                              isDisabled={saving}
-                              title={saving ? 'Saving...' : 'Mark as Completed'}
-                              handleClick={() => setShowConfirmCompleteModal(true)}
-                            />
-
-                    </div>
-                  </div>
-              }
-              {
-                (documentData.current_status === 'Forwarded' && user.department_id === documentData.current_department_id) &&
-                  <div className="flex-col space-x-2 items-center justify-center py-2 bg-blue-200 rounded-b-md">
-                    <div className="flex space-x-2 items-center justify-center italic font-medium my-2">
-                    <CustomButton
-                              containerStyles='app__btn_green_large'
-                              btnType='button'
-                              isDisabled={saving}
-                              title={saving ? 'Saving...' : 'Mark as Received'}
-                              handleClick={() => setShowConfirmReceivedModal(true)}
-                            />
-
-                    </div>
-                  </div>
-              }
-              {
-                (user.department_id !== documentData.current_department_id || documentData.current_status === 'Completed') &&
-                  <div className="flex-col space-x-2 items-center justify-center py-2 bg-blue-200 rounded-b-md">
-                    <div className="flex space-x-2 items-center justify-center italic my-2">
-                      <span>Current Status:</span> <span className='font-bold'>{documentData.current_status} {documentData.current_status === 'Forwarded' ? 'to' : 'at'} {documentData.current_department.name}</span>
-                    </div>
-                  </div>
-              }
+              <hr/>
               <div className='py-2 md:flex'>
                 <div className='md:w-1/2'>
                   <StatusFlow updateStatusFlow={updateStatusFlow} documentId={documentData.id.toString()}/>
@@ -592,7 +659,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
             />
           )
         }
-        {
+        {/* {
           showConfirmation && (
             <ConfirmModal
               header='Delete Confirmation'
@@ -602,7 +669,15 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
               onCancel={handleCancel}
             />
           )
-        }
+        } */}
+        {/* Add to Sticky Modal */}
+        {
+            showAddStickyModal && (
+              <AddStickyModal
+                item={selectedItem}
+                hideModal={() => setShowAddStickyModal(false)}/>
+            )
+          }
       </div>
   )
 }

@@ -37,6 +37,7 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [department, setDepartment] = useState('')
 
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
@@ -162,7 +163,7 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
       try {
         const { data, error } = await supabase
           .from('dum_users')
-          .select()
+          .select('*, dum_departments:department_id(id,name)', { count: 'exact' })
           .eq('id', id)
           .limit(1)
           .maybeSingle()
@@ -170,6 +171,7 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
         if (error) throw new Error(error.message)
 
         setAvatarUrl(data.avatar_url)
+        setDepartment(data.dum_departments.name)
 
         reset({
           name: data ? data.name : ''
@@ -230,6 +232,12 @@ const AccountDetails = ({ hideModal, shouldUpdateRedux, id }: ModalProps) => {
                             className='app__input_standard'/>
                           {errors.name && <div className='app__error_message'>Name is required</div>}
                         </div>
+                      </div>
+                    </div>
+                    <div className='app__form_field_container'>
+                      <div className='w-full'>
+                        <div className='app__label_standard'>Department:</div>
+                        <div>{department}</div>
                       </div>
                     </div>
                     <div className="app__modal_footer">

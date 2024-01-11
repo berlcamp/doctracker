@@ -51,6 +51,7 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
     try {
       const newData = {
         name: formdata.name,
+        department_id: formdata.department_id,
         status: 'Active',
         email: formdata.email,
         temp_password: tempPassword.toString(),
@@ -69,8 +70,10 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (error2) throw new Error(error2.message)
 
+        const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === formdata.department_id)
+
         // Append new data in redux
-        const updatedData = { ...newData, id: response.data.insert_id }
+        const updatedData = { ...newData, id: response.data.insert_id, dum_departments: { name: dept.name } }
         dispatch(updateList([updatedData, ...globallist]))
 
         // pop up the success message
@@ -98,7 +101,8 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
     if (!editData) return
 
     const newData = {
-      name: formdata.name
+      name: formdata.name,
+      department_id: formdata.department_id
     }
 
     try {
@@ -109,12 +113,12 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (error) throw new Error(error.message)
-    } catch (e) {
-      console.error(e)
-    } finally {
+
+      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === formdata.department_id)
+
       // Update data in redux
       const items = [...globallist]
-      const updatedData = { ...newData, id: editData.id }
+      const updatedData = { ...newData, id: editData.id, dum_departments: { name: dept.name } }
       const foundIndex = items.findIndex(x => x.id === updatedData.id)
       items[foundIndex] = { ...items[foundIndex], ...updatedData }
       dispatch(updateList(items))
@@ -129,13 +133,16 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
 
       // reset all form fields
       reset()
+    } catch (e) {
+      console.error(e)
     }
   }
 
   // manually set the defaultValues of use-form-hook whenever the component receives new props.
   useEffect(() => {
     reset({
-      name: editData ? editData.name : ''
+      name: editData ? editData.name : '',
+      department_id: editData ? editData.department_id : ''
     })
   }, [editData, reset])
 

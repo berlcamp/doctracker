@@ -87,7 +87,7 @@ const Page: React.FC = () => {
               {
                 results && (
                   <>
-                  <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='document_tracker' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'document_tracker') : []} title='Who can Manage Entire Document Tracker System'/>
+                    <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='document_tracker' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'document_tracker') : []} title='Who can Access to Document Tracker System'/>
                   </>
                 )
               }

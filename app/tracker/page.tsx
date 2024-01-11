@@ -3,7 +3,7 @@
 import { fetchDocuments, fetchActivities } from '@/utils/fetchApi'
 import React, { Fragment, useEffect, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon, TrashIcon, PrinterIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon, TrashIcon, PrinterIcon, StarIcon } from '@heroicons/react/20/solid'
 import { Sidebar, PerPage, TopBar, DeleteModal, TableRowLoading, CustomButton, ShowMore, TrackerSideBar, Title, Unauthorized, UserBlock } from '@/components'
 import AddDocumentModal from './AddDocumentModal'
 import DetailsModal from './DetailsModal'
@@ -24,12 +24,14 @@ import { useSupabase } from '@/context/SupabaseProvider'
 import { useFilter } from '@/context/FilterContext'
 import DownloadExcelButton from './DownloadExcel'
 import { useSearchParams } from 'next/navigation'
+import StickiesModal from './StickiesModal'
 
 const Page: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [showStickiesModal, setShowStickiesModal] = useState(false)
   const [viewActivity, setViewActivity] = useState(false)
   const [selectedId, setSelectedId] = useState<string>('')
   const [selectedItem, setSelectedItem] = useState<DocumentTypes | null>(null)
@@ -173,6 +175,13 @@ const Page: React.FC = () => {
           <TopBar/>
           <div className='app__title'>
             <Title title='Document Tracker'/>
+            <CustomButton
+              containerStyles='app__btn_blue flex space-x-2'
+              title='Stickies'
+              btnType='button'
+              handleClick={() => setShowStickiesModal(true)}
+              rightIcon={<StarIcon className='w-4 h-4 text-yellow-500'/>}
+            />
             <CustomButton
               containerStyles='app__btn_orange'
               title='Upcoming Activities'
@@ -415,13 +424,19 @@ const Page: React.FC = () => {
 
           {/* Activities Modal */}
           {
-              viewActivity && (
-                <ActivitiesModal
-                  activitiesData={activitiesData}
-                  hideModal={() => setViewActivity(false)}/>
-              )
-            }
-
+            viewActivity && (
+              <ActivitiesModal
+                activitiesData={activitiesData}
+                hideModal={() => setViewActivity(false)}/>
+            )
+          }
+          {/* Stickies Modal */}
+          {
+            showStickiesModal && (
+              <StickiesModal
+                hideModal={() => setShowStickiesModal(false)}/>
+            )
+          }
       </div>
     </div>
   </>

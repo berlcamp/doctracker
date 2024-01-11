@@ -10,6 +10,7 @@ export default function PmsLayout ({ children }: { children: React.ReactNode }) 
   const { session } = useSupabase()
 
   // Check access from permission settings or Super Admins
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   if (!hasAccess('settings') && !superAdmins.includes(session.user.email)) return <Unauthorized/>
 
   return (

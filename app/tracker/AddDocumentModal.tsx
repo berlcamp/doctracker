@@ -222,20 +222,17 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                         </div>
                       </div>
                   }
-                  {
-                    type === 'Letters' &&
-                      <div className='grid grid-cols-1 gap-4 mb-4'>
-                        <div className='w-full'>
-                          <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Activity Date:</div>
-                          <div>
-                            <input
-                              {...register('activity_date')}
-                              type="date"
-                              className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
-                          </div>
-                        </div>
+                  <div className='grid grid-cols-1 gap-4 mb-4'>
+                    <div className='w-full'>
+                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Activity Date:</div>
+                      <div>
+                        <input
+                          {...register('activity_date')}
+                          type="date"
+                          className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
                       </div>
-                  }
+                    </div>
+                  </div>
                   <div className='grid grid-cols-1 gap-4 mb-4'>
                     <div className='w-full'>
                       <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Amount:</div>

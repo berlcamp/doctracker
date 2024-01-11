@@ -35,7 +35,7 @@ export interface CustomButtonTypes {
   containerStyles?: string
   textStyles?: string
   title: string
-  rightIcon?: string
+  rightIcon?: any
   handleClick?: MouseEventHandler<HTMLButtonElement>
 }
 
@@ -54,6 +54,20 @@ export interface AccountDetailsForm {
   firstname: string
   middlename: string
   lastname: string
+}
+
+export interface StickiesTypes {
+  id: string
+  document_tracker_id: string
+  user_id: string
+  note: string
+  color: string
+  dum_document_trackers: DocumentTypes
+}
+
+export interface FollowersTypes {
+  tracker_id: string
+  user_id: string
 }
 
 export interface DocumentTypes {
@@ -86,6 +100,8 @@ export interface DocumentTypes {
   origin_department_id: string
   dum_departments: DepartmentTypes
   current_department: DepartmentTypes
+  dum_document_followers: FollowersTypes[]
+  dum_document_tracker_stickies: StickiesTypes[]
 }
 
 export interface RepliesDataTypes {

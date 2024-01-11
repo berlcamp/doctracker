@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import { Menu, Transition } from '@headlessui/react'
-import { EllipsisHorizontalIcon, PencilIcon, UserCircleIcon } from '@heroicons/react/24/solid'
+import { EllipsisHorizontalIcon, PencilIcon } from '@heroicons/react/24/solid'
 import React, { Fragment, useEffect, useState } from 'react'
 import uuid from 'react-uuid'
 import { TrashIcon } from '@heroicons/react/24/outline'
@@ -12,6 +12,8 @@ import { useSupabase } from '@/context/SupabaseProvider'
 import ConfirmModal from '@/components/ConfirmModal'
 import { useFilter } from '@/context/FilterContext'
 import type { RepliesDataTypes } from '@/types'
+import Image from 'next/image'
+import Avatar from 'react-avatar'
 
 interface ModalProps {
   handleRemoveFromList: (id: string) => void
@@ -123,7 +125,13 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
       <div className='w-full group'>
         <div className='flex items-center space-x-2'>
           <div className='flex flex-1 items-center space-x-2'>
-            {reply.reply_type !== 'system' && <UserCircleIcon className='w-10 h-10'/>}
+            {
+              reply.dum_users.avatar_url !== null
+                ? <div className='relative flex items-center justify-center bg-black overflow-hidden'>
+                    <Image src={reply.dum_users?.avatar_url} width={30} height={30} alt='user'/>
+                  </div>
+                : <Avatar round={false} size="30" name={reply.dum_users.name}/>
+            }
             <div>
               {
                 reply.reply_type !== 'system' &&
@@ -150,7 +158,7 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
             <Menu as="div" className="relative inline-block text-left mr-2">
               <div>
                 <Menu.Button className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
-                  <EllipsisHorizontalIcon className='w-8 h-8'/>
+                  <EllipsisHorizontalIcon className='w-6 h-6'/>
                 </Menu.Button>
               </div>
 

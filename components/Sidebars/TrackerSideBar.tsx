@@ -8,6 +8,7 @@ import type { AccountTypes } from '@/types'
 
 const TrackerSideBar = () => {
   const [toReceiveCount, setToReceiveCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
   const searchParams = useSearchParams()
 
   const filter = searchParams.get('filter')
@@ -24,6 +25,14 @@ const TrackerSideBar = () => {
       .eq('current_department_id', user.dum_departments.id)
 
     setToReceiveCount(count)
+
+    const { count: following }: { count: number } = await supabase
+      .from('dum_document_trackers')
+      .select('*', { count: 'exact' })
+      .eq('current_status', 'Forwarded')
+      .eq('current_department_id', user.dum_departments.id)
+
+    setFollowingCount(following)
   }
   useEffect(() => {
     void counter()
@@ -41,7 +50,7 @@ const TrackerSideBar = () => {
           <Link
             href="/tracker"
             className={`app__menu_link ${!filter ? 'app_menu_link_active' : ''}`}>
-            <span className="flex-1 ml-3 whitespace-nowrap">All Documents</span>
+            <span className="flex-1 ml-3 whitespace-nowrap">All</span>
           </Link>
         </li>
         <li>
@@ -53,6 +62,19 @@ const TrackerSideBar = () => {
               toReceiveCount > 0 &&
                 <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
                   <span className='rounded-full px-1 text-white text-xs'>{toReceiveCount}</span>
+                </span>
+            }
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/tracker?filter=following"
+            className={`app__menu_link ${filter === 'following' ? 'app_menu_link_active' : ''}`}>
+            <span className="flex-1 ml-3 whitespace-nowrap">Following</span>
+            {
+              followingCount > 0 &&
+                <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
+                  <span className='rounded-full px-1 text-white text-xs'>{followingCount}</span>
                 </span>
             }
           </Link>

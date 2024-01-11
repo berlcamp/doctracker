@@ -6,9 +6,6 @@ import uuid from 'react-uuid'
 import type { SelectUserNamesProps } from '@/types'
 
 interface namesType {
-  firstname: string
-  middlename: string
-  lastname: string
   name: string
   uuid: string
   id: string
@@ -18,7 +15,7 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
   const { supabase } = useSupabase()
 
   const [searchManager, setSearchManager] = useState('')
-  const [searchManagersResults, setSearchManagersResults] = useState<[]>([])
+  const [searchManagersResults, setSearchManagersResults] = useState<namesType[] | []>([])
   const [selectedManagers, setSelectedManagers] = useState(settingsData.length > 0 ? settingsData[0].data : [])
 
   const handleSearchUser = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +32,7 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
 
     let query = supabase
       .from('dum_users')
-      .select('id, firstname, middlename, lastname, name')
+      .select('id, name')
       .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
 
     // Search match
@@ -51,7 +48,7 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
     // Limit results
     query = query.limit(3)
 
-    const { data, error } = await query
+    const { data, error }: { data: namesType[], error: any } = await query
 
     if (error) console.error(error)
 
@@ -78,7 +75,7 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
   }
 
   const handleRemoveSelected = (uuid: string) => {
-    const updatedItems = selectedManagers?.filter((item: namesType) => item.uuid !== uuid)
+    const updatedItems: namesType[] = selectedManagers?.filter((item: namesType) => item.uuid !== uuid)
     setSelectedManagers(updatedItems)
 
     // Update selected items from parent component
@@ -95,7 +92,7 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
             selectedManagers.map((item: namesType) => (
                 <div key={uuid()} className='mb-1 inline-flex'>
                   <span className='inline-flex items-center text-sm  border border-gray-400 rounded-sm px-1 bg-gray-300'>
-                    {item.firstname} {item.middlename} {item.lastname} {item.name}
+                    {item.name}
                     <XMarkIcon onClick={() => handleRemoveSelected(item.uuid)} className='w-4 h-4 ml-2 cursor-pointer'/>
                   </span>
                 </div>
@@ -114,12 +111,12 @@ export default function SelectUserNames ({ settingsData, multiple, type, handleM
                 searchManagersResults.length > 0 &&
                   <div className='absolute top-7 left-0 z-50 w-full bg-gray-200 border border-gray-300'>
                     {
-                      searchManagersResults.map((item: namesType) => (
+                      searchManagersResults.map((item: namesType, index: number) => (
                         <div
-                          key={uuid()}
+                          key={index}
                           onClick={() => handleSelected(item)}
                           className='p-1 w-full text-gray-700 cursor-pointer hover:bg-gray-300 text-sm'>
-                            {item.firstname} {item.middlename} {item.lastname} {item.name}
+                            {item.name}
                         </div>
                       ))
                     }
