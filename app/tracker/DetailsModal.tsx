@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { useDropzone } from 'react-dropzone'
 
-import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, StickiesTypes } from '@/types'
+import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes } from '@/types'
 import SystemLogs from './SystemLogs'
 import StatusFlow from './StatusFlow'
 import { fetchDepartments } from '@/utils/fetchApi'
