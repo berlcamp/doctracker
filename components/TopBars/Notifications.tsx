@@ -206,6 +206,7 @@ const Notifications = ({ darkMode }: propTypes) => {
                             !notification.is_read && <ExclamationCircleIcon className={`${notification.is_read ? 'text-blue-300' : 'text-blue-500'} w-4 h-4`}/>
                           }
                         </div>
+                        {/* @ts-expect-error */}
                         <div className='text-blue-700'>{formatDistance(new Date(), new Date(notification.created_at))} ago</div>
                       </div>
                     </Menu.Item>
