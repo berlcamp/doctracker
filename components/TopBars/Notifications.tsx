@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { Fragment, useRef, useEffect, useState } from 'react'

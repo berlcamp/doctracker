@@ -136,7 +136,7 @@ const Page: React.FC = () => {
     const today = format(new Date(), 'yyyy-MM-dd')
     const today2 = new Date()
     const endDate = new Date()
-    endDate.setDate(today2.getDate() + 20)
+    endDate.setDate(today2.getDate() + 60)
 
     const result = await fetchActivities(today, endDate)
 
@@ -282,15 +282,18 @@ const Page: React.FC = () => {
                                       <span>Print</span>
                                   </div>
                                 </Menu.Item>
-                                <Menu.Item>
-                                  <div
-                                      onClick={ () => handleDelete(item.id) }
-                                      className='flex items-center space-x-2 cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-4 py-2 text-xs'
-                                    >
-                                      <TrashIcon className='w-4 h-4'/>
-                                      <span>Delete</span>
-                                  </div>
-                                </Menu.Item>
+                                {
+                                  session.user.id.toString() === item.user_id.toString() &&
+                                    <Menu.Item>
+                                      <div
+                                          onClick={ () => handleDelete(item.id) }
+                                          className='flex items-center space-x-2 cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-4 py-2 text-xs'
+                                        >
+                                          <TrashIcon className='w-4 h-4'/>
+                                          <span>Delete</span>
+                                      </div>
+                                    </Menu.Item>
+                                }
                               </div>
                             </Menu.Items>
                           </Transition>
