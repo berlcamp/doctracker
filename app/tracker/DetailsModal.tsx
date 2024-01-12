@@ -579,6 +579,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                   />
               } */}
               {
+                !hideStickyButton && <StarIcon onClick={() => handleAddToStickies(documentData)} className='cursor-pointer w-7 h-7 text-yellow-500'/>
+              }
+              {
                 !hideFollowButton
                   ? <CustomButton
                       containerStyles='app__btn_blue flex space-x-2'
@@ -595,17 +598,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       title={saving ? 'Saving...' : 'Unfollow'}
                       handleClick={handleUnfollow}
                       rightIcon={<BellSlashIcon className='w-4 h-4 text-white'/>}
-                    />
-              }
-              {
-                !hideStickyButton &&
-                  <CustomButton
-                      containerStyles='app__btn_blue flex space-x-2'
-                      btnType='button'
-                      isDisabled={saving}
-                      title={saving ? 'Saving...' : 'Add To Stickies'}
-                      handleClick={() => handleAddToStickies(documentData)}
-                      rightIcon={<StarIcon className='w-4 h-4 text-yellow-500'/>}
                     />
               }
               <CustomButton

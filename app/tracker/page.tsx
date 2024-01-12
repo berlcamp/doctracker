@@ -3,7 +3,7 @@
 import { fetchDocuments, fetchActivities } from '@/utils/fetchApi'
 import React, { Fragment, useEffect, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon, TrashIcon, PrinterIcon, StarIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon, TrashIcon, PrinterIcon, StarIcon, CalendarDaysIcon } from '@heroicons/react/20/solid'
 import { Sidebar, PerPage, TopBar, DeleteModal, TableRowLoading, CustomButton, ShowMore, TrackerSideBar, Title, Unauthorized, UserBlock } from '@/components'
 import AddDocumentModal from './AddDocumentModal'
 import DetailsModal from './DetailsModal'
@@ -177,19 +177,8 @@ const Page: React.FC = () => {
           <TopBar/>
           <div className='app__title'>
             <Title title='Document Tracker'/>
-            <CustomButton
-              containerStyles='app__btn_blue flex space-x-2'
-              title='Stickies'
-              btnType='button'
-              handleClick={() => setShowStickiesModal(true)}
-              rightIcon={<StarIcon className='w-4 h-4 text-yellow-500'/>}
-            />
-            <CustomButton
-              containerStyles='app__btn_orange'
-              title='Upcoming Activities'
-              btnType='button'
-              handleClick={handleViewActivities}
-            />
+            <StarIcon onClick={() => setShowStickiesModal(true)} className='cursor-pointer w-7 h-7 text-yellow-500'/>
+            <CalendarDaysIcon onClick={handleViewActivities} className='cursor-pointer w-7 h-7'/>
             <CustomButton
               containerStyles='app__btn_green'
               title='Add New Document'
