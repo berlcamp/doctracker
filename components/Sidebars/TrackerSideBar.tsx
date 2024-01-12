@@ -27,10 +27,9 @@ const TrackerSideBar = () => {
     setToReceiveCount(count)
 
     const { count: following }: { count: number } = await supabase
-      .from('dum_document_trackers')
+      .from('dum_document_followers')
       .select('*', { count: 'exact' })
-      .eq('current_status', 'Forwarded')
-      .eq('current_department_id', user.dum_departments.id)
+      .eq('user_id', user.id)
 
     setFollowingCount(following)
   }

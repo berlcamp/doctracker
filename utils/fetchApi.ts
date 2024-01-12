@@ -1,4 +1,4 @@
-import type { AccountTypes } from '@/types'
+import type { AccountTypes, FollowersTypes } from '@/types'
 import { createBrowserClient } from '@supabase/ssr'
 // import { fullTextQuery } from './text-helper'
 
@@ -60,6 +60,22 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
     if (filterUrl && filterUrl === 'toreceive') {
       query = query.eq('current_status', 'Forwarded')
       query = query.eq('current_department_id', user.dum_departments.id)
+    }
+
+    if (filterUrl === 'following') {
+      const docIds: string[] = []
+      const { data }: { data: FollowersTypes[] | null } = await supabase
+        .from('dum_document_followers')
+        .select()
+        .eq('user_id', user.id)
+
+      if (data) {
+        data.forEach(d => {
+          docIds.push(d.tracker_id)
+        })
+
+        query = query.in('id', docIds)
+      }
     }
 
     // Perform count before paginations
