@@ -575,7 +575,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                             <div className="flex-auto overflow-y-auto relative p-4">
                               <div className='grid grid-cols-1 gap-4 mb-4'>
                                 <div className='w-full'>
-                                  <div {...getRootProps()} className='border border-dashed bg-gray-100 text-gray-600 px-4 py-10'>
+                                  <div {...getRootProps()} className='border cursor-pointer border-dashed bg-gray-100 text-gray-600 px-4 py-10'>
                                     <input {...getInputProps()} />
                                     <p className='text-xs'>Drag and drop some files here, or click to select files</p>
                                   </div>
