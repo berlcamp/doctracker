@@ -190,7 +190,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                 <div className='w-full px-4'>
                   <div className='grid grid-cols-1 gap-4 mb-4'>
                     <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Type:</div>
+                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Type<span className='italic text-xs text-gray-500'>(Required)</span>:</div>
                       <div>
                         <select
                           {...register('type', { required: true })}
@@ -269,11 +269,12 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                   </div>
                   <div className='grid grid-cols-1 gap-4 mb-4'>
                     <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Particulars:</div>
+                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Particulars<span className='italic text-xs text-gray-500'>(Required)</span>:</div>
                       <div>
                         <textarea
-                          {...register('particulars')}
+                          {...register('particulars', { required: true })}
                           className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                        {errors.particulars && <div className='mt-1 text-xs text-red-600 font-bold'>Particulars is required</div>}
                       </div>
                     </div>
                   </div>

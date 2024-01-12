@@ -45,7 +45,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   const [showAddStickyModal, setShowAddStickyModal] = useState(false)
   const [hideStickyButton, setHideStickyButton] = useState(false)
   const [hideFollowButton, setHideFollowButton] = useState(false)
-  // const [isFollowing, setIsFollowing] = useState(originalData.dum_document_followers.find(item => (item.tracker_id.toString() === originalData.id && item.user_id === user.id)))
 
   // const [selectedFile, setSelectedFile] = useState(null)
   // const [showConfirmation, setShowConfirmation] = useState(false)
@@ -95,6 +94,23 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       setToast('success', 'Successfully Followed.')
       setHideFollowButton(true)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleUnfollow = async () => {
+    try {
+      const { error } = await supabase
+        .from('dum_document_followers')
+        .delete()
+        .eq('tracker_id', documentData.id)
+        .eq('user_id', user.id)
+
+      if (error) throw new Error(error.message)
+
+      setToast('success', 'Successfully Unfollowed.')
+      setHideFollowButton(false)
     } catch (e) {
       console.error(e)
     }
@@ -500,13 +516,20 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                   />
               }
               {
-                !hideFollowButton &&
-                  <CustomButton
+                !hideFollowButton
+                  ? <CustomButton
                       containerStyles='app__btn_blue'
                       btnType='button'
                       isDisabled={saving}
                       title={saving ? 'Saving...' : 'Follow'}
                       handleClick={handleFollow}
+                    />
+                  : <CustomButton
+                      containerStyles='app__btn_blue'
+                      btnType='button'
+                      isDisabled={saving}
+                      title={saving ? 'Saving...' : 'Unfollow'}
+                      handleClick={handleUnfollow}
                     />
               }
               {
