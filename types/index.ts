@@ -40,14 +40,15 @@ export interface CustomButtonTypes {
 }
 
 export interface NotificationTypes {
-  id: string
+  id?: string
   message: string
-  created_at: string
+  created_at?: string
   url: string
   type: string
   user_id: string
   reference_id?: string
-  is_read: boolean
+  reference_table?: string
+  is_read?: boolean
 }
 
 export interface AccountDetailsForm {

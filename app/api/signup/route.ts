@@ -14,23 +14,19 @@ export async function POST (req: NextRequest) {
     }
   })
 
-  try {
-    const { item }: { item: AccountTypes } = await req.json()
+  const { item }: { item: AccountTypes } = await req.json()
 
-    // Signup to supabase auth system
-    const { data: signUpData, error } = await supabase.auth.admin.createUser({
-      email: item.email,
-      password: item.temp_password,
-      email_confirm: true
-    })
+  // Signup to supabase auth system
+  const { data: signUpData, error } = await supabase.auth.admin.createUser({
+    email: item.email,
+    password: item.temp_password,
+    email_confirm: true
+  })
 
-    if (error) throw new Error(error.message)
-
+  if (error) {
+    return NextResponse.json({ error_message: error.message })
+  } else {
     const newUser: any = signUpData
-
-    return NextResponse.json({ insert_id: newUser.user.id })
-  } catch (error) {
-    console.log(error)
-    return NextResponse.json({ error })
+    return NextResponse.json({ error_message: '', insert_id: newUser.user.id })
   }
 }

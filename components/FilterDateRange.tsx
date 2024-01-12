@@ -42,7 +42,7 @@ export default function FilterDateRange ({ dateFrom, dateTo, setDateFrom, setDat
           onClick={() => setShowDropdown(!showDropdown)}
           className='mx-2 py-1 cursor-pointer text-gray-500 focus:ring-0 focus:outline-none text-xs text-left flex items-center'>
           <CalendarDaysIcon className="w-4 h-4 mr-2"/>
-          <span>Date Range: { dateFrom !== '' && `From: ${dateFrom} `} { dateTo !== '' && `To: ${dateTo}`}</span>
+          <span>Date Created: { dateFrom !== '' && `From: ${dateFrom} `} { dateTo !== '' && `To: ${dateTo}`}</span>
           <ChevronDownIcon className="w-4 h-4 ml-2"/>
         </div>
 

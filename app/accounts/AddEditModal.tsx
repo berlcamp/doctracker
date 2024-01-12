@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useFilter } from '@/context/FilterContext'
@@ -23,6 +24,7 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
   const { setToast } = useFilter()
   const { supabase } = useSupabase()
   const [saving, setSaving] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const [departments, setDepartments] = useState<DepartmentTypes[] | []>([])
   const [departmentId, setDepartmentId] = useState(editData ? (editData.department_id ? editData.department_id : '') : '')
 
@@ -62,33 +64,38 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
       axios.post('/api/signup', {
         item: newData
       }).then(async function (response) {
-        console.log(response.data)
-        const { error: error2 } = await supabase
-          .from('dum_users')
-          .insert({ ...newData, id: response.data.insert_id })
+        if (response.data.error_message === '') {
+          const { error: error2 } = await supabase
+            .from('dum_users')
+            .insert({ ...newData, id: response.data.insert_id })
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        if (error2) throw new Error(error2.message)
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          if (error2) throw new Error(error2.message)
 
-        const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === formdata.department_id)
+          const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === formdata.department_id)
 
-        // Append new data in redux
-        const updatedData = { ...newData, id: response.data.insert_id, dum_departments: { name: dept.name } }
-        dispatch(updateList([updatedData, ...globallist]))
+          // Append new data in redux
+          const updatedData = { ...newData, id: response.data.insert_id, dum_departments: { name: dept.name } }
+          dispatch(updateList([updatedData, ...globallist]))
 
-        // pop up the success message
-        setToast('success', 'Successfully saved.')
+          // pop up the success message
+          setToast('success', 'Successfully saved.')
 
-        // Updating showing text in redux
-        dispatch(updateResultCounter({ showing: Number(resultsCounter.showing) + 1, results: Number(resultsCounter.results) + 1 }))
+          // Updating showing text in redux
+          dispatch(updateResultCounter({ showing: Number(resultsCounter.showing) + 1, results: Number(resultsCounter.results) + 1 }))
 
-        setSaving(false)
+          setSaving(false)
 
-        // hide the modal
-        hideModal()
+          // hide the modal
+          hideModal()
+          setErrorMessage('')
 
-        // reset all form fields
-        reset()
+          // reset all form fields
+          reset()
+        } else {
+          setErrorMessage(response.data.error_message)
+          setSaving(false)
+        }
       }).catch(function (error) {
         console.error(error)
       })
@@ -172,6 +179,9 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
             {
               !saving
                 ? <>
+                  {
+                    errorMessage !== '' && <div className='mb-3 mt-1 text-xs text-red-600 font-bold'>{errorMessage}</div>
+                  }
                   <div className='app__form_field_container'>
                     <div className='w-full'>
                       <div className='app__label_standard'>Name</div>

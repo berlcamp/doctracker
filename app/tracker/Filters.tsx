@@ -76,14 +76,14 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
           <div className='app__filter_container'>
             <MagnifyingGlassIcon className="w-4 h-4 mr-1"/>
             <input
-              placeholder='Search keyword, router no, amount, etc...'
+              placeholder='Search Routing or keyword...'
               value={keyword}
               type="text"
               onChange={(e) => setKeyword(e.target.value)}
               className="app__filter_input"/>
           </div>
         </form>
-        <div className="inline-flex hidden">
+        <div className="hidden">
           <div className='app__filter_container'>
             <UsersIcon className="w-4 h-4 text-gray-500 mr-1"/>
             <input
@@ -159,7 +159,7 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
             </div>
           </Listbox>
         </div>
-        <div className="inline-flex hidden">
+        <div className="hidden">
           <Listbox value={status} onChange={setStatus}>
             <div className="relative w-56">
               <Listbox.Button className="app__listbox_btn">

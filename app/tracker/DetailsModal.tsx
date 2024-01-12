@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { useDropzone } from 'react-dropzone'
 
-import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes } from '@/types'
+import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes, FlowListTypes } from '@/types'
 import SystemLogs from './SystemLogs'
 import StatusFlow from './StatusFlow'
 import { ConfirmModal, CustomButton } from '@/components'
@@ -122,6 +122,81 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
     }
   }
 
+  const handleNotify = async (document: DocumentTypes, departmentId: string, actionType: string) => {
+    //
+    const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
+
+    try {
+      const userIds: string[] = []
+
+      // Followers
+      const { data: followers } = await supabase
+        .from('dum_document_followers')
+        .select('user_id')
+        .eq('tracker_id', document.id)
+
+      followers.forEach((user: FollowersTypes) => {
+        userIds.push(user.user_id.toString())
+      })
+
+      // Get Department ID within Tracker Flow
+      const { data: trackerFlow } = await supabase
+        .from('dum_tracker_flow')
+        .select('department_id')
+        .eq('tracker_id', document.id)
+
+      const deptIds: string[] = []
+      trackerFlow.forEach((item: FlowListTypes) => {
+        deptIds.push(item.department_id)
+      })
+
+      // Get the User assigned to these Department IDs
+      const { data: dumUsers } = await supabase
+        .from('dum_users')
+        .select('id')
+        .in('department_id', deptIds)
+
+      dumUsers.forEach((item: AccountTypes) => {
+        userIds.push(item.id.toString())
+      })
+
+      // Remove the duplicated IDs
+      const uniqueIds = userIds.reduce((accumulator: string[], currentValue: string) => {
+        if (!accumulator.includes(currentValue)) {
+          accumulator.push(currentValue)
+        }
+        return accumulator
+      }, [])
+
+      const notificationData: NotificationTypes[] = []
+
+      uniqueIds.forEach((userId) => {
+        notificationData.push({
+          message: `The document ${document.routing_slip_no} has been ${actionType} ${actionType === 'Forwarded' ? 'to' : 'at'} ${dept.name}.`,
+          url: `/tracker?code=${document.routing_slip_no}`,
+          type: actionType,
+          user_id: userId,
+          reference_id: document.id,
+          reference_table: 'dum_document_trackers'
+        })
+      })
+
+      if (notificationData.length > 0) {
+        console.log('notificationData', notificationData)
+        // insert to notifications
+        const { error: error3 } = await supabase
+          .from('dum_notifications')
+          .insert(notificationData)
+
+        if (error3) {
+          throw new Error(error3.message)
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   const handleConfirmedComplete = async () => {
     if (saving) return
 
@@ -200,61 +275,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
 
-      // bulk insert to notifications
-      const { data } = await supabase
-        .from('dum_users')
-        .select('id')
-        .eq('department_id', departmentId)
-
-      const userNotifications = data.map((user: AccountTypes) => {
-        return {
-          message: `The document ${documentData.routing_slip_no} has been forwarded to ${dept.name}.`,
-          url: `/tracker?code=${documentData.routing_slip_no}`,
-          type: 'Forwarded',
-          user_id: user.id,
-          reference_id: documentData.id,
-          reference_table: 'dum_document_trackers'
-        }
-      })
-
-      if (userNotifications.length > 0) {
-        // insert to notifications
-        const { error: error3 } = await supabase
-          .from('dum_notifications')
-          .insert(userNotifications)
-
-        if (error3) {
-          throw new Error(error3.message)
-        }
-      }
-
-      // bulk insert to notifications to Followers
-      const { data: followers } = await supabase
-        .from('dum_document_followers')
-        .select('*', { count: 'exact' })
-        .eq('tracker_id', documentData.id)
-
-      const followersNotifications = followers.map((user: FollowersTypes) => {
-        return {
-          message: `The document ${documentData.routing_slip_no} that you follow has been forwarded to ${dept.name}.`,
-          url: `/tracker?code=${documentData.routing_slip_no}`,
-          type: 'Forwarded',
-          user_id: user.user_id,
-          reference_id: documentData.id,
-          reference_table: 'dum_document_trackers'
-        }
-      })
-
-      if (followersNotifications.length > 0) {
-        // insert to notifications
-        const { error: error3 } = await supabase
-          .from('dum_notifications')
-          .insert(followersNotifications)
-
-        if (error3) {
-          throw new Error(error3.message)
-        }
-      }
+      // Notify followers and Departments
+      void handleNotify(documentData, departmentId, 'Forwarded')
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
@@ -308,35 +330,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       if (error2) throw new Error(error2.message)
 
-      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
-
-      // bulk insert to notifications to Followers
-      const { data: followers } = await supabase
-        .from('dum_document_followers')
-        .select('*', { count: 'exact' })
-        .eq('tracker_id', documentData.id)
-
-      const followersNotifications = followers.map((user: FollowersTypes) => {
-        return {
-          message: `The document ${documentData.routing_slip_no} that you follow has been received at ${dept.name}.`,
-          url: `/tracker?code=${documentData.routing_slip_no}`,
-          type: 'Received',
-          user_id: user.user_id,
-          reference_id: documentData.id,
-          reference_table: 'dum_document_trackers'
-        }
-      })
-
-      if (followersNotifications.length > 0) {
-        // insert to notifications
-        const { error: error3 } = await supabase
-          .from('dum_notifications')
-          .insert(followersNotifications)
-
-        if (error3) {
-          throw new Error(error3.message)
-        }
-      }
+      // Notify followers and Departments
+      void handleNotify(documentData, user.department_id.toString(), 'Received')
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]

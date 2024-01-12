@@ -333,7 +333,7 @@ const Page: React.FC = () => {
                     </tr>
                   ))
                 }
-                { loading && <TableRowLoading cols={5} rows={2}/> }
+                { loading && <TableRowLoading cols={6} rows={2}/> }
               </tbody>
             </table>
             {
