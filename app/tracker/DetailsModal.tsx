@@ -15,6 +15,7 @@ import { fetchDepartments } from '@/utils/fetchApi'
 import { ConfirmModal, CustomButton } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
+import { recount } from '@/GlobalRedux/Features/recountSlice'
 import { useFilter } from '@/context/FilterContext'
 import { StarIcon, XCircleIcon } from '@heroicons/react/20/solid'
 import { generateRandomNumber } from '@/utils/text-helper'
@@ -94,6 +95,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       setToast('success', 'Successfully Followed.')
       setHideFollowButton(true)
+
+      dispatch(recount())
     } catch (e) {
       console.error(e)
     }
@@ -111,6 +114,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       setToast('success', 'Successfully Unfollowed.')
       setHideFollowButton(false)
+
+      dispatch(recount())
     } catch (e) {
       console.error(e)
     }
@@ -232,6 +237,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       // hide the modal
       setShowConfirmForwardModal(false)
 
+      // Recount sidebar counter
+      dispatch(recount())
+
       setUpdateStatusFlow(!updateStatusFlow)
       setSaving(false)
     } catch (e) {
@@ -278,6 +286,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // hide the modal
       setShowConfirmReceivedModal(false)
+
+      // Recount sidebar counter
+      dispatch(recount())
 
       setUpdateStatusFlow(!updateStatusFlow)
       setSaving(false)
