@@ -449,7 +449,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
               {
                 (documentData.current_status === 'Forwarded' && user.department_id === documentData.current_department_id) &&
                   <CustomButton
-                    containerStyles='app__btn_blue'
+                    containerStyles='app__btn_green'
                     btnType='button'
                     isDisabled={saving}
                     title={saving ? 'Saving...' : 'Mark as Received'}
@@ -459,7 +459,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
               {
                 ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
                   <CustomButton
-                    containerStyles='app__btn_orange'
+                    containerStyles='app__btn_green'
                     btnType='button'
                     isDisabled={saving}
                     title={saving ? 'Saving...' : 'Mark as Completed'}
