@@ -11,13 +11,12 @@ import { useDropzone } from 'react-dropzone'
 import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes } from '@/types'
 import SystemLogs from './SystemLogs'
 import StatusFlow from './StatusFlow'
-import { fetchDepartments } from '@/utils/fetchApi'
 import { ConfirmModal, CustomButton } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 import { recount } from '@/GlobalRedux/Features/recountSlice'
 import { useFilter } from '@/context/FilterContext'
-import { StarIcon, XCircleIcon } from '@heroicons/react/20/solid'
+import { BellAlertIcon, BellSlashIcon, StarIcon, XCircleIcon } from '@heroicons/react/20/solid'
 import { generateRandomNumber } from '@/utils/text-helper'
 import { statusList } from '@/constants/TrackerConstants'
 import AddStickyModal from './AddStickyModal'
@@ -32,9 +31,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   const [repliesData, setRepliesData] = useState<RepliesDataTypes[] | []>([])
   const [logs, setLogs] = useState<RepliesDataTypes[] | []>([])
   const [attachments, setAttachments] = useState<AttachmentTypes[] | []>([])
-  const { supabase, session, systemUsers } = useSupabase()
+
   const [loadingReplies, setLoadingReplies] = useState(false)
-  const [departments, setDepartments] = useState<DepartmentTypes[] | []>([])
   const [departmentId, setDepartmentId] = useState('')
   const [showConfirmCompleteModal, setShowConfirmCompleteModal] = useState(false)
   const [showConfirmForwardModal, setShowConfirmForwardModal] = useState(false)
@@ -50,10 +48,13 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   // const [selectedFile, setSelectedFile] = useState(null)
   // const [showConfirmation, setShowConfirmation] = useState(false)
   const [selectedImages, setSelectedImages] = useState<any>([])
+  const { supabase, session, systemUsers, departments } = useSupabase()
 
   const { setToast } = useFilter()
 
   const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
+
+  const forwardDepartments = departments.filter((department: DepartmentTypes) => department.id !== user.dum_departments.id)
 
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
@@ -122,6 +123,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   }
 
   const handleConfirmedComplete = async () => {
+    if (saving) return
+
     setSaving(true)
 
     const newData = {
@@ -168,6 +171,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   }
 
   const handleConfirmedForward = async () => {
+    if (saving) return
+
     setSaving(true)
 
     const newData = {
@@ -227,12 +232,11 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       const { data: followers } = await supabase
         .from('dum_document_followers')
         .select('*', { count: 'exact' })
-        .eq('user_id', user.id)
         .eq('tracker_id', documentData.id)
 
       const followersNotifications = followers.map((user: FollowersTypes) => {
         return {
-          message: `The document ${documentData.routing_slip_no} that you followed been forwarded to ${dept.name}.`,
+          message: `The document ${documentData.routing_slip_no} that you follow has been forwarded to ${dept.name}.`,
           url: `/tracker?code=${documentData.routing_slip_no}`,
           type: 'Forwarded',
           user_id: user.user_id,
@@ -277,6 +281,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   }
 
   const handleConfirmedReceived = async () => {
+    if (saving) return
+
     setSaving(true)
 
     const newData = {
@@ -302,20 +308,19 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       if (error2) throw new Error(error2.message)
 
-      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
+      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
 
       // bulk insert to notifications to Followers
       const { data: followers } = await supabase
         .from('dum_document_followers')
         .select('*', { count: 'exact' })
-        .eq('user_id', user.id)
         .eq('tracker_id', documentData.id)
 
       const followersNotifications = followers.map((user: FollowersTypes) => {
         return {
-          message: `The document ${documentData.routing_slip_no} that you followed been received at ${dept.name}.`,
+          message: `The document ${documentData.routing_slip_no} that you follow has been received at ${dept.name}.`,
           url: `/tracker?code=${documentData.routing_slip_no}`,
-          type: 'Forwarded',
+          type: 'Received',
           user_id: user.user_id,
           reference_id: documentData.id,
           reference_table: 'dum_document_trackers'
@@ -492,14 +497,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   useEffect(() => {
     void fetchReplies()
     void fetchAttachments()
-
-    const fetchDepartmentsData = async () => {
-      const result = await fetchDepartments({}, 300, 0)
-      const d = result.data.length > 0 ? result.data : []
-      const filteredResults = d.filter(item => item.id.toString() !== documentData.current_department_id.toString()) // exclude my
-      setDepartments(filteredResults)
-    }
-    void fetchDepartmentsData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -552,7 +549,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                         className='text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none'>
                           <option value=''>Choose Department</option>
                           {
-                            departments?.map((item, index) => (
+                            forwardDepartments?.map((item: DepartmentTypes, index: number) => (
                               <option key={index} value={item.id}>{item.name}</option>
                             ))
                           }
@@ -565,17 +562,17 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       />
                     </>
                 }
+                {
+                  (documentData.current_status === 'Forwarded' && user.department_id === documentData.current_department_id) &&
+                    <CustomButton
+                      containerStyles='app__btn_green'
+                      btnType='button'
+                      isDisabled={saving}
+                      title={saving ? 'Saving...' : 'Mark as Received'}
+                      handleClick={() => setShowConfirmReceivedModal(true)}
+                    />
+                }
               </div>
-              {
-                (documentData.current_status === 'Forwarded' && user.department_id === documentData.current_department_id) &&
-                  <CustomButton
-                    containerStyles='app__btn_green'
-                    btnType='button'
-                    isDisabled={saving}
-                    title={saving ? 'Saving...' : 'Mark as Received'}
-                    handleClick={() => setShowConfirmReceivedModal(true)}
-                  />
-              }
               {/* {
                 ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
                   <CustomButton
@@ -589,18 +586,20 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
               {
                 !hideFollowButton
                   ? <CustomButton
-                      containerStyles='app__btn_blue'
+                      containerStyles='app__btn_blue flex space-x-2'
                       btnType='button'
                       isDisabled={saving}
                       title={saving ? 'Saving...' : 'Follow'}
                       handleClick={handleFollow}
+                      rightIcon={<BellAlertIcon className='w-4 h-4 text-white'/>}
                     />
                   : <CustomButton
-                      containerStyles='app__btn_blue'
+                      containerStyles='app__btn_blue flex space-x-2'
                       btnType='button'
                       isDisabled={saving}
                       title={saving ? 'Saving...' : 'Unfollow'}
                       handleClick={handleUnfollow}
+                      rightIcon={<BellSlashIcon className='w-4 h-4 text-white'/>}
                     />
               }
               {

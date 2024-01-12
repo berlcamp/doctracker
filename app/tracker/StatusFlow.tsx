@@ -18,7 +18,7 @@ function StatusFlow ({ documentId, updateStatusFlow }: { documentId: string, upd
     }
     void fetchData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [updateStatusFlow])
 
   return (
     <div className='w-full'>

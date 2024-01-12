@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast'
 import { LandingPage } from '@/components'
 
 import type { Metadata } from 'next'
+import type { DepartmentTypes } from '@/types'
 
 export const metadata: Metadata = {
   title: 'DOCUMENT TRACKER',
@@ -40,11 +41,18 @@ export default async function RootLayout ({ children }: { children: React.ReactN
 
   if (error2) console.error(error2)
 
+  // departments
+  const { data: departments, error: error3 }: { data: DepartmentTypes[] | null, error: any } = await supabase
+    .from('dum_departments')
+    .select()
+
+  if (error3) console.error(error3)
+
   return (
     <html lang="en">
       <body className={`relative ${session ? 'bg-white' : 'bg-gray-100'}`}>
 
-        <SupabaseProvider systemSettings={systemSettings} session={session} systemUsers={systemUsers}>
+        <SupabaseProvider systemSettings={systemSettings} session={session} systemUsers={systemUsers} departments={departments}>
             <SupabaseListener serverAccessToken={session?.access_token} />
             {!session && <LandingPage/> }
               {

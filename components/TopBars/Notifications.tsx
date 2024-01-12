@@ -11,6 +11,8 @@ import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
 
 // types
 import type { NotificationTypes } from '@/types'
+import { useDispatch } from 'react-redux'
+import { recount } from '@/GlobalRedux/Features/recountSlice'
 
 interface propTypes {
   darkMode?: boolean
@@ -25,6 +27,8 @@ const Notifications = ({ darkMode }: propTypes) => {
 
   const router = useRouter()
   const { supabase, session } = useSupabase()
+
+  const dispatch = useDispatch()
 
   const userId: string = session.user.id
 
@@ -44,6 +48,9 @@ const Notifications = ({ darkMode }: propTypes) => {
 
     void countUnread()
     setList(data)
+
+    // Recount sidebar counter
+    dispatch(recount())
   }
 
   const handleShowMore = async () => {
