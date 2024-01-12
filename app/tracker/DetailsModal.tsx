@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { useDropzone } from 'react-dropzone'
 
-import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes } from '@/types'
+import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes } from '@/types'
 import SystemLogs from './SystemLogs'
 import StatusFlow from './StatusFlow'
 import { fetchDepartments } from '@/utils/fetchApi'
@@ -193,6 +193,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       if (error2) throw new Error(error2.message)
 
+      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
+
       // bulk insert to notifications
       const { data } = await supabase
         .from('dum_users')
@@ -201,7 +203,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       const userNotifications = data.map((user: AccountTypes) => {
         return {
-          message: `A New document with Routing No. ${documentData.routing_slip_no} has been forwarded to your department.`,
+          message: `The document ${documentData.routing_slip_no} has been forwarded to ${dept.name}.`,
           url: `/tracker?code=${documentData.routing_slip_no}`,
           type: 'Forwarded',
           user_id: user.id,
@@ -221,7 +223,34 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         }
       }
 
-      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
+      // bulk insert to notifications to Followers
+      const { data: followers } = await supabase
+        .from('dum_document_followers')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('tracker_id', documentData.id)
+
+      const followersNotifications = followers.map((user: FollowersTypes) => {
+        return {
+          message: `The document ${documentData.routing_slip_no} that you followed been forwarded to ${dept.name}.`,
+          url: `/tracker?code=${documentData.routing_slip_no}`,
+          type: 'Forwarded',
+          user_id: user.user_id,
+          reference_id: documentData.id,
+          reference_table: 'dum_document_trackers'
+        }
+      })
+
+      if (followersNotifications.length > 0) {
+        // insert to notifications
+        const { error: error3 } = await supabase
+          .from('dum_notifications')
+          .insert(followersNotifications)
+
+        if (error3) {
+          throw new Error(error3.message)
+        }
+      }
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
@@ -272,6 +301,37 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         })
 
       if (error2) throw new Error(error2.message)
+
+      const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === departmentId)
+
+      // bulk insert to notifications to Followers
+      const { data: followers } = await supabase
+        .from('dum_document_followers')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('tracker_id', documentData.id)
+
+      const followersNotifications = followers.map((user: FollowersTypes) => {
+        return {
+          message: `The document ${documentData.routing_slip_no} that you followed been received at ${dept.name}.`,
+          url: `/tracker?code=${documentData.routing_slip_no}`,
+          type: 'Forwarded',
+          user_id: user.user_id,
+          reference_id: documentData.id,
+          reference_table: 'dum_document_trackers'
+        }
+      })
+
+      if (followersNotifications.length > 0) {
+        // insert to notifications
+        const { error: error3 } = await supabase
+          .from('dum_notifications')
+          .insert(followersNotifications)
+
+        if (error3) {
+          throw new Error(error3.message)
+        }
+      }
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
