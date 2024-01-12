@@ -13,6 +13,7 @@ export const docTypes = [
   { type: 'Liquidation', shortcut: 'LIQUIDATION' },
   { type: 'Retirement', shortcut: 'RET' },
   { type: 'Memorandum Order', shortcut: 'MEMO' },
+  { type: 'Memorandum Order for Activities', shortcut: 'MEMO-ORDR' },
   { type: 'Notice', shortcut: 'NOTICE' },
   { type: 'Notice of Violation', shortcut: 'NOTI-VIOL' },
   { type: 'Office Order', shortcut: 'OFC-ORD' },
