@@ -43,6 +43,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   const [updateStatusFlow, setUpdateStatusFlow] = useState(false)
   const [selectedItem, setSelectedItem] = useState<DocumentTypes | null>(null)
   const [showAddStickyModal, setShowAddStickyModal] = useState(false)
+  const [hideStickyButton, setHideStickyButton] = useState(false)
+  const [hideFollowButton, setHideFollowButton] = useState(false)
   // const [isFollowing, setIsFollowing] = useState(originalData.dum_document_followers.find(item => (item.tracker_id.toString() === originalData.id && item.user_id === user.id)))
 
   // const [selectedFile, setSelectedFile] = useState(null)
@@ -92,6 +94,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       if (error) throw new Error(error.message)
 
       setToast('success', 'Successfully Followed.')
+      setHideFollowButton(true)
     } catch (e) {
       console.error(e)
     }
@@ -467,23 +470,25 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                   />
               }
               {
-                <CustomButton
-                    containerStyles='app__btn_blue'
-                    btnType='button'
-                    isDisabled={saving}
-                    title={saving ? 'Saving...' : 'Follow'}
-                    handleClick={handleFollow}
-                  />
+                !hideFollowButton &&
+                  <CustomButton
+                      containerStyles='app__btn_blue'
+                      btnType='button'
+                      isDisabled={saving}
+                      title={saving ? 'Saving...' : 'Follow'}
+                      handleClick={handleFollow}
+                    />
               }
               {
-                <CustomButton
-                    containerStyles='app__btn_blue flex space-x-2'
-                    btnType='button'
-                    isDisabled={saving}
-                    title={saving ? 'Saving...' : 'Add To Stickies'}
-                    handleClick={() => handleAddToStickies(documentData)}
-                    rightIcon={<StarIcon className='w-4 h-4 text-yellow-500'/>}
-                  />
+                !hideStickyButton &&
+                  <CustomButton
+                      containerStyles='app__btn_blue flex space-x-2'
+                      btnType='button'
+                      isDisabled={saving}
+                      title={saving ? 'Saving...' : 'Add To Stickies'}
+                      handleClick={() => handleAddToStickies(documentData)}
+                      rightIcon={<StarIcon className='w-4 h-4 text-yellow-500'/>}
+                    />
               }
               <CustomButton
                 containerStyles='app__btn_gray'
@@ -677,6 +682,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
             showAddStickyModal && (
               <AddStickyModal
                 item={selectedItem}
+                hideAddStickButton={() => setHideStickyButton(true)}
                 hideModal={() => setShowAddStickyModal(false)}/>
             )
           }

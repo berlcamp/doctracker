@@ -7,10 +7,11 @@ import type { DocumentTypes } from '@/types'
 
 interface ModalProps {
   hideModal: () => void
+  hideAddStickButton: () => void
   item: DocumentTypes | null
 }
 
-export default function AddStickyModal ({ item, hideModal }: ModalProps) {
+export default function AddStickyModal ({ item, hideAddStickButton, hideModal }: ModalProps) {
   const { setToast } = useFilter()
   const { supabase, session } = useSupabase()
 
@@ -35,6 +36,7 @@ export default function AddStickyModal ({ item, hideModal }: ModalProps) {
       setToast('success', 'Successfully added to stickies')
     }
     hideModal()
+    hideAddStickButton()
   }
 
   const handleChooseColor = (color: string) => {
