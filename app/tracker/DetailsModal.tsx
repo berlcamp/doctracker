@@ -576,7 +576,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     handleClick={() => setShowConfirmReceivedModal(true)}
                   />
               }
-              {
+              {/* {
                 ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
                   <CustomButton
                     containerStyles='app__btn_green'
@@ -585,7 +585,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     title={saving ? 'Saving...' : 'Mark as Completed'}
                     handleClick={() => setShowConfirmCompleteModal(true)}
                   />
-              }
+              } */}
               {
                 !hideFollowButton
                   ? <CustomButton
