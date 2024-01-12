@@ -63,7 +63,8 @@ const Page: React.FC = () => {
 
     try {
       const filterUrl = searchParams.get('filter')
-      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, user, perPageCount, 0)
+      const filterCode = searchParams.get('code')
+      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, filterCode, user, perPageCount, 0)
 
       // update the list in redux
       dispatch(updateList(result.data))
@@ -83,7 +84,8 @@ const Page: React.FC = () => {
 
     try {
       const filterUrl = searchParams.get('filter')
-      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, user, perPageCount, list.length)
+      const filterCode = searchParams.get('code')
+      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, filterCode, user, perPageCount, list.length)
 
       // update the list in redux
       const newList = [...list, ...result.data]

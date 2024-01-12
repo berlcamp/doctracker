@@ -14,7 +14,7 @@ export interface DocumentFilterTypes {
   filterTypes?: any[]
 }
 
-export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: string | null, user: AccountTypes, perPageCount: number, rangeFrom: number) {
+export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: string | null, filterCode: string | null, user: AccountTypes, perPageCount: number, rangeFrom: number) {
   try {
     let query = supabase
       .from('dum_document_trackers')
@@ -60,6 +60,12 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
     if (filterUrl && filterUrl === 'toreceive') {
       query = query.eq('current_status', 'Forwarded')
       query = query.eq('current_department_id', user.dum_departments.id)
+    }
+
+    // Filter Code 2
+    if (filterCode && filterCode !== '') {
+      console.log('filterCode', filterCode)
+      query = query.eq('routing_slip_no', filterCode)
     }
 
     if (filterUrl === 'following') {
