@@ -115,7 +115,7 @@ const Notifications = ({ darkMode }: propTypes) => {
 
     void countUnread()
 
-    router.push(notification.url)
+    router.push(`/tracker?code=${notification.reference_id}`)
   }
 
   useEffect(() => {

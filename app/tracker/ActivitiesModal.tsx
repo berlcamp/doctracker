@@ -2,6 +2,7 @@
 
 import { format } from 'date-fns'
 import type { DocumentTypes } from '@/types'
+import { useEffect, useRef } from 'react'
 
 interface ModalProps {
   hideModal: () => void
@@ -9,9 +10,25 @@ interface ModalProps {
 }
 
 export default function ActivitiesModal ({ hideModal, activitiesData }: ModalProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      hideModal()
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wrapperRef])
+
   return (
     <>
-      <div className="z-30 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
+      <div ref={wrapperRef} className="z-30 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
         <div className="sm:h-[calc(100%-3rem)] w-5/6 my-6 mx-auto relative pointer-events-none">
           <div className="max-h-full border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600">
             <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-gray-200 rounded-t-md">

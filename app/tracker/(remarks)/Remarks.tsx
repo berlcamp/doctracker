@@ -1,14 +1,14 @@
-import type { RepliesDataTypes } from '@/types'
+import type { DocumentTypes, RepliesDataTypes } from '@/types'
 import { useState } from 'react'
 import ReplyBox from './ReplyBox'
 import RepliesBox from './RepliesBox'
 
 interface ModalProps {
   repliesData: RepliesDataTypes[] | []
-  documentId: string
+  document: DocumentTypes
 }
 
-export default function Remarks ({ repliesData, documentId }: ModalProps) {
+export default function Remarks ({ repliesData, document }: ModalProps) {
   //
   const [replies, setReplies] = useState<RepliesDataTypes[] | []>(repliesData)
 
@@ -33,12 +33,13 @@ export default function Remarks ({ repliesData, documentId }: ModalProps) {
       <div className='mt-4 mx-2 outline-none overflow-x-hidden overflow-y-auto text-xs text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-400'>
           <ReplyBox
             handleInsertToList={handleInsertToList}
-            documentId={documentId}
+            document={document}
           />
           {
             replies?.map((reply, index) => (
               <RepliesBox
                 key={index}
+                document={document}
                 handleRemoveFromList={handleRemoveFromList}
                 handleUpdateRemarksList={handleUpdateRemarksList}
                 reply={reply}/>

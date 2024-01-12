@@ -14,7 +14,7 @@ export interface DocumentFilterTypes {
   filterTypes?: any[]
 }
 
-export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: string | null, filterCode: string | null, user: AccountTypes, perPageCount: number, rangeFrom: number) {
+export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: string | null, user: AccountTypes, perPageCount: number, rangeFrom: number) {
   try {
     let query = supabase
       .from('dum_document_trackers')
@@ -64,12 +64,6 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
     if (filterUrl && filterUrl === 'receive') {
       query = query.eq('current_status', 'Received')
       query = query.eq('current_department_id', user.dum_departments.id)
-    }
-
-    // Filter Code 2
-    if (filterCode && filterCode !== '') {
-      console.log('filterCode', filterCode)
-      query = query.eq('routing_slip_no', filterCode)
     }
 
     if (filterUrl === 'following') {
@@ -167,6 +161,7 @@ export async function fetchAccounts (filters: { filterKeyword?: string, filterSt
     let query = supabase
       .from('dum_users')
       .select('*, dum_departments:department_id(id,name)', { count: 'exact' })
+      .neq('email', 'berlcamp@gmail.com')
       .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
 
     // Search match

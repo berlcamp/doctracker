@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useFilter } from '@/context/FilterContext'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
@@ -14,6 +14,8 @@ interface ModalProps {
 export default function AddStickyModal ({ item, hideAddStickButton, hideModal }: ModalProps) {
   const { setToast } = useFilter()
   const { supabase, session } = useSupabase()
+
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   const [color, setColor] = useState('#fb913c')
   const [note, setNote] = useState('')
@@ -43,11 +45,25 @@ export default function AddStickyModal ({ item, hideAddStickButton, hideModal }:
     setColor(color)
   }
 
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      hideModal()
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wrapperRef])
+
   if (!item) return
 
   return (
 
-      <div className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
+      <div ref={wrapperRef} className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
         <div className="sm:h-[calc(100%-3rem)] max-w-lg my-6 mx-auto relative w-auto pointer-events-none">
           <div className="max-h-full overflow-hidden border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current">
             <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-gray-200 rounded-t-md">

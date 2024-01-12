@@ -11,7 +11,7 @@ import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
 import ConfirmModal from '@/components/ConfirmModal'
 import { useFilter } from '@/context/FilterContext'
-import type { RepliesDataTypes } from '@/types'
+import type { DocumentTypes, RepliesDataTypes } from '@/types'
 import Image from 'next/image'
 import Avatar from 'react-avatar'
 
@@ -19,9 +19,10 @@ interface ModalProps {
   handleRemoveFromList: (id: string) => void
   handleUpdateRemarksList: (data: RepliesDataTypes) => void
   reply: RepliesDataTypes
+  document: DocumentTypes
 }
 
-export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksList, reply }: ModalProps) {
+export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksList, reply, document }: ModalProps) {
   const { supabase, session } = useSupabase()
   const { setToast } = useFilter()
 
@@ -231,11 +232,11 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
       </div>
 
       <div className='border-l ml-20'>
-
         {/* Reply To Reply Box */}
         {
-          (!reply.is_private && reply.reply_type !== 'system') &&
+          (!reply.is_private && !reply.new) &&
             <CommentBox
+              document={document}
               handleInsertToList={handleInsertToList}
               replyId={reply.id}
             />
@@ -243,12 +244,13 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
 
         {/* Comments */}
         {
-          comments?.map((rep) => (
-            <CommentsBox
-              handleRemoveFromList={handleRemoveCommentFromList}
-              reply={rep}
-              key={uuid()}/>
-          ))
+          (!reply.is_private && !reply.new) &&
+            comments?.map((rep) => (
+              <CommentsBox
+                handleRemoveFromList={handleRemoveCommentFromList}
+                reply={rep}
+                key={uuid()}/>
+            ))
         }
         {
           showConfirmation && (

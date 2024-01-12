@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client'
 import { Menu, Transition } from '@headlessui/react'
 import { EyeIcon } from '@heroicons/react/24/solid'
@@ -5,23 +6,26 @@ import React, { Fragment, useState } from 'react'
 import { format } from 'date-fns'
 import { useFilter } from '@/context/FilterContext'
 import { useSupabase } from '@/context/SupabaseProvider'
-import type { AccountTypes, RepliesDataTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes, RepliesDataTypes } from '@/types'
 
 interface ModalProps {
-  documentId: string
+  document: DocumentTypes
   handleInsertToList: (data: RepliesDataTypes) => void
 }
 
-export default function ReplyBox ({ documentId, handleInsertToList }: ModalProps) {
-  const { supabase, session, systemUsers } = useSupabase()
+export default function ReplyBox ({ document, handleInsertToList }: ModalProps) {
+  const { supabase, session, systemUsers, departments } = useSupabase()
   const { setToast } = useFilter()
+
+  const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
+  const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
 
   const [replyType, setReplyType] = useState('Public')
   const [remarks, setRemarks] = useState('')
 
   const handleSubmitReply = async () => {
     const newData = {
-      document_tracker_id: documentId,
+      document_tracker_id: document.id,
       sender_id: session.user.id,
       message: remarks,
       is_private: replyType === 'Private Note'
@@ -36,8 +40,6 @@ export default function ReplyBox ({ documentId, handleInsertToList }: ModalProps
       console.error('naai error', error)
       return
     }
-
-    const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
 
     // Update the list from parent component
     const updatedNewData: RepliesDataTypes = {
@@ -54,12 +56,87 @@ export default function ReplyBox ({ documentId, handleInsertToList }: ModalProps
 
     setRemarks('')
 
+    // Notify followers and departments
+    void handleNotify()
+
     // pop up the success message
     setToast('success', 'Remarks successfully added.')
   }
 
+  const handleNotify = async () => {
+    //
+    try {
+      const userIds: string[] = []
+
+      // Followers
+      const { data: followers } = await supabase
+        .from('dum_document_followers')
+        .select('user_id')
+        .eq('tracker_id', document.id)
+
+      followers.forEach((user: FollowersTypes) => {
+        userIds.push(user.user_id.toString())
+      })
+
+      // Get Department ID within Tracker Flow
+      const { data: trackerFlow } = await supabase
+        .from('dum_tracker_flow')
+        .select('department_id')
+        .eq('tracker_id', document.id)
+
+      const deptIds: string[] = []
+      trackerFlow.forEach((item: FlowListTypes) => {
+        deptIds.push(item.department_id)
+      })
+
+      // Get the User assigned to these Department IDs
+      const { data: dumUsers } = await supabase
+        .from('dum_users')
+        .select('id')
+        .in('department_id', deptIds)
+
+      dumUsers.forEach((item: AccountTypes) => {
+        userIds.push(item.id.toString())
+      })
+
+      // Remove the duplicated IDs
+      const uniqueIds = userIds.reduce((accumulator: string[], currentValue: string) => {
+        if (!accumulator.includes(currentValue)) {
+          accumulator.push(currentValue)
+        }
+        return accumulator
+      }, [])
+
+      const notificationData: NotificationTypes[] = []
+
+      uniqueIds.forEach((userId) => {
+        notificationData.push({
+          message: `${user.name} from ${dept.name} office added remarks to Document ${document.routing_slip_no}.`,
+          url: `/tracker?code=${document.routing_slip_no}`,
+          type: 'Remarks',
+          user_id: userId,
+          reference_id: document.id,
+          reference_table: 'dum_document_trackers'
+        })
+      })
+
+      if (notificationData.length > 0) {
+        // insert to notifications
+        const { error: error3 } = await supabase
+          .from('dum_notifications')
+          .insert(notificationData)
+
+        if (error3) {
+          throw new Error(error3.message)
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   return (
-    <div className='w-full flex-col space-y-2 px-4 py-4 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
+    <div className='w-full flex-col space-y-2 px-4 py-4 mb-20 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
       <div className='flex space-x-2'>
         <span className='font-bold'>Remarks:</span>
       </div>

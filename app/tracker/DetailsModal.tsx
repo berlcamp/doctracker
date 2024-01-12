@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import Remarks from './(remarks)/Remarks'
 import { useSupabase } from '@/context/SupabaseProvider'
 import TwoColTableLoading from '@/components/Loading/TwoColTableLoading'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { useDropzone } from 'react-dropzone'
 
@@ -51,6 +51,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   const { supabase, session, systemUsers, departments } = useSupabase()
 
   const { setToast } = useFilter()
+
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
@@ -182,7 +184,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       })
 
       if (notificationData.length > 0) {
-        console.log('notificationData', notificationData)
         // insert to notifications
         const { error: error3 } = await supabase
           .from('dum_notifications')
@@ -467,11 +468,11 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   }
 
   const selectedFiles = selectedImages?.map((file: any, index: number) => (
-    <div key={index} className="inline-flex relative align-top mx-6">
+    <div key={index} className="inline-flex relative align-top mx-px">
       <XCircleIcon
         onClick={() => deleteFile(file)}
-        className='cursor-pointer w-5 h-5 text-gray-500 absolute top-0 -right-5'/>
-      <img src={file.preview} className='w-28' alt=""/>
+        className='cursor-pointer w-5 h-5 text-gray-500 absolute top-0 right-0'/>
+      <img src={file.preview} className='w-16 h-16' alt=""/>
     </div>
   ))
 
@@ -525,8 +526,22 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      hideModal()
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wrapperRef])
+
   return (
-      <div className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
+      <div ref={wrapperRef} className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
         <div className="sm:h-[calc(100%-3rem)] w-5/6 my-6 mx-auto relative pointer-events-none">
           <div className="max-h-full border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600">
             <div className="flex space-x-2 items-center justify-start p-4 border-b bg-slate-200 border-gray-200 rounded-t-md">
@@ -626,25 +641,15 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                           <td className='px-2 py-2 font-medium text-right'>Type:</td>
                           <td className='text-sm font-bold'>{documentData.type}</td>
                         </tr>
-                        {
-                          documentData.activity_date &&
-                            <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Activity Date:</td>
-                              <td className='text-sm font-bold'>{documentData.activity_date}</td>
-                            </tr>
-                        }
+                        <tr>
+                          <td className='px-2 py-2 font-medium text-right'>Activity Date:</td>
+                          <td className='text-sm font-bold'>{documentData.activity_date}</td>
+                        </tr>
                         {
                           documentData.cheque_no &&
                             <tr>
                               <td className='px-2 py-2 font-medium text-right'>Cheque No:</td>
                               <td className='text-sm font-bold'>{documentData.cheque_no}</td>
-                            </tr>
-                        }
-                        {
-                          documentData.amount &&
-                            <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Amount:</td>
-                              <td className='text-sm font-bold'>{documentData.amount}</td>
                             </tr>
                         }
                         <tr>
@@ -655,6 +660,13 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                           <td className='px-2 py-2 font-medium text-right'>Name / Payee:</td>
                           <td className='text-sm font-bold'>{documentData.name}</td>
                         </tr>
+                        {
+                          documentData.amount &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>Amount:</td>
+                              <td className='text-sm font-bold'>{documentData.amount}</td>
+                            </tr>
+                        }
                         <tr>
                           <td className='px-2 py-2 font-medium text-right align-top'>Particulars:</td>
                           <td className='text-sm font-bold'>{documentData.particulars}</td>
@@ -692,7 +704,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                             <div className="flex-auto overflow-y-auto relative p-4">
                               <div className='grid grid-cols-1 gap-4 mb-4'>
                                 <div className='w-full'>
-                                  <div {...getRootProps()} className='border cursor-pointer border-dashed bg-gray-100 text-gray-600 px-4 py-10'>
+                                  <div {...getRootProps()} className='cursor-pointer border-dashed border-2 bg-gray-100 text-gray-600 px-4 py-10'>
                                     <input {...getInputProps()} />
                                     <p className='text-xs'>Drag and drop some files here, or click to select files</p>
                                   </div>
@@ -728,7 +740,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     loadingReplies
                       ? <TwoColTableLoading/>
                       : <Remarks
-                          documentId={documentData.id}
+                          document={documentData}
                           repliesData={repliesData}
                         />
                   }

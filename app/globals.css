@@ -9,7 +9,7 @@
   @apply pb-0
 }
 .app__title {
-  @apply flex items-center space-x-2 px-4 mt-4 py-2 border-gray-200 border-b
+  @apply flex items-center space-x-4 px-4 mt-4 py-2 border-gray-200 border-b
 }
 .app__filters {
   @apply mx-4 py-4

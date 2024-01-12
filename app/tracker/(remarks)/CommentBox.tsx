@@ -1,19 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client'
 import React, { Fragment, useState } from 'react'
 import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
-import type { AccountTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes } from '@/types'
 
 interface ModalProps {
   replyId: string
   handleInsertToList: (d: any) => void
+  document: DocumentTypes
 }
 
-export default function CommentBox ({ replyId, handleInsertToList }: ModalProps) {
-  const { supabase, session, systemUsers } = useSupabase()
+export default function CommentBox ({ replyId, handleInsertToList, document }: ModalProps) {
+  const { supabase, session, systemUsers, departments } = useSupabase()
 
   const [reply, setReply] = useState('')
   const [showCommentInput, setShowCommentInput] = useState(false)
+
+  const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
+  const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
 
   const handleSubmitReply = async () => {
     // Insert into reply to database table
@@ -40,12 +45,87 @@ export default function CommentBox ({ replyId, handleInsertToList }: ModalProps)
       ...newData,
       id: data[0].id,
       created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
-      dum_users: { name: user.name }
+      dum_users: { name: user.name, avatar_url: user.avatar_url }
     }
     handleInsertToList(updatedNewData)
 
+    // Notify followers and departments
+    void handleNotify()
+
     setReply('')
     setShowCommentInput(false)
+  }
+
+  const handleNotify = async () => {
+    //
+    try {
+      const userIds: string[] = []
+
+      // Followers
+      const { data: followers } = await supabase
+        .from('dum_document_followers')
+        .select('user_id')
+        .eq('tracker_id', document.id)
+
+      followers.forEach((user: FollowersTypes) => {
+        userIds.push(user.user_id.toString())
+      })
+
+      // Get Department ID within Tracker Flow
+      const { data: trackerFlow } = await supabase
+        .from('dum_tracker_flow')
+        .select('department_id')
+        .eq('tracker_id', document.id)
+
+      const deptIds: string[] = []
+      trackerFlow.forEach((item: FlowListTypes) => {
+        deptIds.push(item.department_id)
+      })
+
+      // Get the User assigned to these Department IDs
+      const { data: dumUsers } = await supabase
+        .from('dum_users')
+        .select('id')
+        .in('department_id', deptIds)
+
+      dumUsers.forEach((item: AccountTypes) => {
+        userIds.push(item.id.toString())
+      })
+
+      // Remove the duplicated IDs
+      const uniqueIds = userIds.reduce((accumulator: string[], currentValue: string) => {
+        if (!accumulator.includes(currentValue)) {
+          accumulator.push(currentValue)
+        }
+        return accumulator
+      }, [])
+
+      const notificationData: NotificationTypes[] = []
+
+      uniqueIds.forEach((userId) => {
+        notificationData.push({
+          message: `${user.name} from ${dept.name} office added comment to Document ${document.routing_slip_no}.`,
+          url: `/tracker?code=${document.routing_slip_no}`,
+          type: 'Remarks',
+          user_id: userId,
+          reference_id: document.id,
+          reference_table: 'dum_document_trackers'
+        })
+      })
+
+      if (notificationData.length > 0) {
+        // insert to notifications
+        const { error: error3 } = await supabase
+          .from('dum_notifications')
+          .insert(notificationData)
+
+        if (error3) {
+          throw new Error(error3.message)
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return (

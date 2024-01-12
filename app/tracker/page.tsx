@@ -23,7 +23,7 @@ import { statusList, superAdmins } from '@/constants/TrackerConstants'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { useFilter } from '@/context/FilterContext'
 import DownloadExcelButton from './DownloadExcel'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import StickiesModal from './StickiesModal'
 
 const Page: React.FC = () => {
@@ -49,8 +49,9 @@ const Page: React.FC = () => {
 
   const searchParams = useSearchParams()
 
-  const { session, systemUsers } = useSupabase()
+  const { supabase, session, systemUsers } = useSupabase()
   const { hasAccess } = useFilter()
+  const router = useRouter()
 
   const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
@@ -61,10 +62,24 @@ const Page: React.FC = () => {
   const fetchData = async () => {
     setLoading(true)
 
+    const filterCode = searchParams.get('code')
+    if (filterCode && filterCode !== '') {
+      const { data, count }: { data: DocumentTypes, count: number } = await supabase
+        .from('dum_document_trackers')
+        .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
+        .eq('id', filterCode)
+        .maybeSingle()
+
+      if (count > 0) {
+        void handleShowDetailsModal(data)
+        router.replace('/tracker')
+        return
+      }
+    }
+
     try {
       const filterUrl = searchParams.get('filter')
-      const filterCode = searchParams.get('code')
-      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, filterCode, user, perPageCount, 0)
+      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, user, perPageCount, 0)
 
       // update the list in redux
       dispatch(updateList(result.data))
@@ -84,8 +99,8 @@ const Page: React.FC = () => {
 
     try {
       const filterUrl = searchParams.get('filter')
-      const filterCode = searchParams.get('code')
-      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, filterCode, user, perPageCount, list.length)
+
+      const result = await fetchDocuments({ filterDateFrom, filterDateTo, filterKeyword, filterTypes, filterAgency, filterStatus }, filterUrl, user, perPageCount, list.length)
 
       // update the list in redux
       const newList = [...list, ...result.data]
