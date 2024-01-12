@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { useDropzone } from 'react-dropzone'
 
-import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes } from '@/types'
+import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, StickiesTypes } from '@/types'
 import SystemLogs from './SystemLogs'
 import StatusFlow from './StatusFlow'
 import { fetchDepartments } from '@/utils/fetchApi'
@@ -413,6 +413,36 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       setDepartments(filteredResults)
     }
     void fetchDepartmentsData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const checkedFollowStatus = async () => {
+      const { count }: { count: number } = await supabase
+        .from('dum_document_followers')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('tracker_id', documentData.id)
+
+      if (count > 0) {
+        setHideFollowButton(true)
+      }
+    }
+
+    const checkedIfStickyStatus = async () => {
+      const { count }: { count: number } = await supabase
+        .from('dum_document_tracker_stickies')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('document_tracker_id', documentData.id)
+
+      if (count > 0) {
+        setHideStickyButton(true)
+      }
+    }
+
+    void checkedFollowStatus()
+    void checkedIfStickyStatus()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
