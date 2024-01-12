@@ -90,6 +90,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
           user_id: user.id
         })
       if (error) throw new Error(error.message)
+
+      setToast('success', 'Successfully Followed.')
     } catch (e) {
       console.error(e)
     }
