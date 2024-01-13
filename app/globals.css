@@ -30,7 +30,7 @@
   @apply text-xs border-b border-gray-300 uppercase bg-gray-200 text-gray-700
 }
 .app__tr {
-  @apply bg-gray-50 text-xs border-b hover:bg-amber-50
+  @apply bg-white text-xs border-b hover:bg-amber-50
 }
 .app__th {
   @apply py-2 px-2 text-gray-900
@@ -39,13 +39,7 @@
   @apply py-2 px-2 text-gray-800 font-medium
 }
 .app__td {
-  @apply bg-white py-1 px-2
-}
-.app__td_unread {
-  @apply bg-white font-bold text-gray-900
-}
-.app__td_read {
-  @apply bg-gray-50 text-gray-800
+  @apply py-1 px-2
 }
 .app__menu_container {
   @apply relative inline-block text-left mr-2

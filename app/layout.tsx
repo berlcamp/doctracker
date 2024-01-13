@@ -36,7 +36,7 @@ export default async function RootLayout ({ children }: { children: React.ReactN
   // system users
   const { data: systemUsers, error: error2 } = await supabase
     .from('dum_users')
-    .select('*, dum_departments:department_id(id,name)', { count: 'exact' })
+    .select('*, dum_departments:department_id(id,name,document_types)', { count: 'exact' })
     .eq('org_id', process.env.NEXT_PUBLIC_ORG_ID)
 
   if (error2) console.error(error2)

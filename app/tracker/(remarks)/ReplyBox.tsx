@@ -16,6 +16,7 @@ interface ModalProps {
 export default function ReplyBox ({ document, handleInsertToList }: ModalProps) {
   const { supabase, session, systemUsers, departments } = useSupabase()
   const { setToast } = useFilter()
+  const [saving, setSaving] = useState(false)
 
   const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
   const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
@@ -24,43 +25,59 @@ export default function ReplyBox ({ document, handleInsertToList }: ModalProps) 
   const [remarks, setRemarks] = useState('')
 
   const handleSubmitReply = async () => {
-    const newData = {
-      document_tracker_id: document.id,
-      sender_id: session.user.id,
-      message: remarks,
-      is_private: replyType === 'Private Note'
-    }
-    // Insert into replies database table
-    const { data, error } = await supabase
-      .from('dum_document_tracker_replies')
-      .insert(newData)
-      .select()
+    if (saving) return
 
-    if (error) {
-      console.error('naai error', error)
+    if (remarks.trim() === '') {
+      setRemarks('')
       return
     }
 
-    // Update the list from parent component
-    const updatedNewData: RepliesDataTypes = {
-      ...newData,
-      id: data[0].id,
-      new: true,
-      created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
-      dum_users: user,
-      parent_document_tracker_id: '',
-      reply_type: ''
+    setSaving(true)
+
+    //
+    try {
+      const newData = {
+        document_tracker_id: document.id,
+        sender_id: session.user.id,
+        message: remarks,
+        is_private: replyType === 'Private Note'
+      }
+      // Insert into replies database table
+      const { data, error } = await supabase
+        .from('dum_document_tracker_replies')
+        .insert(newData)
+        .select()
+
+      if (error) {
+        console.error('naai error', error)
+        return
+      }
+
+      // Update the list from parent component
+      const updatedNewData: RepliesDataTypes = {
+        ...newData,
+        id: data[0].id,
+        new: true,
+        created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
+        dum_users: user,
+        parent_document_tracker_id: '',
+        reply_type: ''
+      }
+
+      handleInsertToList(updatedNewData)
+
+      setRemarks('')
+
+      // Notify followers and departments
+      void handleNotify()
+
+      setSaving(false)
+
+      // pop up the success message
+      setToast('success', 'Remarks successfully added.')
+    } catch (e) {
+      console.error(e)
     }
-
-    handleInsertToList(updatedNewData)
-
-    setRemarks('')
-
-    // Notify followers and departments
-    void handleNotify()
-
-    // pop up the success message
-    setToast('success', 'Remarks successfully added.')
   }
 
   const handleNotify = async () => {

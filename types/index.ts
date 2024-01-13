@@ -145,6 +145,13 @@ export interface AccountTypes {
   dum_departments: DepartmentTypes
 }
 
+export interface DocTypes {
+  id: string
+  type: string
+  shortcut: string
+  isChecked?: boolean
+}
+
 export interface AttachmentTypes {
   id: string
   name: string
@@ -172,6 +179,7 @@ export interface DepartmentTypes {
   status?: string
   id: string
   name: string
+  document_types: string[]
   dum_users?: AccountTypes
 }
 

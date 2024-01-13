@@ -5,14 +5,13 @@ import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useFilter } from '@/context/FilterContext'
 import { type FileWithPath, useDropzone } from 'react-dropzone'
-import { docTypes } from '@/constants/TrackerConstants'
 import { useSupabase } from '@/context/SupabaseProvider'
 
 // Redux imports
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 
-import type { AccountTypes, DocumentTypes } from '@/types'
+import type { AccountTypes, DocTypes, DocumentTypes } from '@/types'
 import { generateRandomNumber } from '@/utils/text-helper'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 
@@ -27,6 +26,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   const [selectedImages, setSelectedImages] = useState<any>([])
   const [saving, setSaving] = useState(false)
   const [type, setType] = useState('')
+  const [docTypes, setDocTypes] = useState<DocTypes[] | []>([])
 
   const wrapperRef = useRef<HTMLDivElement>(null)
 
@@ -65,6 +65,8 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   })
 
   const onSubmit = async (formdata: DocumentTypes) => {
+    if (saving) return
+
     await handleCreate(formdata)
   }
 
@@ -183,6 +185,30 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   }
 
   useEffect(() => {
+    const fetchDocTypes = async () => {
+      const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
+
+      const { data }: { data: DocTypes[] } = await supabase
+        .from('dum_document_types')
+        .select()
+
+      // filter only allowed doc types
+      const dTypes: DocTypes[] = [...data]
+      const filterDTypes = dTypes.map(item => {
+        const find = [...user.dum_departments?.document_types].find(i => i.toString() === item.id.toString())
+        if (find) {
+          return { ...item, isChecked: true }
+        } else {
+          return { ...item, isChecked: false }
+        }
+      })
+      setDocTypes(filterDTypes)
+    }
+
+    void fetchDocTypes()
+  }, [])
+
+  useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
@@ -217,7 +243,11 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                           <option value=''>Select Type</option>
                           {
                             docTypes?.map((item, index) => (
-                                <option key={index} value={item.type}>{item.type}</option>
+                                <React.Fragment key={index}>
+                                  {
+                                    item.isChecked && <option value={item.type}>{item.type}</option>
+                                  }
+                                </React.Fragment>
                             ))
                           }
                         </select>

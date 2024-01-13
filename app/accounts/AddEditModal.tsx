@@ -158,6 +158,7 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
       const result = await fetchDepartments({}, 300, 0)
       setDepartments(result.data.length > 0 ? result.data : [])
     }
+
     void fetchDepartmentsData()
   }, [])
 

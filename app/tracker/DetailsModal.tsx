@@ -20,6 +20,7 @@ import { BellAlertIcon, BellSlashIcon, StarIcon, XMarkIcon } from '@heroicons/re
 import { generateRandomNumber } from '@/utils/text-helper'
 import { statusList } from '@/constants/TrackerConstants'
 import AddStickyModal from './AddStickyModal'
+import { Tooltip } from 'react-tooltip'
 
 interface ModalProps {
   hideModal: () => void
@@ -227,7 +228,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
-      const updatedData = { ...newData, id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name } }
+      const updatedData = { ...newData, id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name, document_types: [] } }
       const foundIndex = items.findIndex(x => x.id === updatedData.id)
       items[foundIndex] = { ...items[foundIndex], ...updatedData }
       dispatch(updateList(items))
@@ -281,7 +282,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
-      const updatedData = { ...newData, id: documentData.id, current_department: { id: dept.id, name: dept.name } }
+      const updatedData = { ...newData, id: documentData.id, current_department: { id: dept.id, name: dept.name, document_types: [] } }
       const foundIndex = items.findIndex(x => x.id === updatedData.id)
       items[foundIndex] = { ...items[foundIndex], ...updatedData }
       dispatch(updateList(items))
@@ -336,7 +337,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
-      const updatedData = { ...newData, id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name } }
+      const updatedData = { ...newData, id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name, document_types: [] } }
       const foundIndex = items.findIndex(x => x.id === updatedData.id)
       items[foundIndex] = { ...items[foundIndex], ...updatedData }
       dispatch(updateList(items))
@@ -610,7 +611,11 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                   />
               } */}
               {
-                !hideStickyButton && <StarIcon onClick={() => handleAddToStickies(documentData)} className='cursor-pointer w-7 h-7 text-yellow-500'/>
+                !hideStickyButton &&
+                  <>
+                    <StarIcon onClick={() => handleAddToStickies(documentData)} className='cursor-pointer w-7 h-7 text-yellow-500' data-tooltip-id="stickies-tooltip" data-tooltip-content="Add to Stickies"/>
+                    <Tooltip id="stickies-tooltip" place='bottom-end'/>
+                  </>
               }
               {
                 !hideFollowButton

@@ -52,7 +52,7 @@ const TrackerSideBar = () => {
         <li>
           <Link
             href="/tracker?filter=receive"
-            className={`app__menu_link ${filter === 'toreceive' ? 'app_menu_link_active' : ''}`}>
+            className={`app__menu_link ${filter === 'receive' ? 'app_menu_link_active' : ''}`}>
             <span className="flex-1 ml-3 whitespace-nowrap">Receive</span>
             {
               receiveCount > 0 &&

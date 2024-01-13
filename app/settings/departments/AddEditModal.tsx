@@ -5,7 +5,7 @@ import { useFilter } from '@/context/FilterContext'
 import { CustomButton, OneColLayoutLoading } from '@/components'
 
 // Types
-import type { AccountTypes, DepartmentTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes, DocTypes } from '@/types'
 
 // Redux imports
 import { useSelector, useDispatch } from 'react-redux'
@@ -22,6 +22,8 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
   const { setToast } = useFilter()
   const { supabase, session, systemUsers } = useSupabase()
   const [saving, setSaving] = useState(false)
+
+  const [docTypes, setDocTypes] = useState<DocTypes[] | []>([])
 
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
@@ -46,10 +48,18 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
 
   const handleCreate = async (formdata: DepartmentTypes) => {
     try {
+      const ids: string[] = []
+      docTypes.forEach(docType => {
+        if (docType.isChecked) {
+          ids.push(docType.id)
+        }
+      })
+
       const newData = {
         name: formdata.name,
         created_by: session.user.id,
         status: 'Active',
+        document_types: ids,
         org_id: process.env.NEXT_PUBLIC_ORG_ID
       }
 
@@ -86,8 +96,16 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
   const handleUpdate = async (formdata: DepartmentTypes) => {
     if (!editData) return
 
+    const ids: string[] = []
+    docTypes.forEach(docType => {
+      if (docType.isChecked) {
+        ids.push(docType.id)
+      }
+    })
+
     const newData = {
-      name: formdata.name
+      name: formdata.name,
+      document_types: ids
     }
 
     try {
@@ -119,6 +137,46 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
       reset()
     }
   }
+
+  const handleCheckType = (id: string) => {
+    const filterDTypes = docTypes.map(item => {
+      if (item.id.toString() === id) {
+        return { ...item, isChecked: !item.isChecked }
+      } else {
+        return item
+      }
+    })
+    setDocTypes(filterDTypes)
+  }
+
+  useEffect(() => {
+    const fetchDocTypes = async () => {
+      const { data }: { data: DocTypes[] } = await supabase
+        .from('dum_document_types')
+        .select()
+
+      // set checked types
+      if (editData?.document_types) {
+        const dTypes: DocTypes[] = [...data]
+        const filterDTypes = dTypes.map(item => {
+          const find = [...editData.document_types].find(i => i.toString() === item.id.toString())
+          if (find) {
+            return { ...item, isChecked: true }
+          } else {
+            return { ...item, isChecked: false }
+          }
+        })
+        setDocTypes(filterDTypes)
+      } else {
+        const filterDTypes = data.map(item => {
+          return { ...item, isChecked: false }
+        })
+        setDocTypes(filterDTypes)
+      }
+    }
+
+    void fetchDocTypes()
+  }, [])
 
   // manually set the defaultValues of use-form-hook whenever the component receives new props.
   useEffect(() => {
@@ -152,6 +210,20 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
                             type='text'
                             className='app__select_standard'/>
                           {errors.name && <div className='app__error_message'>Department Name is required</div>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className='app__form_field_container'>
+                      <div className='w-full'>
+                        <div className='app__label_standard'>Users of this department can create the following Document Types:</div>
+                        <div className='mt-4'>
+                          <ul className="grid grid-cols-2 gap-2">
+                          {
+                            docTypes?.map((item, index) => (
+                              <li key={index} className="text-xs"><label><input type='checkbox' checked={item.isChecked} onChange={() => handleCheckType(item.id.toString())}/> {item.type}</label></li>
+                            ))
+                          }
+                          </ul>
                         </div>
                       </div>
                     </div>
