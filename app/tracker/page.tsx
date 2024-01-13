@@ -8,7 +8,6 @@ import { Sidebar, PerPage, TopBar, DeleteModal, TableRowLoading, CustomButton, S
 import AddDocumentModal from './AddDocumentModal'
 import DetailsModal from './DetailsModal'
 import ActivitiesModal from './ActivitiesModal'
-import uuid from 'react-uuid'
 import Filters from './Filters'
 import { format } from 'date-fns'
 import { Pdf } from './Pdf'
@@ -25,6 +24,7 @@ import { useFilter } from '@/context/FilterContext'
 import DownloadExcelButton from './DownloadExcel'
 import { useRouter, useSearchParams } from 'next/navigation'
 import StickiesModal from './StickiesModal'
+import { Tooltip } from 'react-tooltip'
 
 const Page: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -192,8 +192,10 @@ const Page: React.FC = () => {
           <TopBar/>
           <div className='app__title'>
             <Title title='Document Tracker'/>
-            <StarIcon onClick={() => setShowStickiesModal(true)} className='cursor-pointer w-7 h-7 text-yellow-500'/>
-            <CalendarDaysIcon onClick={handleViewActivities} className='cursor-pointer w-7 h-7'/>
+            <StarIcon onClick={() => setShowStickiesModal(true)} className='cursor-pointer w-7 h-7 text-yellow-500' data-tooltip-id="stickies-tooltip" data-tooltip-content="Stickies"/>
+            <Tooltip id="stickies-tooltip" place='bottom-end'/>
+            <CalendarDaysIcon onClick={handleViewActivities} className='cursor-pointer w-7 h-7' data-tooltip-id="calendar-tooltip" data-tooltip-content="Upcoming Activities"/>
+            <Tooltip id="calendar-tooltip" place='bottom-end'/>
             <CustomButton
               containerStyles='app__btn_green'
               title='Add New Document'
@@ -231,35 +233,28 @@ const Page: React.FC = () => {
               <thead className="app__thead">
                   <tr>
                         <th className="py-2 pl-4"></th>
-                        <th className="py-2 px-2 w-32">
-                            Routing&nbsp;No
+                        <th className="py-2 px-2 w-16">
                         </th>
-                        <th className="hidden md:table-cell py-2 px-2">
+                        <th className="py-2 px-2">
+                          Routing&nbsp;No
+                        </th>
+                        <th className="py-2 px-2">
                           Status
                         </th>
-                        <th className="hidden md:table-cell py-2 px-2">
-                            Name&nbsp;/&nbsp;Payee
-                        </th>
-                        <th className="hidden md:table-cell py-2 px-2">
-                            Agency
-                        </th>
-                        <th className="hidden md:table-cell py-2 px-2">
+                        <th className="hidden sm:table-cell py-2 px-2">
                             Particulars
                         </th>
-                        <th className="hidden md:table-cell py-2 px-2">
+                        <th colSpan={2} className="hidden sm:table-cell py-2 px-2">
                             Origin
                         </th>
                   </tr>
               </thead>
               <tbody>
                 {
-                  !isDataEmpty && list.map((item: DocumentTypes) => (
-                    <tr
-                      key={uuid()}
-                      className="app__tr">
-                      <td
-                        className="w-6 pl-4 app__td">
-                        <Menu as="div" className="app__menu_container">
+                  !isDataEmpty && list.map((item: DocumentTypes, index: number) => (
+                    <tr key={index} className='app__tr'>
+                      <td className='w-6 pl-4 app__td'>
+                        <Menu as="div" className="app__menu_container font-normal text-gray-600">
                           <div>
                             <Menu.Button className="app__dropdown_btn">
                               <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
@@ -303,83 +298,29 @@ const Page: React.FC = () => {
                           </Transition>
                         </Menu>
                       </td>
-                      <th
-                        className="py-2 px-2 text-gray-900 dark:text-white">
-                        <div className="font-semibold">
-                          <span>
-                            {item.routing_slip_no}
-                          </span>
-                        </div>
-                        <div className='mt-2'>
+                      <td className='pl-4 app__td'>
+                        <div>
                           <button
                             onClick={() => handleShowDetailsModal(item)}
                             className="bg-emerald-500 hover:bg-emerald-600 border border-emerald-600 font-medium px-1 py-px text-xs text-white rounded-sm"
                             >Tracker</button>
                         </div>
-
-                        {/* Mobile View */}
-                        <div>
-                          <div className="md:hidden py-2">
-                            <span className='font-light'>Type: </span>
-                            <span className='font-semibold'>{item.type}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="md:hidden py-2">
-                            <span className='font-light'>Status: </span>
-                            <span className='' style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'}  {item.current_department.name}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="md:hidden py-2">
-                          <span className='font-light'>Name:</span>
-                            <span className='font-semibold'>{item.name}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="md:hidden py-2">
-                            <span className='font-light'>Agency: </span>
-                            <span className='font-semibold'>{item.agency}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="md:hidden py-2">
-                            <span className='font-light'>Particulars: </span>
-                            <span className='font-semibold'>{item.particulars}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="md:hidden py-2">
-                            <span className='font-light'>Origin: </span>
-                            <div className='font-bold'>{item.dum_departments.name}</div>
-                            <div className='text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
-                            <UserBlock user={item.dum_users}/>
-                          </div>
-                        </div>
-                        {/* End - Mobile View */}
-
-                      </th>
-                      <td className="hidden md:table-cell py-2 px-2">
-                        <span className='font-bold' style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</span>
                       </td>
-                      <td className="hidden md:table-cell py-2 px-2">
-                        <div>{item.name}</div>
-                        {
-                          (item.amount && item.amount !== '') &&
-                            <div className='font-bold'>Amount: {Number(item.amount).toLocaleString()}</div>
-                        }
+                      <td className='app__td'>
+                        <span>{item.routing_slip_no}</span>
                       </td>
-                      <td className="hidden md:table-cell py-2 px-2">
-                        {item.agency}
+                      <td className='app__td'>
+                        <span style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</span>
                       </td>
-                      <td className="hidden md:table-cell py-2 px-2">
+                      <td className='hidden sm:table-cell app__td'>
                         {item.particulars}
                       </td>
-                      <td
-                        className="hidden md:table-cell app__td">
-                        <div className='font-bold'>{item.dum_departments.name}</div>
-                        <div className='text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
-                        <UserBlock user={item.dum_users}/>
+                      <td className='hidden sm:table-cell app__td'>
+                          <div>{item.dum_departments.name}</div>
+                          <div className='font-normal text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
+                      </td>
+                      <td className='hidden sm:table-cell app__td'>
+                          <UserBlock user={item.dum_users}/>
                       </td>
                     </tr>
                   ))

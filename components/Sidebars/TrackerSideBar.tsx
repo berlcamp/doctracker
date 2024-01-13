@@ -8,9 +8,7 @@ import type { AccountTypes } from '@/types'
 import { useSelector } from 'react-redux'
 
 const TrackerSideBar = () => {
-  const [toReceiveCount, setToReceiveCount] = useState(0)
   const [receiveCount, setReceiveCount] = useState(0)
-  const [followingCount, setFollowingCount] = useState(0)
   const searchParams = useSearchParams()
 
   const filter = searchParams.get('filter')
@@ -29,22 +27,7 @@ const TrackerSideBar = () => {
       .eq('current_status', 'Forwarded')
       .eq('current_department_id', user.dum_departments.id)
 
-    setToReceiveCount(count)
-
-    const { count: received }: { count: number } = await supabase
-      .from('dum_document_trackers')
-      .select('*', { count: 'exact' })
-      .eq('current_status', 'Received')
-      .eq('current_department_id', user.dum_departments.id)
-
-    setReceiveCount(received)
-
-    const { count: following }: { count: number } = await supabase
-      .from('dum_document_followers')
-      .select('*', { count: 'exact' })
-      .eq('user_id', user.id)
-
-    setFollowingCount(following)
+    setReceiveCount(count)
   }
   useEffect(() => {
     void counter()
@@ -63,14 +46,14 @@ const TrackerSideBar = () => {
           <Link
             href="/tracker"
             className={`app__menu_link ${!filter ? 'app_menu_link_active' : ''}`}>
-            <span className="flex-1 ml-3 whitespace-nowrap">All</span>
+            <span className="flex-1 ml-3 whitespace-nowrap">All Documents</span>
           </Link>
         </li>
         <li>
           <Link
             href="/tracker?filter=receive"
-            className={`app__menu_link ${filter === 'receive' ? 'app_menu_link_active' : ''}`}>
-            <span className="flex-1 ml-3 whitespace-nowrap">Received</span>
+            className={`app__menu_link ${filter === 'toreceive' ? 'app_menu_link_active' : ''}`}>
+            <span className="flex-1 ml-3 whitespace-nowrap">Receive</span>
             {
               receiveCount > 0 &&
                 <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
@@ -81,28 +64,9 @@ const TrackerSideBar = () => {
         </li>
         <li>
           <Link
-            href="/tracker?filter=toreceive"
-            className={`app__menu_link ${filter === 'toreceive' ? 'app_menu_link_active' : ''}`}>
-            <span className="flex-1 ml-3 whitespace-nowrap">To Receive</span>
-            {
-              toReceiveCount > 0 &&
-                <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
-                  <span className='rounded-full px-1 text-white text-xs'>{toReceiveCount}</span>
-                </span>
-            }
-          </Link>
-        </li>
-        <li>
-          <Link
             href="/tracker?filter=following"
             className={`app__menu_link ${filter === 'following' ? 'app_menu_link_active' : ''}`}>
             <span className="flex-1 ml-3 whitespace-nowrap">Following</span>
-            {
-              followingCount > 0 &&
-                <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
-                  <span className='rounded-full px-1 text-white text-xs'>{followingCount}</span>
-                </span>
-            }
           </Link>
         </li>
       </ul>

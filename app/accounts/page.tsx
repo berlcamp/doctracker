@@ -5,7 +5,6 @@ import { fetchAccounts } from '@/utils/fetchApi'
 import React, { Fragment, useEffect, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { Sidebar, PerPage, TopBar, TableRowLoading, ShowMore, Title, Unauthorized, CustomButton, ConfirmModal, UserBlock, SettingsSideBar } from '@/components'
-import uuid from 'react-uuid'
 import { superAdmins } from '@/constants/TrackerConstants'
 import Filters from './Filters'
 import { useFilter } from '@/context/FilterContext'
@@ -234,9 +233,9 @@ const Page: React.FC = () => {
               </thead>
               <tbody>
                 {
-                  !isDataEmpty && list.map((item: AccountTypes) => (
+                  !isDataEmpty && list.map((item: AccountTypes, index) => (
                     <tr
-                      key={uuid()}
+                      key={index}
                       className="app__tr">
                       <td
                         className="w-6 pl-4 app__td">

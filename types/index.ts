@@ -46,7 +46,7 @@ export interface NotificationTypes {
   url: string
   type: string
   user_id: string
-  reference_id?: string
+  dum_document_tracker_id?: string
   reference_table?: string
   is_read?: boolean
 }
@@ -81,14 +81,15 @@ export interface DocumentTypes {
   agency?: string
   name: string
   particulars: string
+  contact_number: string
   status: string
   current_status: string
   current_department_id: string
   remarks: string
   date: string
   time: string
-  received_by: string
-  received_from: string
+  supplier_name: string
+  purchase_order_number: string
   date_endorsed: string
   time_endorsed: string
   created_at: string

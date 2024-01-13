@@ -115,7 +115,7 @@ export default function ReplyBox ({ document, handleInsertToList }: ModalProps) 
           url: `/tracker?code=${document.routing_slip_no}`,
           type: 'Remarks',
           user_id: userId,
-          reference_id: document.id,
+          dum_document_tracker_id: document.id,
           reference_table: 'dum_document_trackers'
         })
       })

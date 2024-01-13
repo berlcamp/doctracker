@@ -57,12 +57,8 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
     // }
 
     // Filter Status 2
-    if (filterUrl && filterUrl === 'toreceive') {
-      query = query.eq('current_status', 'Forwarded')
-      query = query.eq('current_department_id', user.dum_departments.id)
-    }
     if (filterUrl && filterUrl === 'receive') {
-      query = query.eq('current_status', 'Received')
+      query = query.or('current_status.eq.Received,current_status.eq.Forwarded')
       query = query.eq('current_department_id', user.dum_departments.id)
     }
 

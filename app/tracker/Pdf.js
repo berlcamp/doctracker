@@ -43,7 +43,7 @@ export async function Pdf (item) {
   doc.text(`${item.date}`, 131, y, 'left')
   y += 5
   doc.setFont('helvetica', 'normal')
-  doc.text('Type:', 61, y, 'left')
+  doc.text('Particulars:', 61, y, 'left')
 
   // Begin Particualrs
   doc.setFont('helvetica', 'bold')
@@ -53,11 +53,11 @@ export async function Pdf (item) {
   // loop through the lines and add them to the document
   for (let i = 0; i < lines.length; i++) {
     if (i === 3) {
-      doc.text(71, y, lines[i] + '...')
+      doc.text(79, y, lines[i] + '...')
       y += 5
       break
     } else {
-      doc.text(71, y, lines[i])
+      doc.text(79, y, lines[i])
       y += 5
     }
   }
@@ -72,24 +72,6 @@ export async function Pdf (item) {
     y += 5
   }
 
-  doc.setFont('helvetica', 'normal')
-  doc.text('From:', 61, y, 'left')
-
-  // Begin From
-  doc.setFont('helvetica', 'bold')
-  const textFrom = item.received_from
-  const lines2 = doc.splitTextToSize(textFrom, maxWidth)
-  // loop through the lines and add them to the document
-  for (let i = 0; i < lines2.length; i++) {
-    doc.text(71, y, lines2[i])
-    y += 5
-  }
-  // End From
-
-  doc.setFont('helvetica', 'normal')
-  doc.text('Received By:', 61, y, 'left')
-  doc.setFont('helvetica', 'bold')
-  doc.text(`${item.received_by}`, 81, y, 'left')
   doc.setLineWidth(0.5)
   y += 2
   doc.line(61, y, 150, y) // Horizonal line

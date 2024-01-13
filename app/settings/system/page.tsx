@@ -88,6 +88,8 @@ const Page: React.FC = () => {
                 results && (
                   <>
                     <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='document_tracker' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'document_tracker') : []} title='Who can Access to Document Tracker System'/>
+                    <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='supplier_name_editor' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'supplier_name_editor') : []} title='Who can Edit Name of the Supplier'/>
+                    <SelectUserNames handleManagerChange={handleManagerChange} multiple={true} type='purchase_number_editor' settingsData={Array.isArray(settingsData) ? settingsData.filter((item: settingsDataTypes) => item.access_type === 'purchase_number_editor') : []} title='Who can Edit Purchase Order Number'/>
                   </>
                 )
               }

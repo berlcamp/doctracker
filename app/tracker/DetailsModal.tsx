@@ -6,17 +6,17 @@ import { useSupabase } from '@/context/SupabaseProvider'
 import TwoColTableLoading from '@/components/Loading/TwoColTableLoading'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
-import { useDropzone } from 'react-dropzone'
+import { type FileWithPath, useDropzone } from 'react-dropzone'
 
 import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes, FlowListTypes } from '@/types'
 import SystemLogs from './SystemLogs'
 import StatusFlow from './StatusFlow'
-import { ConfirmModal, CustomButton } from '@/components'
+import { ConfirmModal, CustomButton, UserBlock } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 import { recount } from '@/GlobalRedux/Features/recountSlice'
 import { useFilter } from '@/context/FilterContext'
-import { BellAlertIcon, BellSlashIcon, StarIcon, XCircleIcon } from '@heroicons/react/20/solid'
+import { BellAlertIcon, BellSlashIcon, StarIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { generateRandomNumber } from '@/utils/text-helper'
 import { statusList } from '@/constants/TrackerConstants'
 import AddStickyModal from './AddStickyModal'
@@ -178,7 +178,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
           url: `/tracker?code=${document.routing_slip_no}`,
           type: actionType,
           user_id: userId,
-          reference_id: document.id,
+          dum_document_tracker_id: document.id,
           reference_table: 'dum_document_trackers'
         })
       })
@@ -394,16 +394,25 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
     setAttachments(data)
   }
 
-  // Upload files
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     setSelectedImages(acceptedFiles.map(file => (
       Object.assign(file, {
-        preview: URL.createObjectURL(file)
+        filename: file.name
       })
     )))
   }, [])
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop })
+  const maxSize = 5242880 // 5 MB in bytes
+  const { getRootProps, getInputProps, fileRejections } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.jpeg', '.png', '.jpg'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.docx'],
+      'application/vnd.ms-excel': ['.xlsx']
+    },
+    maxSize
+  })
 
   // const handleConfirm = () => {
   //   setShowConfirmation(false)
@@ -462,17 +471,17 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
     setAttachments([...attachments, ...newAttachments])
   }
 
-  const deleteFile = (file: { path: string }) => {
-    const files = selectedImages.filter((f: { path: string }) => f.path !== file.path)
+  const deleteFile = (file: FileWithPath) => {
+    const files = selectedImages.filter((f: FileWithPath) => f.path !== file.path)
     setSelectedImages(files)
   }
 
   const selectedFiles = selectedImages?.map((file: any, index: number) => (
-    <div key={index} className="inline-flex relative align-top mx-px">
-      <XCircleIcon
+    <div key={index} className="flex space-x-1 py-px items-center justify-start relative align-top">
+      <XMarkIcon
         onClick={() => deleteFile(file)}
-        className='cursor-pointer w-5 h-5 text-gray-500 absolute top-0 right-0'/>
-      <img src={file.preview} className='w-16 h-16' alt=""/>
+        className='cursor-pointer w-5 h-5 text-red-400'/>
+      <span className='text-xs'>{file.filename}</span>
     </div>
   ))
 
@@ -489,6 +498,13 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       return '#000000'
     }
   }
+
+  useEffect(() => {
+    if (fileRejections.length > 0) {
+      setSelectedImages([])
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileRejections])
 
   useEffect(() => {
     void fetchReplies()
@@ -679,6 +695,14 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       <thead><tr><th className='w-40'></th><th></th></tr></thead>
                       <tbody>
                         <tr>
+                          <td className='px-2 py-2 font-medium text-right align-top'>Origin:</td>
+                          <td className='px-2 py-2 font-medium align-top'>
+                            <div>{documentData.dum_departments.name}</div>
+                            <div className='text-gray-500 text-[10px]'>{format(new Date(documentData.created_at), 'dd MMM yyyy h:mm a')}</div>
+                            <UserBlock user={documentData.dum_users}/>
+                          </td>
+                        </tr>
+                        <tr>
                           <td className='px-2 py-2 font-medium text-right align-top'>Attachments:</td>
                           <td>
                             <div>
@@ -702,19 +726,31 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                             }
                             </div>
                             <div className="flex-auto overflow-y-auto relative p-4">
-                              <div className='grid grid-cols-1 gap-4 mb-4'>
+                              <div className='grid grid-cols-1 gap-4'>
                                 <div className='w-full'>
                                   <div {...getRootProps()} className='cursor-pointer border-dashed border-2 bg-gray-100 text-gray-600 px-4 py-10'>
                                     <input {...getInputProps()} />
                                     <p className='text-xs'>Drag and drop some files here, or click to select files</p>
                                   </div>
-                                  <div className='py-4'>
-                                    {selectedFiles}
-                                  </div>
+                                  {
+                                    (fileRejections.length === 0 && selectedImages.length > 0) &&
+                                      <div className='py-4'>
+                                        <div className='text-xs font-medium mb-2'>Files to upload:</div>
+                                        {selectedFiles}
+                                      </div>
+                                  }
+                                  {
+                                    fileRejections.length > 0 &&
+                                      <div className='py-4'>
+                                          <p className='text-red-500 text-xs'>
+                                            File rejected. Please make sure its an image, PDF, DOC, or Excel file and less than 5MB.
+                                          </p>
+                                      </div>
+                                  }
                                 </div>
                               </div>
                               {
-                                selectedImages.length > 0 &&
+                                (selectedFiles.length > 0 && fileRejections.length === 0) &&
                                   <CustomButton
                                     containerStyles='app__btn_green'
                                     title={uploading ? 'Uploading...' : 'Upload'}

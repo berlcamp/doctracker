@@ -1,13 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @next/next/no-img-element */
 'use client'
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useFilter } from '@/context/FilterContext'
-import { useDropzone } from 'react-dropzone'
+import { type FileWithPath, useDropzone } from 'react-dropzone'
 import { docTypes } from '@/constants/TrackerConstants'
-import uuid from 'react-uuid'
-import { XCircleIcon } from '@heroicons/react/24/solid'
 import { useSupabase } from '@/context/SupabaseProvider'
 
 // Redux imports
@@ -16,18 +14,18 @@ import { updateList } from '@/GlobalRedux/Features/listSlice'
 
 import type { AccountTypes, DocumentTypes } from '@/types'
 import { generateRandomNumber } from '@/utils/text-helper'
+import { XMarkIcon } from '@heroicons/react/20/solid'
 
 interface ModalProps {
   hideModal: () => void
 }
 
 export default function AddDocumentModal ({ hideModal }: ModalProps) {
-  const { setToast } = useFilter()
+  const { setToast, hasAccess } = useFilter()
   const { supabase, session, systemUsers } = useSupabase()
 
   const [selectedImages, setSelectedImages] = useState<any>([])
   const [saving, setSaving] = useState(false)
-  const [routingSlipNo, setRoutingSlipNo] = useState('')
   const [type, setType] = useState('')
 
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -42,15 +40,25 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   const globallist = useSelector((state: any) => state.list.value)
   const dispatch = useDispatch()
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     setSelectedImages(acceptedFiles.map(file => (
       Object.assign(file, {
-        preview: URL.createObjectURL(file)
+        filename: file.name
       })
     )))
   }, [])
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop })
+  const maxSize = 5242880 // 5 MB in bytes
+  const { getRootProps, getInputProps, fileRejections } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.jpeg', '.png', '.jpg'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.docx'],
+      'application/vnd.ms-excel': ['.xlsx']
+    },
+    maxSize
+  })
 
   const { register, formState: { errors }, reset, handleSubmit } = useForm<DocumentTypes>({
     mode: 'onSubmit'
@@ -75,7 +83,6 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
 
       const routingNo = generateRandomNumber()
       const routingSlipNo = shortcut + '-' + routingNo
-      setRoutingSlipNo(routingSlipNo)
 
       const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
@@ -139,7 +146,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   const handleUploadFiles = async (id: string) => {
     // Upload attachments
     await Promise.all(
-      selectedImages.map(async (file: { name: string }) => {
+      selectedImages.map(async (file: File) => {
         const { error } = await supabase.storage
           .from('dum_documents')
           .upload(`${id}/${file.name}`, file)
@@ -148,19 +155,26 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
     )
   }
 
-  const deleteFile = (file: { path: string }) => {
-    const files = selectedImages.filter((f: { path: string }) => f.path !== file.path)
+  const deleteFile = (file: FileWithPath) => {
+    const files = selectedImages.filter((f: FileWithPath) => f.path !== file.path)
     setSelectedImages(files)
   }
 
-  const selectedFiles = selectedImages?.map((file: any) => (
-    <div key={uuid()} className="inline-flex relative align-top mx-6">
-      <XCircleIcon
+  const selectedFiles = selectedImages?.map((file: any, index: number) => (
+    <div key={index} className="flex space-x-1 py-px items-center justify-start relative align-top">
+      <XMarkIcon
         onClick={() => deleteFile(file)}
-        className='cursor-pointer w-5 h-5 text-gray-500 absolute top-0 -right-5'/>
-      <img src={file.preview} className='w-28' alt=""/>
+        className='cursor-pointer w-5 h-5 text-red-400'/>
+      <span className='text-xs'>{file.filename}</span>
     </div>
   ))
+
+  useEffect(() => {
+    if (fileRejections.length > 0) {
+      setSelectedImages([])
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileRejections])
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -188,17 +202,6 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="modal-body relative p-4 overflow-x-scroll">
-              {
-                routingSlipNo &&
-                  <div className='grid grid-cols-1 gap-4 px-4 mb-4'>
-                    <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Routing Slip No:</div>
-                      <div>
-                        <span className='font-bold text-emerald-700'>{routingSlipNo}</span>
-                      </div>
-                    </div>
-                  </div>
-              }
               <div className='flex items-start justify-between space-x-2'>
                 {/* Begin First Column */}
                 <div className='w-full px-4'>
@@ -213,8 +216,8 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                           className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'>
                           <option value=''>Select Type</option>
                           {
-                            docTypes?.map(item => (
-                                <option key={uuid()} value={item.type}>{item.type}</option>
+                            docTypes?.map((item, index) => (
+                                <option key={index} value={item.type}>{item.type}</option>
                             ))
                           }
                         </select>
@@ -236,51 +239,109 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                         </div>
                       </div>
                   }
-                  <div className='grid grid-cols-1 gap-4 mb-4'>
-                    <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Activity Date:</div>
-                      <div>
-                        <input
-                          {...register('activity_date')}
-                          type="date"
-                          className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                  {
+                    ['Letters', 'Memorandum Order for Activities'].includes(type) &&
+                      <>
+                        <div className='grid grid-cols-1 gap-4 mb-4'>
+                          <div className='w-full'>
+                            <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Activity Date:</div>
+                            <div>
+                              <input
+                                {...register('activity_date')}
+                                type="date"
+                                className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                            </div>
+                          </div>
+                        </div>
+                        <div className='grid grid-cols-1 gap-4 mb-4'>
+                          <div className='w-full'>
+                            <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Contact #:</div>
+                            <div>
+                              <input
+                                {...register('contact_number')}
+                                type="text"
+                                className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                  }
+                  {
+                    ['Cheque', 'Contract of Service', 'Disbursement Voucher', 'IPCR/OPCR', 'Liquidation', 'Retirement', 'Office Order', 'Order of Payment', 'OBR', 'Purchase Request', 'Proposal', 'Purchase Order', 'Reports', 'Salary Loan', 'Show Cause', 'Travel Order'].includes(type) &&
+                      <div className='grid grid-cols-1 gap-4 mb-4'>
+                        <div className='w-full'>
+                          <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Agency / Department:</div>
+                          <div>
+                            <input
+                              {...register('agency')}
+                              type="text"
+                              className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 mb-4'>
-                    <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Agency / Department:</div>
-                      <div>
-                        <input
-                          {...register('agency')}
-                          type="text"
-                          className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                  }
+                  {
+                    ['Cheque', 'Contract of Service', 'IPCR/OPCR', 'Liquidation', 'OBR', 'Retirement', 'Salary Loan', 'Show Cause', 'Travel Order'].includes(type) &&
+                      <div className='grid grid-cols-1 gap-4 mb-4'>
+                        <div className='w-full'>
+                          <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Name:</div>
+                          <div>
+                            <input
+                              {...register('name')}
+                              type="text"
+                              className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 mb-4'>
-                    <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Name / Payee:</div>
-                      <div>
-                        <input
-                          {...register('name')}
-                          type="text"
-                          className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                  }
+                  {
+                    ['Cheque', 'Disbursement Voucher', 'Order of Payment', 'OBR', 'Purchase Request', 'Purchase Order', 'Salary Loan'].includes(type) &&
+                      <div className='grid grid-cols-1 gap-4 mb-4'>
+                        <div className='w-full'>
+                          <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Amount:</div>
+                          <div>
+                            <input
+                              {...register('amount')}
+                              type="number"
+                              step='any'
+                              className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className='grid grid-cols-1 gap-4 mb-4'>
-                    <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Amount:</div>
-                      <div>
-                        <input
-                          {...register('amount')}
-                          type="number"
-                          step='any'
-                          className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
-                      </div>
-                    </div>
-                  </div>
+                  }
+                  {
+                    type === 'Purchase Order' &&
+                      <>
+                        {
+                          hasAccess('supplier_name_editor') &&
+                            <div className='grid grid-cols-1 gap-4 mb-4'>
+                              <div className='w-full'>
+                                <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Supplier Name:</div>
+                                <div>
+                                  <input
+                                    {...register('supplier_name')}
+                                    type="text"
+                                    className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                </div>
+                              </div>
+                            </div>
+                        }
+                        {
+                          hasAccess('purchase_number_editor') &&
+                            <div className='grid grid-cols-1 gap-4 mb-4'>
+                              <div className='w-full'>
+                                <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Purchase Order No:</div>
+                                <div>
+                                  <input
+                                    {...register('purchase_order_number')}
+                                    type="text"
+                                    className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                </div>
+                              </div>
+                            </div>
+                        }
+                      </>
+                  }
                   <div className='grid grid-cols-1 gap-4 mb-4'>
                     <div className='w-full'>
                       <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Particulars<span className='italic text-xs text-gray-500'>(Required)</span>:</div>
@@ -297,21 +358,28 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
 
                 {/* Begin Second Column */}
                 <div className='w-full px-4'>
-                  <div className='grid grid-cols-1 gap-4 px-4 mb-4'>
-                    <div className='w-full'>
-                      <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Attachments:</div>
-                    </div>
-                  </div>
-                  <div className="flex-auto overflow-y-auto relative p-4">
-                    <div className='grid grid-cols-1 gap-4 mb-4'>
+                  <div className="flex-auto overflow-y-auto relative px-4">
+                    <div className='grid grid-cols-1 gap-4'>
                       <div className='w-full'>
-                        <div {...getRootProps()} className='border cursor-pointer border-dashed bg-gray-100 text-gray-600 px-4 py-10'>
+                        <div {...getRootProps()} className='cursor-pointer border-2 border-dashed border-gray-300 bg-gray-100 text-gray-600 px-4 py-10'>
                           <input {...getInputProps()} />
                           <p className='text-xs'>Drag and drop some files here, or click to select files</p>
                         </div>
-                        <div className='py-4'>
-                          {selectedFiles}
-                        </div>
+                        {
+                          (fileRejections.length === 0 && selectedImages.length > 0) &&
+                            <div className='py-4'>
+                              <div className='text-xs font-medium mb-2'>Files to upload:</div>
+                              {selectedFiles}
+                            </div>
+                        }
+                        {
+                          fileRejections.length > 0 &&
+                            <div className='py-4'>
+                                <p className='text-red-500 text-xs'>
+                                  File rejected. Please make sure its an image, PDF, DOC, or Excel file and less than 5MB.
+                                </p>
+                            </div>
+                        }
                       </div>
                     </div>
                   </div>
