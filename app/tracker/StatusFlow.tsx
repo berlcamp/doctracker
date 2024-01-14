@@ -11,7 +11,7 @@ function StatusFlow ({ documentId, updateStatusFlow }: { documentId: string, upd
     const fetchData = async () => {
       const { data }: { data: FlowListTypes[] } = await supabase
         .from('dum_tracker_flow')
-        .select('*, dum_user:user_id(*),dum_department:department_id(id,name)', { count: 'exact' })
+        .select('*, dum_user:user_id(name),dum_department:department_id(id,name),dum_tracker_logs(*, dum_user:user_id(name))', { count: 'exact' })
         .eq('tracker_id', documentId)
 
       setFlowList(data)
@@ -43,6 +43,17 @@ function StatusFlow ({ documentId, updateStatusFlow }: { documentId: string, upd
                     <div className='font-bold'>{item.status}</div>
                     <div className='text-xs'>{item.status === 'Forwarded' ? 'to' : 'at'}  {item.dum_department.name}</div>
                     <div className='text-xs'>by {item.dum_user.name}</div>
+                    <div className='ml-12'>
+                      {
+                        item.dum_tracker_logs.length > 0 && item.dum_tracker_logs.map((log, index) => (
+                          <div key={index} className='text-[11px]'>
+                            <span>{format(new Date(log.created_at), 'dd MMM yyyy h:mm a')}: </span>
+                            <span className='font-semibold'>{log.dum_user.name} </span>
+                            <span>{log.message}</span>
+                          </div>
+                        ))
+                      }
+                    </div>
                   </div>
                 </div>
               ))

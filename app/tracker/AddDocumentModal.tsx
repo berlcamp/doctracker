@@ -20,7 +20,7 @@ interface ModalProps {
 }
 
 export default function AddDocumentModal ({ hideModal }: ModalProps) {
-  const { setToast, hasAccess } = useFilter()
+  const { setToast } = useFilter()
   const { supabase, session, systemUsers } = useSupabase()
 
   const [selectedImages, setSelectedImages] = useState<any>([])
@@ -29,6 +29,8 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   const [docTypes, setDocTypes] = useState<DocTypes[] | []>([])
 
   const wrapperRef = useRef<HTMLDivElement>(null)
+
+  const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
   const now = new Date()
   const year = now.getFullYear().toString()
@@ -86,16 +88,17 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
       const routingNo = generateRandomNumber()
       const routingSlipNo = shortcut + '-' + routingNo
 
-      const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
-
       const newData = {
         type: formdata.type,
         cheque_no: formdata.cheque_no,
         amount: formdata.amount,
         activity_date: formdata.activity_date,
+        date_delivered: formdata.date_delivered,
+        supplier_name: formdata.supplier_name,
+        purchase_request_number: formdata.purchase_request_number,
         agency: formdata.agency,
         name: formdata.name,
-        date: dateString,
+        date_created: dateString,
         particulars: formdata.particulars,
         user_id: session.user.id,
         origin_department_id: user.department_id,
@@ -195,7 +198,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
       // filter only allowed doc types
       const dTypes: DocTypes[] = [...data]
       const filterDTypes = dTypes.map(item => {
-        const find = [...user.dum_departments?.document_types].find(i => i.toString() === item.id.toString())
+        const find = [...user.dum_departments.document_types].find(i => i.toString() === item.id.toString())
         if (find) {
           return { ...item, isChecked: true }
         } else {
@@ -300,7 +303,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                     ['Cheque', 'Contract of Service', 'Disbursement Voucher', 'IPCR/OPCR', 'Liquidation', 'Retirement', 'Office Order', 'Order of Payment', 'OBR', 'Purchase Request', 'Proposal', 'Purchase Order', 'Reports', 'Salary Loan', 'Show Cause', 'Travel Order'].includes(type) &&
                       <div className='grid grid-cols-1 gap-4 mb-4'>
                         <div className='w-full'>
-                          <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Agency / Department:</div>
+                          <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Requesting Department:</div>
                           <div>
                             <input
                               {...register('agency')}
@@ -343,32 +346,43 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                     type === 'Purchase Order' &&
                       <>
                         {
-                          hasAccess('supplier_name_editor') &&
-                            <div className='grid grid-cols-1 gap-4 mb-4'>
-                              <div className='w-full'>
-                                <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Supplier Name:</div>
-                                <div>
-                                  <input
-                                    {...register('supplier_name')}
-                                    type="text"
-                                    className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                          // GSO only
+                          user.department_id.toString() === '4' &&
+                            <>
+                              <div className='grid grid-cols-1 gap-4 mb-4'>
+                                <div className='w-full'>
+                                  <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Supplier Name:</div>
+                                  <div>
+                                    <input
+                                      {...register('supplier_name')}
+                                      type="text"
+                                      className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                        }
-                        {
-                          hasAccess('purchase_number_editor') &&
-                            <div className='grid grid-cols-1 gap-4 mb-4'>
-                              <div className='w-full'>
-                                <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Purchase Order No:</div>
-                                <div>
-                                  <input
-                                    {...register('purchase_order_number')}
-                                    type="text"
-                                    className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                              <div className='grid grid-cols-1 gap-4 mb-4'>
+                                <div className='w-full'>
+                                  <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>PR No:</div>
+                                  <div>
+                                    <input
+                                      {...register('purchase_request_number')}
+                                      type="text"
+                                      className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                              <div className='grid grid-cols-1 gap-4 mb-4'>
+                                <div className='w-full'>
+                                  <div className='text-gray-600 font-medium text-sm mb-1 dark:text-gray-300'>Date Delivered:</div>
+                                  <div>
+                                    <input
+                                      {...register('date_delivered')}
+                                      type="date"
+                                      className='w-full text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                  </div>
+                                </div>
+                              </div>
+                            </>
                         }
                       </>
                   }

@@ -73,32 +73,29 @@ export interface FollowersTypes {
 
 export interface DocumentTypes {
   id: string
-  no?: number
   type: string
   cheque_no?: string
   amount?: string
   activity_date: string
-  agency?: string
+  agency: string
   name: string
   particulars: string
   contact_number: string
   status: string
   current_status: string
   current_department_id: string
-  remarks: string
-  date: string
-  time: string
+  dum_document_trackers: string
   supplier_name: string
-  purchase_order_number: string
-  date_endorsed: string
-  time_endorsed: string
+  purchase_request_number: string
+  date_received: string
   created_at: string
   user_id: string
+  date_delivered: string
   routing_no: string
   routing_slip_no: string
-  date_received_cadm: string
   dum_document_tracker_replies: any
   dum_users: AccountTypes
+  received_by_user: AccountTypes
   origin_department_id: string
   dum_departments: DepartmentTypes
   current_department: DepartmentTypes
@@ -192,4 +189,13 @@ export interface FlowListTypes {
   status: string
   dum_user: AccountTypes
   dum_department: DepartmentTypes
+  dum_tracker_logs: TrackerLogsTypes[]
+}
+
+export interface TrackerLogsTypes {
+  tracker_flow_id: string
+  created_at: string
+  user_id: string
+  message: string
+  dum_user: AccountTypes
 }

@@ -35,7 +35,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
   const [loadingReplies, setLoadingReplies] = useState(false)
   const [departmentId, setDepartmentId] = useState('')
-  const [showConfirmCompleteModal, setShowConfirmCompleteModal] = useState(false)
   const [showConfirmForwardModal, setShowConfirmForwardModal] = useState(false)
   const [showConfirmReceivedModal, setShowConfirmReceivedModal] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -45,6 +44,11 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   const [showAddStickyModal, setShowAddStickyModal] = useState(false)
   const [hideStickyButton, setHideStickyButton] = useState(false)
   const [hideFollowButton, setHideFollowButton] = useState(false)
+
+  // Edit fields
+  const [supplier, setSupplier] = useState(documentData.supplier_name ? documentData.supplier_name : '')
+  const [purchaseRequestNumber, setPurchaseRequestNumber] = useState(documentData.purchase_request_number ? documentData.purchase_request_number : '')
+  const [dateDelivered, setDateDelivered] = useState(documentData.date_delivered ? documentData.date_delivered : '')
 
   // const [selectedFile, setSelectedFile] = useState(null)
   // const [showConfirmation, setShowConfirmation] = useState(false)
@@ -199,15 +203,14 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
     }
   }
 
-  const handleConfirmedComplete = async () => {
-    if (saving) return
-
-    setSaving(true)
-
-    const newData = {
-      current_status: 'Completed'
-    }
+  const handleSaveChanges = async () => {
     try {
+      const newData = {
+        supplier_name: supplier,
+        purchase_request_number: purchaseRequestNumber,
+        date_delivered: dateDelivered
+      }
+
       const { error } = await supabase
         .from('dum_document_trackers')
         .update(newData)
@@ -215,20 +218,19 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       if (error) throw new Error(error.message)
 
-      const { error: error2 } = await supabase
+      // Added log to latest tracker flow
+      const { data } = await supabase
         .from('dum_tracker_flow')
-        .insert({
-          tracker_id: documentData.id,
-          department_id: user.department_id,
-          user_id: user.id,
-          status: 'Completed'
-        })
+        .select()
+        .eq('tracker_id', documentData.id)
+        .order('id', { ascending: false })
+        .maybeSingle()
 
-      if (error2) throw new Error(error2.message)
+      console.log('asdf', data)
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
-      const updatedData = { ...newData, id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name, document_types: [] } }
+      const updatedData = { ...newData, id: documentData.id }
       const foundIndex = items.findIndex(x => x.id === updatedData.id)
       items[foundIndex] = { ...items[foundIndex], ...updatedData }
       dispatch(updateList(items))
@@ -236,15 +238,14 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // pop up the success message
       setToast('success', 'Successfully saved.')
-
-      // hide the modal
-      setShowConfirmCompleteModal(false)
-
-      setUpdateStatusFlow(!updateStatusFlow)
-      setSaving(false)
     } catch (e) {
       console.error(e)
     }
+  }
+
+  const handleForward = () => {
+    if (departmentId === '') return
+    setShowConfirmForwardModal(true)
   }
 
   const handleConfirmedForward = async () => {
@@ -311,7 +312,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
     const newData = {
       current_status: 'Received',
-      current_department_id: user.department_id
+      current_department_id: user.department_id,
+      received_by: user.id,
+      date_received: new Date()
     }
     try {
       const { error } = await supabase
@@ -337,7 +340,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
-      const updatedData = { ...newData, id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name, document_types: [] } }
+      const updatedData = { ...newData, date_received: (new Date()).toString(), id: documentData.id, current_department: { id: user.dum_departments.id, name: user.dum_departments.name, document_types: [] } }
       const foundIndex = items.findIndex(x => x.id === updatedData.id)
       items[foundIndex] = { ...items[foundIndex], ...updatedData }
       dispatch(updateList(items))
@@ -585,7 +588,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                         containerStyles='app__btn_green'
                         title={saving ? 'Saving...' : 'Submit'}
                         btnType='button'
-                        handleClick={() => setShowConfirmForwardModal(true)}
+                        handleClick={handleForward}
                       />
                     </>
                 }
@@ -600,16 +603,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     />
                 }
               </div>
-              {/* {
-                ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
-                  <CustomButton
-                    containerStyles='app__btn_green'
-                    btnType='button'
-                    isDisabled={saving}
-                    title={saving ? 'Saving...' : 'Mark as Completed'}
-                    handleClick={() => setShowConfirmCompleteModal(true)}
-                  />
-              } */}
               {
                 !hideStickyButton &&
                   <>
@@ -662,27 +655,36 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                           <td className='px-2 py-2 font-medium text-right'>Type:</td>
                           <td className='text-sm font-bold'>{documentData.type}</td>
                         </tr>
-                        <tr>
-                          <td className='px-2 py-2 font-medium text-right'>Activity Date:</td>
-                          <td className='text-sm font-bold'>{documentData.activity_date}</td>
-                        </tr>
                         {
-                          documentData.cheque_no &&
+                          (documentData.activity_date && documentData.activity_date.trim() !== '') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>Activity Date:</td>
+                              <td className='text-sm font-bold'>{documentData.activity_date}</td>
+                            </tr>
+                        }
+                        {
+                          (documentData.cheque_no && documentData.cheque_no.trim() !== '') &&
                             <tr>
                               <td className='px-2 py-2 font-medium text-right'>Cheque No:</td>
                               <td className='text-sm font-bold'>{documentData.cheque_no}</td>
                             </tr>
                         }
-                        <tr>
-                          <td className='px-2 py-2 font-medium text-right'>Agency / Department:</td>
-                          <td className='text-sm font-bold'>{documentData.agency}</td>
-                        </tr>
-                        <tr>
-                          <td className='px-2 py-2 font-medium text-right'>Name / Payee:</td>
-                          <td className='text-sm font-bold'>{documentData.name}</td>
-                        </tr>
                         {
-                          documentData.amount &&
+                          (documentData.agency && documentData.agency.trim() !== '') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>Requesting Department:</td>
+                              <td className='text-sm font-bold'>{documentData.agency}</td>
+                            </tr>
+                        }
+                        {
+                          (documentData.name && documentData.name.trim() !== '') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>Name / Payee:</td>
+                              <td className='text-sm font-bold'>{documentData.name}</td>
+                            </tr>
+                        }
+                        {
+                          (documentData.amount && documentData.amount.trim() !== '') &&
                             <tr>
                               <td className='px-2 py-2 font-medium text-right'>Amount:</td>
                               <td className='text-sm font-bold'>{documentData.amount}</td>
@@ -692,6 +694,66 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                           <td className='px-2 py-2 font-medium text-right align-top'>Particulars:</td>
                           <td className='text-sm font-bold'>{documentData.particulars}</td>
                         </tr>
+                        {
+                          ((documentData.supplier_name && documentData.supplier_name.trim() !== '') || user.department_id.toString() === '4') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>Supplier Name:</td>
+                              <td className='text-sm font-bold'>
+                                {
+                                  // GSO only
+                                  (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4')
+                                    ? <input value={supplier} onChange={e => setSupplier(e.target.value)} type="text" className='w-full font-normal text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                    : <span>{documentData.supplier_name}</span>
+                                }
+                              </td>
+                            </tr>
+                        }
+                        {
+                          ((documentData.purchase_request_number && documentData.purchase_request_number.trim() !== '') || user.department_id.toString() === '4') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>PO No:</td>
+                              <td className='text-sm font-bold'>
+                                {
+                                  // GSO only
+                                  (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4')
+                                    ? <input value={purchaseRequestNumber} onChange={e => setPurchaseRequestNumber(e.target.value)} type="text" className='w-full font-normal text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                    : <span>{documentData.purchase_request_number}</span>
+                                }
+                              </td>
+                            </tr>
+                        }
+                        {
+                          ((documentData.date_delivered && documentData.date_delivered.trim() !== '') || user.department_id.toString() === '4') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'>Date Delivered:</td>
+                              <td className='text-sm font-bold'>
+                                {
+                                  // GSO only
+                                  (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4')
+                                    ? <input value={dateDelivered} onChange={e => setDateDelivered(e.target.value)} type="text" className='w-full font-normal text-sm py-1 px-2 text-gray-600 border border-gray-300 rounded-sm focus:ring-0 focus:outline-none dark:bg-gray-900 dark:text-gray-300'/>
+                                    : <span>{documentData.date_delivered}</span>
+                                }
+                              </td>
+                            </tr>
+                        }
+                        {
+                          (documentData.purchase_request_number || user.department_id.toString() === '4') &&
+                            <tr>
+                              <td className='px-2 py-2 font-medium text-right'></td>
+                              <td className='text-sm font-bold'>
+                                {
+                                  // GSO only
+                                  (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4') &&
+                                    <CustomButton
+                                      containerStyles='app__btn_green'
+                                      title={saving ? 'Saving...' : 'Save Changes'}
+                                      btnType='button'
+                                      handleClick={handleSaveChanges}
+                                    />
+                                }
+                              </td>
+                            </tr>
+                        }
                       </tbody>
                     </table>
                   </div>
@@ -730,7 +792,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                               ))
                             }
                             </div>
-                            <div className="flex-auto overflow-y-auto relative p-4">
+                            <div className="hidden flex-auto overflow-y-auto relative p-4">
                               <div className='grid grid-cols-1 gap-4'>
                                 <div className='w-full'>
                                   <div {...getRootProps()} className='cursor-pointer border-dashed border-2 bg-gray-100 text-gray-600 px-4 py-10'>
@@ -797,22 +859,11 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
           </div>
         </div>
         {
-          showConfirmCompleteModal && (
-            <ConfirmModal
-              header='Confirmation'
-              btnText='Confirm'
-              message="Please confirm this action"
-              onConfirm={handleConfirmedComplete}
-              onCancel={() => setShowConfirmCompleteModal(false)}
-            />
-          )
-        }
-        {
           showConfirmForwardModal && (
             <ConfirmModal
-              header='Confirmation'
+              header='Forward Confirmation'
               btnText='Confirm'
-              message="Please confirm this action"
+              message="Are you sure you want to forward this document?"
               onConfirm={handleConfirmedForward}
               onCancel={() => setShowConfirmForwardModal(false)}
             />
@@ -821,9 +872,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         {
           showConfirmReceivedModal && (
             <ConfirmModal
-              header='Confirmation'
+              header='Received Confirmation'
               btnText='Confirm'
-              message="Please confirm this action"
+              message="Are you sure you want to receive this document?"
               onConfirm={handleConfirmedReceived}
               onCancel={() => setShowConfirmReceivedModal(false)}
             />

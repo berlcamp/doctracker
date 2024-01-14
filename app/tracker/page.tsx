@@ -236,16 +236,16 @@ const Page: React.FC = () => {
                         <th className="py-2 px-2 w-16">
                         </th>
                         <th className="py-2 px-2">
-                          Routing&nbsp;No
-                        </th>
-                        <th className="py-2 px-2">
                           Status
                         </th>
                         <th className="hidden sm:table-cell py-2 px-2">
-                            Particulars
+                          Details
                         </th>
-                        <th colSpan={2} className="hidden sm:table-cell py-2 px-2">
-                            Origin
+                        <th className="hidden sm:table-cell py-2 px-2">
+                          Origin
+                        </th>
+                        <th className="hidden sm:table-cell py-2 px-2">
+                          Current&nbsp;Location
                         </th>
                   </tr>
               </thead>
@@ -307,25 +307,51 @@ const Page: React.FC = () => {
                         </div>
                       </td>
                       <td className='app__td'>
-                        <span>{item.routing_slip_no}</span>
-                      </td>
-                      <td className='app__td'>
-                        <span style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</span>
+                        <div className='font-medium'>{item.routing_slip_no}</div>
+                        <div style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</div>
                       </td>
                       <td className='hidden sm:table-cell app__td'>
-                        {item.particulars}
+                        {
+                          (item.agency && item.agency.trim() !== '') &&
+                            <div><span className='font-medium'>Requesting Department:</span> {item.agency}</div>
+                        }
+                        {
+                          (item.purchase_request_number && item.purchase_request_number.trim() !== '') &&
+                            <div><span className='font-medium'>PO No:</span> {item.purchase_request_number}</div>
+                        }
+                        {
+                          (item.supplier_name && item.supplier_name.trim() !== '') &&
+                            <div><span className='font-medium'>Supplier:</span> {item.supplier_name}</div>
+                        }
+                        {
+                          (item.date_delivered && item.date_delivered.trim() !== '') &&
+                            <div><span className='font-medium'>Date Delivered:</span> {item.date_delivered}</div>
+                        }
+                        <div><span className='font-medium'>Particulars:</span> {item.particulars}</div>
                       </td>
                       <td className='hidden sm:table-cell app__td'>
                           <div>{item.dum_departments.name}</div>
                           <div className='font-normal text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
                       </td>
                       <td className='hidden sm:table-cell app__td'>
-                          <UserBlock user={item.dum_users}/>
+                        {
+                          item.current_status === 'Received' && (
+                            <>
+                              <div>{item.current_department.name}</div>
+                              {
+                                item.date_received && <div className='font-normal text-gray-500 text-[10px]'>{format(new Date(item.date_received), 'dd MMM yyyy h:mm a')}</div>
+                              }
+                              {
+                                item.received_by_user && <UserBlock user={item.received_by_user}/>
+                              }
+                            </>
+                          )
+                        }
                       </td>
                     </tr>
                   ))
                 }
-                { loading && <TableRowLoading cols={7} rows={2}/> }
+                { loading && <TableRowLoading cols={6} rows={2}/> }
               </tbody>
             </table>
             {
@@ -341,7 +367,7 @@ const Page: React.FC = () => {
                 handleShowMore={handleShowMore}/>
           }
 
-          {/* Add/Edit Modal */}
+          {/* Add Document Modal */}
           {
             showAddModal && (
               <AddDocumentModal
