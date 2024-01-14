@@ -224,9 +224,36 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         .select()
         .eq('tracker_id', documentData.id)
         .order('id', { ascending: false })
-        .maybeSingle()
+        .limit(1)
+        .single()
 
-      console.log('asdf', data)
+      if (data) {
+        let msg = ''
+        if (supplier !== documentData.supplier_name) {
+          msg += ' Supplier to ' + supplier + ','
+        }
+        if (purchaseRequestNumber !== documentData.purchase_request_number) {
+          msg += ' PO # to ' + purchaseRequestNumber + ','
+        }
+        if (dateDelivered !== documentData.date_delivered) {
+          msg += ' Date Delivered to ' + dateDelivered
+        }
+
+        if (msg !== '') {
+          const newData = {
+            message: 'Updated ' + msg,
+            tracker_flow_id: data.id,
+            user_id: user.id
+          }
+
+          const { error } = await supabase
+            .from('dum_tracker_logs')
+            .insert(newData)
+            .eq('id', documentData.id)
+
+          if (error) throw new Error(error.message)
+        }
+      }
 
       // Update data in redux
       const items: DocumentTypes[] = [...globallist]
@@ -238,6 +265,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
       // pop up the success message
       setToast('success', 'Successfully saved.')
+
+      // update the flow UI
+      setUpdateStatusFlow(!updateStatusFlow)
     } catch (e) {
       console.error(e)
     }

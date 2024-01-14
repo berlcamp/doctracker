@@ -1,4 +1,4 @@
-import type { AccountTypes, FollowersTypes } from '@/types'
+import type { AccountTypes, FlowListTypes, FollowersTypes } from '@/types'
 import { createBrowserClient } from '@supabase/ssr'
 // import { fullTextQuery } from './text-helper'
 
@@ -16,9 +16,21 @@ export interface DocumentFilterTypes {
 
 export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: string | null, user: AccountTypes, perPageCount: number, rangeFrom: number) {
   try {
+    // Get Department ID within Tracker Flow
+    const { data: trackerFlow } = await supabase
+      .from('dum_tracker_flow')
+      .select()
+      .eq('department_id', user.department_id)
+
+    const trackerIds: string[] = []
+    trackerFlow?.forEach((item: FlowListTypes) => {
+      trackerIds.push(item.tracker_id)
+    })
+
     let query = supabase
       .from('dum_document_trackers')
       .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),received_by_user:received_by(id,name,avatar_url),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
+      .in('id', trackerIds)
 
     // Full text search
     if (typeof filters.filterKeyword !== 'undefined' && filters.filterKeyword.trim() !== '') {
