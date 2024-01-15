@@ -149,7 +149,7 @@ export default function RemarkBox ({ document }: ModalProps) {
   }
 
   return (
-    <div className='w-full flex-col space-y-2 px-4 py-4 mb-20 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
+    <div className='w-full flex-col space-y-2 px-4 py-4 mb-5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
       <div className='flex space-x-2'>
         <span className='font-bold'>Remarks:</span>
       </div>
