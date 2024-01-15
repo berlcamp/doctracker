@@ -308,26 +308,26 @@ const Page: React.FC = () => {
                       </td>
                       <td className='app__td'>
                         <div className='font-medium'>{item.routing_slip_no}</div>
-                        <div style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</div>
+                        <div className='font-medium' style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</div>
                       </td>
                       <td className='app__td'>
                         {
                           (item.agency && item.agency.trim() !== '') &&
-                            <div><span className='font-medium'>Requesting Department:</span> {item.agency}</div>
+                            <div><span className='font-light'>Requesting Department:</span> <span className='font-medium'>{item.agency}</span></div>
                         }
                         {
                           (item.purchase_request_number && item.purchase_request_number.trim() !== '') &&
-                            <div><span className='font-medium'>PO No:</span> {item.purchase_request_number}</div>
+                            <div><span className='font-light'>PO No:</span> <span className='font-medium'>{item.purchase_request_number}</span></div>
                         }
                         {
                           (item.supplier_name && item.supplier_name.trim() !== '') &&
-                            <div><span className='font-medium'>Supplier:</span> {item.supplier_name}</div>
+                            <div><span className='font-light'>Supplier:</span> <span className='font-medium'>{item.supplier_name}</span></div>
                         }
                         {
                           (item.date_delivered && item.date_delivered.trim() !== '') &&
-                            <div><span className='font-medium'>Date Delivered:</span> {item.date_delivered}</div>
+                            <div><span className='font-light'>Date Delivered:</span> <span className='font-medium'>{item.date_delivered}</span></div>
                         }
-                        <div><span className='font-medium'>Particulars:</span> {item.particulars}</div>
+                        <div><span className='font-light'>Particulars:</span> <span className='font-medium'>{item.particulars}</span></div>
                       </td>
                       <td className='hidden sm:table-cell app__td'>
                           <div>{item.dum_departments.name}</div>
@@ -337,7 +337,7 @@ const Page: React.FC = () => {
                         {
                           item.current_status === 'Received' && (
                             <>
-                              <div>{item.current_department.name}</div>
+                              <div className='font-medium'>{item.current_department.name}</div>
                               {
                                 item.date_received && <div className='font-normal text-gray-500 text-[10px]'>{format(new Date(item.date_received), 'dd MMM yyyy h:mm a')}</div>
                               }
