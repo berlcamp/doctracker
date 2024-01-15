@@ -278,7 +278,7 @@ const Page: React.FC = () => {
                                       className='flex items-center space-x-2 cursor-pointer hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-4 py-2 text-xs'
                                     >
                                       <PrinterIcon className='w-4 h-4'/>
-                                      <span>Print</span>
+                                      <span>Print Slip</span>
                                   </div>
                                 </Menu.Item>
                                 {
@@ -332,6 +332,7 @@ const Page: React.FC = () => {
                       <td className='hidden sm:table-cell app__td'>
                           <div>{item.dum_departments.name}</div>
                           <div className='font-normal text-gray-500 text-[10px]'>{format(new Date(item.created_at), 'dd MMM yyyy h:mm a')}</div>
+                          <UserBlock user={item.dum_users}/>
                       </td>
                       <td className='hidden sm:table-cell app__td'>
                         {
