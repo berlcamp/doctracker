@@ -8,8 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { type FileWithPath, useDropzone } from 'react-dropzone'
 
-import type { RepliesDataTypes, DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes, FlowListTypes } from '@/types'
-import SystemLogs from './SystemLogs'
+import type { DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes, FlowListTypes } from '@/types'
 import StatusFlow from './StatusFlow'
 import { ConfirmModal, CustomButton, UserBlock } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
@@ -29,10 +28,7 @@ interface ModalProps {
 
 export default function DetailsModal ({ hideModal, documentData: originalData }: ModalProps) {
   const [documentData, setDocumentData] = useState<DocumentTypes>(originalData)
-  const [repliesData, setRepliesData] = useState<RepliesDataTypes[] | []>([])
-  const [logs, setLogs] = useState<RepliesDataTypes[] | []>([])
   const [attachments, setAttachments] = useState<AttachmentTypes[] | []>([])
-
   const [loadingReplies, setLoadingReplies] = useState(false)
   const [departmentId, setDepartmentId] = useState('')
   const [showConfirmForwardModal, setShowConfirmForwardModal] = useState(false)
@@ -66,30 +62,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
   const dispatch = useDispatch()
-
-  const fetchReplies = async () => {
-    // Fetch Document Replies
-    const { data: repliesData } = await supabase
-      .from('dum_document_tracker_replies')
-      .select('*,dum_users:sender_id(*)')
-      .eq('document_tracker_id', documentData.id)
-      .order('id', { ascending: false })
-
-    const remarksFormatted: RepliesDataTypes[] = repliesData.map((item: RepliesDataTypes) => {
-      return { ...item, created_at: format(new Date(item.created_at), 'dd MMM yyyy h:mm a') }
-    })
-    const remarksFiltered: RepliesDataTypes[] = remarksFormatted.filter((item: RepliesDataTypes) => item.reply_type !== 'system')
-
-    const sysLogs: RepliesDataTypes[] = repliesData.filter((item: RepliesDataTypes) => {
-      if (item.reply_type === 'system') {
-        return true
-      }
-      return false
-    })
-
-    setRepliesData(remarksFiltered)
-    setLogs(sysLogs)
-  }
 
   const handleFollow = async () => {
     try {
@@ -541,7 +513,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   }, [fileRejections])
 
   useEffect(() => {
-    void fetchReplies()
     void fetchAttachments()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -876,14 +847,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     loadingReplies
                       ? <TwoColTableLoading/>
                       : <Remarks
-                          document={documentData}
-                          repliesData={repliesData}
-                        />
-                  }
-                  {/* System Logs */}
-                  {
-                    logs.length > 0 &&
-                      <SystemLogs logs={logs}/>
+                          document={documentData}/>
                   }
                 </div>
               </div>

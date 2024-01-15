@@ -29,7 +29,7 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
 
     let query = supabase
       .from('dum_document_trackers')
-      .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),received_by_user:received_by(id,name,avatar_url),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
+      .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),received_by_user:received_by(id,name,avatar_url),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_remarks(*)', { count: 'exact' })
       .in('id', trackerIds)
 
     // Full text search

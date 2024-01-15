@@ -93,7 +93,7 @@ export interface DocumentTypes {
   date_delivered: string
   routing_no: string
   routing_slip_no: string
-  dum_document_tracker_replies: any
+  dum_remarks: any
   dum_users: AccountTypes
   received_by_user: AccountTypes
   origin_department_id: string
@@ -103,17 +103,26 @@ export interface DocumentTypes {
   dum_document_tracker_stickies: StickiesTypes[]
 }
 
-export interface RepliesDataTypes {
+export interface RemarksTypes {
   id: string
-  new: boolean
   created_at: string
   document_tracker_id: string
   sender_id: string
   message: string
   is_private: boolean
-  parent_document_tracker_id: string
   reply_type: string
   dum_users: AccountTypes
+  dum_remarks_comments: CommentsTypes[]
+}
+
+export interface CommentsTypes {
+  id: string
+  created_at: string
+  remarks_id: string
+  sender_id: string
+  message: string
+  dum_users: AccountTypes
+  dum_remarks: RemarksTypes
 }
 
 export interface CommentDataTypes {

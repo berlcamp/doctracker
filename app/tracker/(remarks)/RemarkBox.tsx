@@ -3,20 +3,25 @@
 import { Menu, Transition } from '@headlessui/react'
 import { EyeIcon } from '@heroicons/react/24/solid'
 import React, { Fragment, useState } from 'react'
-import { format } from 'date-fns'
+// Redux imports
+import { useSelector, useDispatch } from 'react-redux'
+import { updateRemarksList } from '@/GlobalRedux/Features/remarksSlice'
 import { useFilter } from '@/context/FilterContext'
 import { useSupabase } from '@/context/SupabaseProvider'
-import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes, RepliesDataTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes } from '@/types'
 
 interface ModalProps {
   document: DocumentTypes
-  handleInsertToList: (data: RepliesDataTypes) => void
 }
 
-export default function ReplyBox ({ document, handleInsertToList }: ModalProps) {
+export default function RemarkBox ({ document }: ModalProps) {
   const { supabase, session, systemUsers, departments } = useSupabase()
   const { setToast } = useFilter()
   const [saving, setSaving] = useState(false)
+
+  // Redux staff
+  const globalremarks = useSelector((state: any) => state.remarks.value)
+  const dispatch = useDispatch()
 
   const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
   const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
@@ -44,7 +49,7 @@ export default function ReplyBox ({ document, handleInsertToList }: ModalProps) 
       }
       // Insert into replies database table
       const { data, error } = await supabase
-        .from('dum_document_tracker_replies')
+        .from('dum_remarks')
         .insert(newData)
         .select()
 
@@ -53,18 +58,9 @@ export default function ReplyBox ({ document, handleInsertToList }: ModalProps) 
         return
       }
 
-      // Update the list from parent component
-      const updatedNewData: RepliesDataTypes = {
-        ...newData,
-        id: data[0].id,
-        new: true,
-        created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
-        dum_users: user,
-        parent_document_tracker_id: '',
-        reply_type: ''
-      }
-
-      handleInsertToList(updatedNewData)
+      // Append new remarks to remarks redux
+      const updatedData = { id: data[0].id, dum_remarks_comments: [], dum_users: user, created_at: data[0].created_at, ...newData }
+      dispatch(updateRemarksList([updatedData, ...globalremarks]))
 
       setRemarks('')
 

@@ -1,36 +1,39 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client'
 import React, { Fragment, useState } from 'react'
-import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
-import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes } from '@/types'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateRemarksList } from '@/GlobalRedux/Features/remarksSlice'
+import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes, RemarksTypes } from '@/types'
 
 interface ModalProps {
-  replyId: string
-  handleInsertToList: (d: any) => void
+  reply: RemarksTypes
   document: DocumentTypes
 }
 
-export default function CommentBox ({ replyId, handleInsertToList, document }: ModalProps) {
+export default function CommentBox ({ reply, document }: ModalProps) {
   const { supabase, session, systemUsers, departments } = useSupabase()
 
-  const [reply, setReply] = useState('')
+  const [comment, setComment] = useState('')
   const [showCommentInput, setShowCommentInput] = useState(false)
 
   const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
   const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
 
+  // Redux staff
+  const globalremarks = useSelector((state: any) => state.remarks.value)
+  const dispatch = useDispatch()
+
   const handleSubmitReply = async () => {
     // Insert into reply to database table
-    const newData = {
-      parent_document_reply_id: replyId,
+    const commentData = {
+      remarks_id: reply.id,
       sender_id: session.user.id,
-      message: reply,
-      is_private: false
+      message: comment
     }
     const { data, error } = await supabase
-      .from('dum_document_tracker_replies')
-      .insert(newData)
+      .from('dum_remarks_comments')
+      .insert(commentData)
       .select()
 
     if (error) {
@@ -40,19 +43,17 @@ export default function CommentBox ({ replyId, handleInsertToList, document }: M
 
     const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
 
-    // Insert the list from parent component
-    const updatedNewData = {
-      ...newData,
-      id: data[0].id,
-      created_at: format(Date.now(), 'dd MMM yyyy HH:mm'),
-      dum_users: { name: user.name, avatar_url: user.avatar_url }
-    }
-    handleInsertToList(updatedNewData)
+    // Update data in remarks redux
+    const items = [...globalremarks]
+    const updatedData = { dum_remarks_comments: [...reply.dum_remarks_comments, { ...commentData, dum_users: user, created_at: data[0].created_at, id: data[0].id }], id: reply.id }
+    const foundIndex = items.findIndex(x => x.id === updatedData.id)
+    items[foundIndex] = { ...items[foundIndex], ...updatedData }
+    dispatch(updateRemarksList(items))
 
     // Notify followers and departments
     void handleNotify()
 
-    setReply('')
+    setComment('')
     setShowCommentInput(false)
   }
 
@@ -146,8 +147,8 @@ export default function CommentBox ({ replyId, handleInsertToList, document }: M
             </div>
             <input
               type="text"
-              value={reply}
-              onChange={e => setReply(e.target.value)}
+              value={comment}
+              onChange={e => setComment(e.target.value)}
               className='w-full border focus:ring-0 focus:outline-none p-1 text-sm text-gray-700 dark:bg-gray-900 dark:text-gray-300'/>
 
               <div className='flex items-center space-x-2 justify-start'>

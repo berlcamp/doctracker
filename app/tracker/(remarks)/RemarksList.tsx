@@ -2,7 +2,7 @@
 'use client'
 import { Menu, Transition } from '@headlessui/react'
 import { EllipsisHorizontalIcon, PencilIcon } from '@heroicons/react/24/solid'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import uuid from 'react-uuid'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import CommentsBox from './CommentsBox'
@@ -11,18 +11,18 @@ import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
 import ConfirmModal from '@/components/ConfirmModal'
 import { useFilter } from '@/context/FilterContext'
-import type { DocumentTypes, RepliesDataTypes } from '@/types'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateRemarksList } from '@/GlobalRedux/Features/remarksSlice'
+import type { DocumentTypes, RemarksTypes } from '@/types'
 import Image from 'next/image'
 import Avatar from 'react-avatar'
 
 interface ModalProps {
-  handleRemoveFromList: (id: string) => void
-  handleUpdateRemarksList: (data: RepliesDataTypes) => void
-  reply: RepliesDataTypes
+  reply: RemarksTypes
   document: DocumentTypes
 }
 
-export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksList, reply, document }: ModalProps) {
+export default function RemarksList ({ reply, document }: ModalProps) {
   const { supabase, session } = useSupabase()
   const { setToast } = useFilter()
 
@@ -30,24 +30,10 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
   const [selectedId, setSelectedId] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [remarks, setRemarks] = useState(reply.message)
-  const [comments, setComments] = useState<RepliesDataTypes[] | []>([])
 
-  // const [loading, setLoading] = useState(false)
-
-  // fetch comments
-  const fetchComments = async () => {
-    const { data }: { data: RepliesDataTypes[] | [] } = await supabase
-      .from('dum_document_tracker_replies')
-      .select('*,dum_users:sender_id(*)')
-      .eq('parent_document_reply_id', reply.id)
-      .order('id', { ascending: false })
-
-    const formattedData: RepliesDataTypes[] = data?.map(item => {
-      return { ...item, created_at: format(new Date(item.created_at), 'dd MMM yyyy HH:mm') }
-    })
-
-    setComments(formattedData)
-  }
+  // Redux staff
+  const globalremarks = useSelector((state: any) => state.remarks.value)
+  const dispatch = useDispatch()
 
   // Delete confirmation
   const deleteReply = (id: string) => {
@@ -65,55 +51,48 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
   const handleDeleteReply = async () => {
     try {
       const { error }: { error: { message: string } } = await supabase
-        .from('dum_document_tracker_replies')
+        .from('dum_remarks')
         .delete()
         .eq('id', selectedId)
 
       if (error) throw new Error(error.message)
 
-      handleRemoveFromList(selectedId)
-
       // pop up the success message
       setToast('success', 'Successfully Deleted!')
+
+      // Remove remarks from redux
+      const items = [...globalremarks]
+      const updatedData = items.filter(item => item.id !== selectedId)
+      dispatch(updateRemarksList(updatedData))
     } catch (e) {
       console.error(e)
     }
   }
 
-  const handleRemoveCommentFromList = async (id: string) => {
-    // Update the replies list on DOM
-    setComments(prevList => prevList.filter(item => item.id !== id))
-  }
-
-  const handleInsertToList = (newData: RepliesDataTypes) => {
-    setComments([newData, ...comments])
-  }
-
   const handleUpdateRemarks = async () => {
     try {
+      const newData = {
+        message: remarks
+      }
       const { error }: { error: { message: string } } = await supabase
-        .from('dum_document_tracker_replies')
-        .update({
-          message: remarks
-        })
+        .from('dum_remarks')
+        .update(newData)
         .eq('id', reply.id)
 
       if (error) throw new Error(error.message)
 
-      const updatedData: RepliesDataTypes = { ...reply, message: remarks, id: reply.id }
-      handleUpdateRemarksList(updatedData)
+      // Update data in remarks redux
+      const items = [...globalremarks]
+      const updatedData = { ...newData, id: reply.id }
+      const foundIndex = items.findIndex(x => x.id === updatedData.id)
+      items[foundIndex] = { ...items[foundIndex], ...updatedData }
+      dispatch(updateRemarksList(items))
 
       setEditMode(false)
     } catch (e) {
       console.error(e)
     }
   }
-
-  useEffect(() => {
-    if (!reply.new) {
-      void fetchComments()
-    }
-  }, [])
 
   // Only enable Edit/delete to author
   const isAuthor = reply.sender_id === session.user.id
@@ -142,7 +121,7 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
                     </div>
                     <div
                       className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
-                        { reply.created_at }
+                        { format(new Date(reply.created_at), 'dd MMM yyyy h:mm a') }
                     </div>
                   </>
               }
@@ -234,21 +213,20 @@ export default function RepliesBox ({ handleRemoveFromList, handleUpdateRemarksL
       <div className='border-l ml-20'>
         {/* Reply To Reply Box */}
         {
-          (!reply.is_private && !reply.new) &&
+          (!reply.is_private) &&
             <CommentBox
               document={document}
-              handleInsertToList={handleInsertToList}
-              replyId={reply.id}
+              reply={reply}
             />
         }
 
         {/* Comments */}
         {
-          (!reply.is_private && !reply.new) &&
-            comments?.map((rep) => (
+          (!reply.is_private) &&
+            reply.dum_remarks_comments?.map((comment) => (
               <CommentsBox
-                handleRemoveFromList={handleRemoveCommentFromList}
-                reply={rep}
+                comment={comment}
+                reply={reply}
                 key={uuid()}/>
             ))
         }

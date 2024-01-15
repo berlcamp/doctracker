@@ -66,7 +66,7 @@ const Page: React.FC = () => {
     if (filterCode && filterCode !== '') {
       const { data, count }: { data: DocumentTypes, count: number } = await supabase
         .from('dum_document_trackers')
-        .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_document_tracker_replies(*)', { count: 'exact' })
+        .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_remarks(*)', { count: 'exact' })
         .eq('id', filterCode)
         .maybeSingle()
 
