@@ -298,6 +298,9 @@ const Page: React.FC = () => {
                         {/* Mobile View */}
                         <div>
                           <div className="md:hidden app__td_mobile">
+                            <div><span className='app_td_mobile_label'>Email:</span> {item.email}</div>
+                            <div><span className='app_td_mobile_label'>Department:</span> {item.dum_departments.name}</div>
+                            <div><span className='app_td_mobile_label'>Temp Password:</span> {item.temp_password}</div>
                             <div>
                             {
                               item.status === 'Inactive'
@@ -305,7 +308,6 @@ const Page: React.FC = () => {
                                 : <span className='app__status_container_green'>Active</span>
                             }
                             </div>
-                            <div><span className='app_td_mobile_label'>Email:</span> {item.email}</div>
                           </div>
                         </div>
                         {/* End - Mobile View */}

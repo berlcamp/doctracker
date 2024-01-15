@@ -41,6 +41,12 @@
 .app__td {
   @apply py-1 px-2
 }
+.app__td_mobile {
+  @apply py-2 space-y-2 flex-col font-normal
+}
+.app_td_mobile_label {
+  @apply font-medium
+}
 .app__menu_container {
   @apply relative inline-block text-left mr-2
 }

@@ -282,6 +282,10 @@ const Page: React.FC = () => {
                                 : <span className='app__status_container_green'>Active</span>
                             }
                             </div>
+                            <div>
+                              <span>Added By:</span>
+                              <UserBlock user={item.dum_users}/>
+                            </div>
                           </div>
                         </div>
                         {/* End - Mobile View */}
