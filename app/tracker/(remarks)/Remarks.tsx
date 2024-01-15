@@ -52,7 +52,7 @@ export default function Remarks ({ document }: ModalProps) {
         </div>
         {/* Only receiving department can make remarks */}
         {
-          (document.current_status === 'Received' && document.current_department_id === user.department_id) && <RemarkBox document={document}/>
+          ((document.current_status === 'Received' || document.current_status === 'Tracker Created') && document.current_department_id === user.department_id) && <RemarkBox document={document}/>
         }
         {/* Added extra height if no remarks found */}
         {
