@@ -14,6 +14,7 @@ import { updateList } from '@/GlobalRedux/Features/listSlice'
 import type { AccountTypes, DocTypes, DocumentTypes } from '@/types'
 import { generateRandomNumber } from '@/utils/text-helper'
 import { XMarkIcon } from '@heroicons/react/20/solid'
+import { CustomButton } from '@/components'
 
 interface ModalProps {
   hideModal: () => void
@@ -220,14 +221,19 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
   }, [wrapperRef])
 
   return (
-    <div ref={wrapperRef} className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
-      <div className="sm:h-[calc(100%-3rem)] w-5/6 my-6 mx-auto relative pointer-events-none">
-        <div className="max-h-full overflow-hidden border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600">
-            <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-gray-200 rounded-t-md">
+      <div ref={wrapperRef} className="app__modal_wrapper">
+        <div className="app__modal_wrapper2_large">
+          <div className="app__modal_wrapper3">
+            <div className="app__modal_header">
               <h5 className="text-md font-bold leading-normal text-gray-800 dark:text-gray-300">
                 Document Details
               </h5>
-              <button disabled={saving} onClick={hideModal} type="button" className="btn-close box-content w-4 h-4 p-1 text-black border-none rounded-none opacity-50 focus:shadow-none focus:outline-none focus:opacity-100 hover:text-black hover:opacity-75 hover:no-underline">&times;</button>
+              <CustomButton
+                containerStyles='app__btn_gray'
+                title='Close'
+                btnType='button'
+                handleClick={hideModal}
+              />
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="modal-body relative p-4 overflow-x-scroll">
@@ -447,7 +453,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                       type="button"
                       disabled={saving}
                       className="flex items-center bg-gray-500 hover:bg-gray-600 border border-gray-600 font-medium px-2 py-1 text-sm text-white rounded-sm"
-                    >Close
+                    >Cancel
                     </button>
               </div>
             </form>

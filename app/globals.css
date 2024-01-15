@@ -141,7 +141,10 @@
   @apply max-h-full overflow-hidden border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600
 }
 .app__modal_header {
-  @apply flex space-y-2 flex-col sm:flex-row sm:space-y-0 space-x-2 items-center justify-between p-4 border-b border-gray-200 rounded-t-md
+  @apply flex space-x-2 items-center justify-between p-4 border-b border-gray-200 rounded-t-md bg-gray-200
+}
+.app__modal_header_tracker {
+  @apply flex space-y-2 flex-col sm:flex-row sm:space-y-0 space-x-2 items-center justify-between p-4 border-b border-gray-200 rounded-t-md bg-gray-200
 }
 .app__modal_header_text {
   @apply text-sm font-bold leading-normal text-gray-800 dark:text-gray-300

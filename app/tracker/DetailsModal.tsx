@@ -565,7 +565,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
       <div ref={wrapperRef} className="app__modal_wrapper">
         <div className="app__modal_wrapper2_large">
           <div className="app__modal_wrapper3">
-            <div className="app__modal_header">
+            <div className="app__modal_header_tracker">
               <h5 className="app__modal_header_text">
                 {documentData.routing_slip_no}
               </h5>
