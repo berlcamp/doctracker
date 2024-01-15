@@ -676,59 +676,59 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       <thead><tr><th className='w-40'></th><th></th></tr></thead>
                       <tbody>
                         <tr>
-                          <td className='px-2 py-2 font-medium text-right'>Current Status:</td>
+                          <td className='px-2 py-2 font-light text-right'>Current Status:</td>
                           <td>
-                            <span className='font-bold text-sm' style={{ color: `${getStatusColor(documentData.current_status)}` }}>{documentData.current_status} {documentData.current_status === 'Forwarded' ? 'to' : 'at'}  {documentData.current_department.name}</span>
+                            <span className='font-medium text-sm' style={{ color: `${getStatusColor(documentData.current_status)}` }}>{documentData.current_status} {documentData.current_status === 'Forwarded' ? 'to' : 'at'}  {documentData.current_department.name}</span>
                           </td>
                         </tr>
                         <tr>
-                          <td className='px-2 py-2 font-medium text-right'>Type:</td>
-                          <td className='text-sm font-bold'>{documentData.type}</td>
+                          <td className='px-2 py-2 font-light text-right'>Type:</td>
+                          <td className='text-sm font-medium'>{documentData.type}</td>
                         </tr>
                         {
                           (documentData.activity_date && documentData.activity_date.trim() !== '') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Activity Date:</td>
-                              <td className='text-sm font-bold'>{documentData.activity_date}</td>
+                              <td className='px-2 py-2 font-light text-right'>Activity Date:</td>
+                              <td className='text-sm font-medium'>{documentData.activity_date}</td>
                             </tr>
                         }
                         {
                           (documentData.cheque_no && documentData.cheque_no.trim() !== '') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Cheque No:</td>
-                              <td className='text-sm font-bold'>{documentData.cheque_no}</td>
+                              <td className='px-2 py-2 font-light text-right'>Cheque No:</td>
+                              <td className='text-sm font-medium'>{documentData.cheque_no}</td>
                             </tr>
                         }
                         {
                           (documentData.agency && documentData.agency.trim() !== '') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Requesting Department:</td>
-                              <td className='text-sm font-bold'>{documentData.agency}</td>
+                              <td className='px-2 py-2 font-light text-right'>Requesting Department:</td>
+                              <td className='text-sm font-medium'>{documentData.agency}</td>
                             </tr>
                         }
                         {
                           (documentData.name && documentData.name.trim() !== '') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Name / Payee:</td>
-                              <td className='text-sm font-bold'>{documentData.name}</td>
+                              <td className='px-2 py-2 font-light text-right'>Name / Payee:</td>
+                              <td className='text-sm font-medium'>{documentData.name}</td>
                             </tr>
                         }
                         {
                           (documentData.amount && documentData.amount.trim() !== '') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Amount:</td>
+                              <td className='px-2 py-2 font-light text-right'>Amount:</td>
                               <td className='text-sm font-bold'>{documentData.amount}</td>
                             </tr>
                         }
                         <tr>
-                          <td className='px-2 py-2 font-medium text-right align-top'>Particulars:</td>
-                          <td className='text-sm font-bold'>{documentData.particulars}</td>
+                          <td className='px-2 py-2 font-light text-right align-top'>Particulars:</td>
+                          <td className='text-sm font-medium'>{documentData.particulars}</td>
                         </tr>
                         {
                           ((documentData.supplier_name && documentData.supplier_name.trim() !== '') || user.department_id.toString() === '4') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Supplier Name:</td>
-                              <td className='text-sm font-bold'>
+                              <td className='px-2 py-2 font-light text-right'>Supplier Name:</td>
+                              <td className='text-sm font-medium'>
                                 {
                                   // GSO only
                                   (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4')
@@ -741,8 +741,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                         {
                           ((documentData.purchase_request_number && documentData.purchase_request_number.trim() !== '') || user.department_id.toString() === '4') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>PO No:</td>
-                              <td className='text-sm font-bold'>
+                              <td className='px-2 py-2 font-light text-right'>PO No:</td>
+                              <td className='text-sm font-medium'>
                                 {
                                   // GSO only
                                   (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4')
@@ -755,8 +755,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                         {
                           ((documentData.date_delivered && documentData.date_delivered.trim() !== '') || user.department_id.toString() === '4') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'>Date Delivered:</td>
-                              <td className='text-sm font-bold'>
+                              <td className='px-2 py-2 font-light text-right'>Date Delivered:</td>
+                              <td className='text-sm font-medium'>
                                 {
                                   // GSO only
                                   (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4')
@@ -769,8 +769,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                         {
                           (documentData.purchase_request_number || user.department_id.toString() === '4') &&
                             <tr>
-                              <td className='px-2 py-2 font-medium text-right'></td>
-                              <td className='text-sm font-bold'>
+                              <td className='px-2 py-2 font-light text-right'></td>
+                              <td className='text-sm font-medium'>
                                 {
                                   // GSO only
                                   (documentData.current_status === 'Received' && documentData.current_department_id.toString() === user.department_id.toString() && user.department_id.toString() === '4') &&
@@ -787,28 +787,28 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                       </tbody>
                     </table>
                   </div>
-                  <div className='px-4 w-full'>
+                  <div className='px-2 w-full'>
                     <table className='w-full'>
                       <thead><tr><th className='w-40'></th><th></th></tr></thead>
                       <tbody>
                         <tr>
-                          <td className='px-2 py-2 font-medium text-right align-top'>Origin:</td>
-                          <td className='px-2 py-2 font-medium align-top'>
+                          <td className='px-2 font-light text-right align-top'>Origin:</td>
+                          <td className='font-medium align-top'>
                             <div>{documentData.dum_departments.name}</div>
                             <div className='text-gray-500 text-[10px]'>{format(new Date(documentData.created_at), 'dd MMM yyyy h:mm a')}</div>
                             <UserBlock user={documentData.dum_users}/>
                           </td>
                         </tr>
                         <tr>
-                          <td className='px-2 py-2 font-medium text-right align-top'>Attachments:</td>
-                          <td>
+                          <td className='px-2 pt-2 font-light text-right align-top'>Attachments:</td>
+                          <td className='pt-2'>
                             <div>
                               {
                                 attachments?.length === 0 && <span>No attachments</span>
                               }
                             {
                               attachments?.map((file, index) => (
-                                <div key={index} className='flex items-center space-x-2 justify-start p-1'>
+                                <div key={index} className='flex items-center space-x-2 justify-start'>
                                   <div
                                     onClick={() => handleDownloadFile(file.name)}
                                     className='flex space-x-2 items-center cursor-pointer'>
