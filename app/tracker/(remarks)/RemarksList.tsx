@@ -227,6 +227,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
           (!reply.is_private) &&
             reply.dum_remarks_comments?.map((comment) => (
               <CommentsList
+                document={document}
                 comment={comment}
                 reply={reply}
                 key={uuid()}/>
