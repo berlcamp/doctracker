@@ -236,9 +236,9 @@ const Page: React.FC = () => {
                         <th className="py-2 px-2 w-16">
                         </th>
                         <th className="py-2 px-2">
-                          Status
+                          Routing
                         </th>
-                        <th className="hidden sm:table-cell py-2 px-2">
+                        <th className="py-2 px-2">
                           Details
                         </th>
                         <th className="hidden sm:table-cell py-2 px-2">
@@ -310,7 +310,7 @@ const Page: React.FC = () => {
                         <div className='font-medium'>{item.routing_slip_no}</div>
                         <div style={{ color: `${getStatusColor(item.current_status)}` }}>{item.current_status} {item.current_status === 'Forwarded' ? 'to' : 'at'} {item.current_department.name}</div>
                       </td>
-                      <td className='hidden sm:table-cell app__td'>
+                      <td className='app__td'>
                         {
                           (item.agency && item.agency.trim() !== '') &&
                             <div><span className='font-medium'>Requesting Department:</span> {item.agency}</div>
