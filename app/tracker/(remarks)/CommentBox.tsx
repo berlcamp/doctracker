@@ -16,6 +16,7 @@ export default function CommentBox ({ reply, document }: ModalProps) {
 
   const [comment, setComment] = useState('')
   const [showCommentInput, setShowCommentInput] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
   const dept: any = departments.find((item: DepartmentTypes) => item.id.toString() === user.department_id.toString())
@@ -25,36 +26,50 @@ export default function CommentBox ({ reply, document }: ModalProps) {
   const dispatch = useDispatch()
 
   const handleSubmitReply = async () => {
-    // Insert into reply to database table
-    const commentData = {
-      remarks_id: reply.id,
-      sender_id: session.user.id,
-      message: comment
-    }
-    const { data, error } = await supabase
-      .from('dum_remarks_comments')
-      .insert(commentData)
-      .select()
+    if (saving) return
 
-    if (error) {
-      console.error(error)
+    if (comment.trim() === '') {
+      setComment('')
       return
     }
 
-    const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
+    setSaving(true)
+    //
+    try {
+      // Insert into reply to database table
+      const commentData = {
+        remarks_id: reply.id,
+        sender_id: session.user.id,
+        message: comment
+      }
+      const { data, error } = await supabase
+        .from('dum_remarks_comments')
+        .insert(commentData)
+        .select()
 
-    // Update data in remarks redux
-    const items = [...globalremarks]
-    const updatedData = { dum_remarks_comments: [...reply.dum_remarks_comments, { ...commentData, dum_users: user, created_at: data[0].created_at, id: data[0].id }], id: reply.id }
-    const foundIndex = items.findIndex(x => x.id === updatedData.id)
-    items[foundIndex] = { ...items[foundIndex], ...updatedData }
-    dispatch(updateRemarksList(items))
+      if (error) {
+        console.error(error)
+        return
+      }
 
-    // Notify followers and departments
-    void handleNotify()
+      const user: AccountTypes = systemUsers.find((u: { id: string }) => u.id === session.user.id)
 
-    setComment('')
-    setShowCommentInput(false)
+      // Update data in remarks redux
+      const items = [...globalremarks]
+      const updatedData = { dum_remarks_comments: [...reply.dum_remarks_comments, { ...commentData, dum_users: user, created_at: data[0].created_at, id: data[0].id }], id: reply.id }
+      const foundIndex = items.findIndex(x => x.id === updatedData.id)
+      items[foundIndex] = { ...items[foundIndex], ...updatedData }
+      dispatch(updateRemarksList(items))
+
+      // Notify followers and departments
+      void handleNotify()
+
+      setComment('')
+      setShowCommentInput(false)
+      setSaving(false)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const handleNotify = async () => {
