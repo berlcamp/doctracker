@@ -591,11 +591,11 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
   }, [wrapperRef])
 
   return (
-      <div ref={wrapperRef} className="z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50">
-        <div className="sm:h-[calc(100%-3rem)] w-5/6 my-6 mx-auto relative pointer-events-none">
-          <div className="max-h-full border-none shadow-lg relative flex flex-col w-full pointer-events-auto bg-gray-50 bg-clip-padding rounded-sm outline-none text-current dark:bg-gray-600">
-            <div className="flex space-x-2 items-center justify-start p-4 border-b bg-slate-200 border-gray-200 rounded-t-md">
-              <h5 className="text-md font-bold leading-normal text-gray-800 dark:text-gray-300">
+      <div ref={wrapperRef} className="app__modal_wrapper">
+        <div className="app__modal_wrapper2_large">
+          <div className="app__modal_wrapper3">
+            <div className="app__modal_header">
+              <h5 className="app__modal_header_text">
                 {documentData.routing_slip_no}
               </h5>
               <div className="flex flex-1 space-x-2 items-center justify-center">
@@ -803,6 +803,9 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                           <td className='px-2 py-2 font-medium text-right align-top'>Attachments:</td>
                           <td>
                             <div>
+                              {
+                                attachments?.length === 0 && <span>No attachments</span>
+                              }
                             {
                               attachments?.map((file, index) => (
                                 <div key={index} className='flex items-center space-x-2 justify-start p-1'>
