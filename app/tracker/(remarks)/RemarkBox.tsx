@@ -29,7 +29,7 @@ export default function RemarkBox ({ document }: ModalProps) {
   const [replyType, setReplyType] = useState('Public')
   const [remarks, setRemarks] = useState('')
 
-  const handleSubmitReply = async () => {
+  const handleSubmit = async () => {
     if (saving) return
 
     if (remarks.trim() === '') {
@@ -208,7 +208,7 @@ export default function RemarkBox ({ document }: ModalProps) {
         <button
           className="bg-emerald-500 hover:bg-emerald-600 border border-emerald-600 font-bold px-2 py-1 text-xs text-white rounded-sm"
           type="button"
-          onClick={handleSubmitReply}
+          onClick={handleSubmit}
           >Submit</button>
       </div>
 

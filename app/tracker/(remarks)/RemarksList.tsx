@@ -5,7 +5,7 @@ import { EllipsisHorizontalIcon, PencilIcon } from '@heroicons/react/24/solid'
 import React, { Fragment, useState } from 'react'
 import uuid from 'react-uuid'
 import { TrashIcon } from '@heroicons/react/24/outline'
-import CommentsBox from './CommentsBox'
+import CommentsList from './CommentsList'
 import CommentBox from './CommentBox'
 import { format } from 'date-fns'
 import { useSupabase } from '@/context/SupabaseProvider'
@@ -134,7 +134,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
 
             </div>
           </div>
-          <div className={`${(reply.reply_type !== 'system' && isAuthor) ? 'hidden group-hover:flex' : 'hidden'} items-center space-x-2`}>
+          <div className={`${(isAuthor) ? 'hidden group-hover:flex' : 'hidden'} items-center space-x-2`}>
             <Menu as="div" className="relative inline-block text-left mr-2">
               <div>
                 <Menu.Button className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
@@ -153,7 +153,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
               >
                 <Menu.Items className="absolute right-0 z-50 w-32 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="py-1">
-                    <Menu.Item>
+                    {/* <Menu.Item>
                       <div
                           onClick={() => setEditMode(true)}
                           className='flex items-center space-x-2 hover:bg-gray-100 text-gray-700 hover:text-gray-900 px-4 py-2 text-xs cursor-pointer'
@@ -161,7 +161,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
                           <PencilIcon className='w-4 h-4'/>
                           <span>Edit</span>
                       </div>
-                    </Menu.Item>
+                    </Menu.Item> */}
                     <Menu.Item>
                       <div
                           onClick={() => deleteReply(reply.id)}
@@ -189,7 +189,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
                     <textarea
                       onChange={e => setRemarks(e.target.value)}
                       value={remarks}
-                      className='w-full h-20 border focus:ring-0 focus:outline-none p-2 text-sm text-gray-700 dark:bg-gray-900 dark:text-gray-300'></textarea>
+                      className='w-full h-20 border focus:ring-0 focus:outline-none p-2 text-sm text-gray-700 dark:bg-gray-900 dark:text-gray-300'/>
                     <div className='flex space-x-2 items-center justify-start'>
                       <button
                         className="bg-emerald-500 hover:bg-emerald-600 border border-emerald-600 font-bold px-2 py-1 text-xs text-white rounded-sm"
@@ -224,7 +224,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
         {
           (!reply.is_private) &&
             reply.dum_remarks_comments?.map((comment) => (
-              <CommentsBox
+              <CommentsList
                 comment={comment}
                 reply={reply}
                 key={uuid()}/>
