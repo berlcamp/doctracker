@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import { Menu, Transition } from '@headlessui/react'
-import { EllipsisHorizontalIcon, PencilIcon } from '@heroicons/react/24/solid'
+import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid'
 import React, { Fragment, useState } from 'react'
 import uuid from 'react-uuid'
 import { TrashIcon } from '@heroicons/react/24/outline'
