@@ -63,7 +63,7 @@ export default function LandingPage () {
         }
         <div className='w-full px-10 my-10'>
           {
-            documentId !== '' && <StatusFlow documentId="68" updateStatusFlow={true}/>
+            documentId !== '' && <StatusFlow documentId={documentId} updateStatusFlow={true}/>
           }
         </div>
         <div className='mt-auto bg-gray-800 p-4 text-white fixed bottom-0 w-full'>
