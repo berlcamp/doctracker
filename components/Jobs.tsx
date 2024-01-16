@@ -17,13 +17,13 @@ const items = [
 export default function Jobs () {
   return (
     <div className=''>
-      <h4 className="text-xl font-semibold mb-6">VACANT ITEMS</h4>
+      <h4 className="text-xl font-semibold mb-6">Vacant Items:</h4>
       {
         items.map((item, index) => (
           <div key={uuid()} className='flex items-start text-sm space-x-4 mb-8'>
             <div>{index + 1}.</div>
             <div className='flex flex-col space-y-1'>
-              <div>{item.title}</div>
+              <div className='font-bold'>{item.title}</div>
               <div>{item.school}</div>
               <div className='pt-2'>
                 <Link href="#" className="app__btn_green">

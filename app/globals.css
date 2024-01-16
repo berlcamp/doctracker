@@ -27,10 +27,10 @@
   @apply w-full text-sm text-left text-gray-600 border-t
 }
 .app__thead {
-  @apply text-xs border-b border-gray-300 uppercase bg-gray-200 text-gray-700
+  @apply text-xs border-b uppercase bg-gray-100
 }
 .app__tr {
-  @apply bg-white text-xs border-b hover:bg-amber-50
+  @apply bg-gray-50 text-xs border-b hover:bg-amber-50
 }
 .app__th {
   @apply py-2 px-2 text-gray-900

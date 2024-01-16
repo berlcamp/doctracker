@@ -232,19 +232,19 @@ const Page: React.FC = () => {
             <table className="app__table">
               <thead className="app__thead">
                   <tr>
-                        <th className="py-2 pl-4"></th>
-                        <th className="py-2 px-2 w-16">
+                        <th className="app__th pl-4"></th>
+                        <th className="app__th w-16">
                         </th>
-                        <th className="py-2 px-2">
+                        <th className="app__th">
                           Routing
                         </th>
-                        <th className="py-2 px-2">
+                        <th className="app__th">
                           Details
                         </th>
-                        <th className="hidden sm:table-cell py-2 px-2">
+                        <th className="hidden sm:table-cell app__th">
                           Origin
                         </th>
-                        <th className="hidden sm:table-cell py-2 px-2">
+                        <th className="hidden sm:table-cell app__th">
                           Current&nbsp;Location
                         </th>
                   </tr>

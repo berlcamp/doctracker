@@ -9,8 +9,7 @@ import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { type FileWithPath, useDropzone } from 'react-dropzone'
 
 import type { DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes, FlowListTypes } from '@/types'
-import StatusFlow from './StatusFlow'
-import { ConfirmModal, CustomButton, UserBlock } from '@/components'
+import { ConfirmModal, CustomButton, StatusFlow, UserBlock } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
 import { recount } from '@/GlobalRedux/Features/recountSlice'
@@ -840,7 +839,12 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
               <hr/>
               <div className='py-2 md:flex'>
                 <div className='md:w-1/2'>
-                  <StatusFlow updateStatusFlow={updateStatusFlow} documentId={documentData.id.toString()}/>
+                  <div className='mx-2 mt-4 px-4 py-4 text-gray-600 bg-gray-100'>
+                    <div className='mb-6 px-4'>
+                      <span className='font-bold text-xs'>Tracker:</span>
+                    </div>
+                    <StatusFlow updateStatusFlow={updateStatusFlow} documentId={documentData.id.toString()}/>
+                  </div>
                 </div>
                 <div className='flex-1'>
                   {

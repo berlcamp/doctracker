@@ -41,7 +41,6 @@ const LoginDropDown = ({ darkMode }: propTypes) => {
             <span className={`inline-flex items-center justify-center rounded-full ${darkMode ? 'bg-white' : 'bg-gray-500 bg-opacity-30'} w-6 h-6`}>
               <LockClosedIcon className='w-4 h-4 text-gray-800'/>
             </span>
-            <span className='font-semibold'>Login</span>
         </div>
 
         <div className={`${showDropdown ? '' : 'hidden'} absolute right-0 z-30 mt-2 origin-top-right rounded-md bg-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>

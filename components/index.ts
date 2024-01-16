@@ -22,6 +22,7 @@ import UserBlock from './UserBlock'
 import TopBarDark from './TopBarDark'
 import LandingPage from './LandingPage'
 import LoginBox from './LoginBox'
+import StatusFlow from './StatusFlow'
 
 export {
   Login,
@@ -47,5 +48,6 @@ export {
   ShowMore,
   Jobs,
   MainMenu,
-  AccountDetails
+  AccountDetails,
+  StatusFlow
 }
