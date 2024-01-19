@@ -25,6 +25,7 @@ import DownloadExcelButton from './DownloadExcel'
 import { useRouter, useSearchParams } from 'next/navigation'
 import StickiesModal from './StickiesModal'
 import { Tooltip } from 'react-tooltip'
+import DownloadReceiving from './DownloadReceiving'
 
 const Page: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -217,7 +218,11 @@ const Page: React.FC = () => {
 
           {/* Download Excel */}
           {
-            !isDataEmpty && <div className='flex justify-end mb-2'><DownloadExcelButton documents={list}/></div>
+            !isDataEmpty &&
+              <div className='flex justify-end space-x-4 mb-2'>
+                <DownloadExcelButton documents={list}/>
+                <DownloadReceiving documents={list}/>
+              </div>
           }
 
           {/* Per Page */}

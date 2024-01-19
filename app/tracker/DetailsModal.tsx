@@ -256,7 +256,8 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
 
     const newData = {
       current_status: 'Forwarded',
-      current_department_id: departmentId
+      current_department_id: departmentId,
+      forwarded_from_department_id: user.department_id
     }
     try {
       const { error } = await supabase

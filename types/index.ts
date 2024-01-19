@@ -97,6 +97,7 @@ export interface DocumentTypes {
   dum_users: AccountTypes
   received_by_user: AccountTypes
   origin_department_id: string
+  forwarded_from_department_id: string
   dum_departments: DepartmentTypes
   current_department: DepartmentTypes
   dum_document_followers: FollowersTypes[]
