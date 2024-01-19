@@ -23,7 +23,7 @@ const DownloadPdf = ({ documents }: { documents: DocumentTypes[] | [] }) => {
     const dumingaglogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/dumingag.png`
     const zdslogo = `${process.env.NEXT_PUBLIC_BASE_URL}/images/zds.png`
     doc.addImage(dumingaglogo, 'PNG', 20, 7, 25, 25)
-    doc.addImage(zdslogo, 'PNG', 250, 7, 25, 25)
+    doc.addImage(zdslogo, 'PNG', 310, 7, 25, 25)
 
     // Add a header to the PDF
     const fontSize = 12
@@ -72,12 +72,10 @@ const DownloadPdf = ({ documents }: { documents: DocumentTypes[] | [] }) => {
     const options = {
       margin: { top: 20 },
       startY: currentY,
-      tableLineColor: '#c7c7c7',
+      theme: 'grid',
       styles: {
-        lineWidth: 0,
         cellPadding: { top: 3, right: 3, bottom: 3, left: 3 }
-      },
-      headStyles: { fillColor: [252, 164, 96] } // Header cell background color (gray)
+      }
     }
 
     // Create a new table object
