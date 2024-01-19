@@ -33,7 +33,8 @@ const TrackerSideBar = () => {
     const { count: forwarded }: { count: number } = await supabase
       .from('dum_document_trackers')
       .select('*', { count: 'exact' })
-      .or('current_status.eq.Forwarded,current_status.eq.Received')
+      // .or('current_status.eq.Forwarded,current_status.eq.Received')
+      .eq('current_status', 'Forwarded')
       .eq('forwarded_from_department_id', user.department_id)
 
     setForwardedCount(forwarded)

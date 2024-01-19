@@ -75,7 +75,8 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
     }
 
     if (filterUrl && filterUrl === 'forwarded') {
-      query = query.or('current_status.eq.Forwarded,current_status.eq.Received')
+      // query = query.or('current_status.eq.Forwarded,current_status.eq.Received')
+      query = query.eq('current_status', 'Forwarded')
       query = query.eq('forwarded_from_department_id', user.department_id)
     }
 
