@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { PaperClipIcon } from '@heroicons/react/24/solid'
 import { type FileWithPath, useDropzone } from 'react-dropzone'
 
-import type { DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes, FlowListTypes } from '@/types'
+import type { DocumentTypes, AttachmentTypes, DepartmentTypes, AccountTypes, FollowersTypes, NotificationTypes } from '@/types'
 import { ConfirmModal, CustomButton, StatusFlow, UserBlock } from '@/components'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateList } from '@/GlobalRedux/Features/listSlice'
@@ -117,16 +117,17 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         userIds.push(user.user_id.toString())
       })
 
-      // Get Department ID within Tracker Flow
-      const { data: trackerFlow } = await supabase
-        .from('dum_tracker_flow')
-        .select('department_id')
-        .eq('tracker_id', document.id)
+      const deptIds: string[] = [departmentId, document.origin_department_id]
 
-      const deptIds: string[] = []
-      trackerFlow.forEach((item: FlowListTypes) => {
-        deptIds.push(item.department_id)
-      })
+      // Get Department ID within Tracker Flow
+      // const { data: trackerFlow } = await supabase
+      //   .from('dum_tracker_flow')
+      //   .select('department_id')
+      //   .eq('tracker_id', document.id)
+
+      // trackerFlow.forEach((item: FlowListTypes) => {
+      //   deptIds.push(item.department_id)
+      // })
 
       // Get the User assigned to these Department IDs
       const { data: dumUsers } = await supabase

@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { updateRemarksList } from '@/GlobalRedux/Features/remarksSlice'
 import { useFilter } from '@/context/FilterContext'
 import { useSupabase } from '@/context/SupabaseProvider'
-import type { AccountTypes, DepartmentTypes, DocumentTypes, FlowListTypes, FollowersTypes, NotificationTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes, DocumentTypes, FollowersTypes, NotificationTypes } from '@/types'
 
 interface ModalProps {
   document: DocumentTypes
@@ -91,16 +91,17 @@ export default function RemarkBox ({ document }: ModalProps) {
         userIds.push(user.user_id.toString())
       })
 
-      // Get Department ID within Tracker Flow
-      const { data: trackerFlow } = await supabase
-        .from('dum_tracker_flow')
-        .select('department_id')
-        .eq('tracker_id', document.id)
+      const deptIds: string[] = [document.current_department_id, document.origin_department_id]
 
-      const deptIds: string[] = []
-      trackerFlow.forEach((item: FlowListTypes) => {
-        deptIds.push(item.department_id)
-      })
+      // Get Department ID within Tracker Flow
+      // const { data: trackerFlow } = await supabase
+      //   .from('dum_tracker_flow')
+      //   .select('department_id')
+      //   .eq('tracker_id', document.id)
+
+      // trackerFlow.forEach((item: FlowListTypes) => {
+      //   deptIds.push(item.department_id)
+      // })
 
       // Get the User assigned to these Department IDs
       const { data: dumUsers } = await supabase

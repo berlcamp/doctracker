@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux'
 const TrackerSideBar = () => {
   const [receiveCount, setReceiveCount] = useState(0)
   const [forwardedCount, setForwardedCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
   const searchParams = useSearchParams()
 
   const filter = searchParams.get('filter')
@@ -38,6 +39,13 @@ const TrackerSideBar = () => {
       .eq('forwarded_from_department_id', user.department_id)
 
     setForwardedCount(forwarded)
+
+    const { count: following }: { count: number } = await supabase
+      .from('dum_document_followers')
+      .select('*', { count: 'exact' })
+      .eq('user_id', user.id)
+
+    setFollowingCount(following)
   }
   useEffect(() => {
     void counter()
@@ -79,8 +87,8 @@ const TrackerSideBar = () => {
             <span className="flex-1 ml-3 whitespace-nowrap">Forwarded</span>
             {
               forwardedCount > 0 &&
-                <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
-                  <span className='rounded-full px-1 text-white text-xs'>{forwardedCount}</span>
+                <span className='inline-flex items-center justify-center rounded-full bg-gray-300 w-5 h-5'>
+                  <span className='rounded-full px-1 text-gray-900 text-xs'>{forwardedCount}</span>
                 </span>
             }
           </Link>
@@ -90,6 +98,12 @@ const TrackerSideBar = () => {
             href="/tracker?filter=following"
             className={`app__menu_link ${filter === 'following' ? 'app_menu_link_active' : ''}`}>
             <span className="flex-1 ml-3 whitespace-nowrap">Following</span>
+            {
+              followingCount > 0 &&
+                <span className='inline-flex items-center justify-center rounded-full bg-gray-300 w-5 h-5'>
+                  <span className='rounded-full px-1 text-gray-900 text-xs'>{followingCount}</span>
+                </span>
+            }
           </Link>
         </li>
       </ul>
