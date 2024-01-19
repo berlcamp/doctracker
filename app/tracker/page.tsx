@@ -6,7 +6,7 @@ import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon, TrashIcon, PrinterIcon, StarIcon, CalendarDaysIcon } from '@heroicons/react/20/solid'
 import { Sidebar, PerPage, TopBar, DeleteModal, TableRowLoading, CustomButton, ShowMore, TrackerSideBar, Title, Unauthorized, UserBlock } from '@/components'
 import AddDocumentModal from './AddDocumentModal'
-import DetailsModal from './DetailsModal'
+import DetailsModal from '@/components/Tracker/DetailsModal'
 import ActivitiesModal from './ActivitiesModal'
 import Filters from './Filters'
 import { format } from 'date-fns'
@@ -22,10 +22,10 @@ import { statusList, superAdmins } from '@/constants/TrackerConstants'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { useFilter } from '@/context/FilterContext'
 import DownloadExcelButton from './DownloadExcel'
-import { useRouter, useSearchParams } from 'next/navigation'
 import StickiesModal from './StickiesModal'
 import { Tooltip } from 'react-tooltip'
-import DownloadReceiving from './DownloadReceiving'
+import { useSearchParams } from 'next/navigation'
+import DownloadPdf from './DownloadPdf'
 
 const Page: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -50,9 +50,8 @@ const Page: React.FC = () => {
 
   const searchParams = useSearchParams()
 
-  const { supabase, session, systemUsers } = useSupabase()
+  const { session, systemUsers } = useSupabase()
   const { hasAccess } = useFilter()
-  const router = useRouter()
 
   const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
@@ -62,21 +61,6 @@ const Page: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true)
-
-    const filterCode = searchParams.get('code')
-    if (filterCode && filterCode !== '') {
-      const { data, count }: { data: DocumentTypes, count: number } = await supabase
-        .from('dum_document_trackers')
-        .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_remarks(*)', { count: 'exact' })
-        .eq('id', filterCode)
-        .maybeSingle()
-
-      if (count > 0) {
-        void handleShowDetailsModal(data)
-        router.replace('/tracker')
-        return
-      }
-    }
 
     try {
       const filterUrl = searchParams.get('filter')
@@ -221,7 +205,7 @@ const Page: React.FC = () => {
             !isDataEmpty &&
               <div className='flex justify-end space-x-4 mb-2'>
                 <DownloadExcelButton documents={list}/>
-                <DownloadReceiving documents={list}/>
+                <DownloadPdf documents={list}/>
               </div>
           }
 
@@ -383,12 +367,12 @@ const Page: React.FC = () => {
 
           {/* Details Modal */}
           {
-              (showDetailsModal && selectedItem) && (
-                <DetailsModal
-                  documentData={selectedItem}
-                  hideModal={() => setShowDetailsModal(false)}/>
-              )
-            }
+            (showDetailsModal && selectedItem) && (
+              <DetailsModal
+                documentData={selectedItem}
+                hideModal={() => setShowDetailsModal(false)}/>
+            )
+          }
 
           {/* Confirm Delete Modal */}
           {

@@ -5,7 +5,7 @@ import 'jspdf-autotable'
 import type { DocumentTypes } from '@/types'
 import { AiOutlineFilePdf } from 'react-icons/ai'
 
-const DownloadReceiving = ({ documents }: { documents: DocumentTypes[] | [] }) => {
+const DownloadPdf = ({ documents }: { documents: DocumentTypes[] | [] }) => {
   //
   // Generate payroll summary PDF
   const handleDownload = () => {
@@ -96,4 +96,4 @@ const DownloadReceiving = ({ documents }: { documents: DocumentTypes[] | [] }) =
   )
 }
 
-export default DownloadReceiving
+export default DownloadPdf

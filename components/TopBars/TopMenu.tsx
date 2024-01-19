@@ -33,7 +33,7 @@ const TopMenu = ({ darkMode }: propTypes) => {
 
   return (
     <>
-      <div ref={wrapperRef} className='relative inline-block mr-1'>
+      <div ref={wrapperRef} className='relative inline-block mr-4'>
         <div
           onClick={() => setShowDropdown(!showDropdown)}
           className='flex items-center py-1 cursor-pointer text-gray-500 focus:ring-0 focus:outline-none'>

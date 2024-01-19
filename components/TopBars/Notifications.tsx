@@ -4,16 +4,16 @@
 import React, { Fragment, useRef, useEffect, useState } from 'react'
 import { BellAlertIcon } from '@heroicons/react/24/solid'
 import { Menu, Transition } from '@headlessui/react'
-import { useRouter } from 'next/navigation'
 import uuid from 'react-uuid'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { formatDistance } from 'date-fns'
 import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
 
 // types
-import type { NotificationTypes } from '@/types'
+import type { DocumentTypes, NotificationTypes } from '@/types'
 import { useDispatch } from 'react-redux'
 import { recount } from '@/GlobalRedux/Features/recountSlice'
+import DetailsModal from '@/components/Tracker/DetailsModal'
 
 interface propTypes {
   darkMode?: boolean
@@ -21,12 +21,12 @@ interface propTypes {
 
 const Notifications = ({ darkMode }: propTypes) => {
   const [isUnreadChecked, setIsUnreadChecked] = useState(false)
-
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [documentDetails, setDocumentDetails] = useState<DocumentTypes>()
   const [total, setTotal] = useState(0)
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
 
-  const router = useRouter()
   const { supabase, session } = useSupabase()
 
   const dispatch = useDispatch()
@@ -35,6 +35,18 @@ const Notifications = ({ darkMode }: propTypes) => {
 
   const [list, setList] = useState<NotificationTypes[] | null>(null)
   const [count, setCount] = useState(0)
+
+  const handleShowDetailsModal = async (id: string) => {
+    const { data }: { data: DocumentTypes } = await supabase
+      .from('dum_document_trackers')
+      .select('*, dum_document_tracker_stickies(*), dum_document_followers(*),dum_users:user_id(*),current_department:current_department_id(id,name),dum_departments:origin_department_id(name),dum_remarks(*)', { count: 'exact' })
+      .eq('id', id)
+      .limit(1)
+      .single()
+
+    setDocumentDetails(data)
+    setShowDetailsModal(true)
+  }
 
   const fetchData = async () => {
     const { data, error }: { data: NotificationTypes[], error: any } = await supabase
@@ -114,8 +126,7 @@ const Notifications = ({ darkMode }: propTypes) => {
       .eq('id', notification.id)
 
     void countUnread()
-
-    router.push(`/tracker?code=${notification.dum_document_tracker_id}`)
+    void handleShowDetailsModal(notification.dum_document_tracker_id)
   }
 
   useEffect(() => {
@@ -162,65 +173,75 @@ const Notifications = ({ darkMode }: propTypes) => {
   }, [])
 
   return (
-    <div className='pt-1 cursor-pointer'>
-      <Menu as="div" className="relative inline-block text-left mr-2">
-        <div>
-          <Menu.Button className="relative focus:ring-0 focus:outline-none ">
-            <span className={`inline-flex items-center justify-center rounded-full ${darkMode ? 'bg-white' : 'bg-gray-500 bg-opacity-30'} w-8 h-8`}>
-              <span className='absolute z-30 top-0 -right-2 bg-red-500 rounded-full px-1 text-white text-[8px]'>{count}</span>
-              <BellAlertIcon className='w-6 h-6 text-gray-700 dark:text-gray-200'/>
-            </span>
-          </Menu.Button>
-        </div>
+    <>
+      <div className='pt-1 cursor-pointer'>
+        <Menu as="div" className="relative inline-block text-left mr-4">
+          <div>
+            <Menu.Button className="relative focus:ring-0 focus:outline-none ">
+              <span className={`inline-flex items-center justify-center rounded-full ${darkMode ? 'bg-white' : 'bg-gray-500 bg-opacity-30'} w-8 h-8`}>
+                <span className='absolute z-30 top-0 -right-2 bg-red-500 rounded-full px-1 text-white text-[8px]'>{count}</span>
+                <BellAlertIcon className='w-6 h-6 text-gray-700 dark:text-gray-200'/>
+              </span>
+            </Menu.Button>
+          </div>
 
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items className="absolute right-0 z-30 mt-2 w-80 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <div onScroll={handleScroll} ref={scrollContainerRef} className="overflow-y-auto h-[calc(100vh-170px)] pt-8">
-              <div className='bg-gray-200 w-full px-4 py-2 fixed top-0 left-0'>
-                <label className='flex items-center space-x-1'>
-                  <input
-                    onChange={() => setIsUnreadChecked(!isUnreadChecked)}
-                    checked={isUnreadChecked}
-                    type='checkbox'
-                    className=''/>
-                  <span className='text-xs'>Only display <b>Unread</b> items</span>
-                </label>
-              </div>
-              {
-                list?.map((notification: NotificationTypes) => (
-                  (!notification.is_read || !isUnreadChecked) &&
-                    <Menu.Item key={uuid()}>
-                      <div
-                        onClick={async () => await handleClick(notification)}
-                        className={`${notification.is_read ? 'text-gray-500' : 'text-gray-800 font-medium'} hover:bg-gray-100 mx-2 p-2 text-xs`}>
-                        <div className='flex items-start justify-start space-x-2'>
-                          <span className='flex-1' dangerouslySetInnerHTML={{ __html: notification.message }}/>
-                          {
-                            !notification.is_read && <ExclamationCircleIcon className={`${notification.is_read ? 'text-blue-300' : 'text-blue-500'} w-4 h-4`}/>
-                          }
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
+          >
+            <Menu.Items className="absolute right-0 z-50 mt-2 w-80 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              <div onScroll={handleScroll} ref={scrollContainerRef} className="overflow-y-auto h-[calc(100vh-170px)] pt-8">
+                <div className='bg-gray-200 w-full px-4 py-2 fixed top-0 left-0'>
+                  <label className='flex items-center space-x-1'>
+                    <input
+                      onChange={() => setIsUnreadChecked(!isUnreadChecked)}
+                      checked={isUnreadChecked}
+                      type='checkbox'
+                      className=''/>
+                    <span className='text-xs'>Only display <b>Unread</b> items</span>
+                  </label>
+                </div>
+                {
+                  list?.map((notification: NotificationTypes) => (
+                    (!notification.is_read || !isUnreadChecked) &&
+                      <Menu.Item key={uuid()}>
+                        <div
+                          onClick={async () => await handleClick(notification)}
+                          className={`${notification.is_read ? 'text-gray-500' : 'text-gray-800 font-medium'} hover:bg-gray-100 mx-2 p-2 text-xs`}>
+                          <div className='flex items-start justify-start space-x-2'>
+                            <span className='flex-1' dangerouslySetInnerHTML={{ __html: notification.message }}/>
+                            {
+                              !notification.is_read && <ExclamationCircleIcon className={`${notification.is_read ? 'text-blue-300' : 'text-blue-500'} w-4 h-4`}/>
+                            }
+                          </div>
+                          {/* @ts-expect-error */}
+                          <div className='text-blue-700'>{formatDistance(new Date(), new Date(notification.created_at))} ago</div>
                         </div>
-                        {/* @ts-expect-error */}
-                        <div className='text-blue-700'>{formatDistance(new Date(), new Date(notification.created_at))} ago</div>
-                      </div>
-                    </Menu.Item>
-                ))
-              }
-              {
-                list?.length === 0 && <Menu.Item><div className='text-sm p-2 text-gray-500'>No notifications found.</div></Menu.Item>
-              }
-            </div>
-          </Menu.Items>
-        </Transition>
-      </Menu>
-    </div>
+                      </Menu.Item>
+                  ))
+                }
+                {
+                  list?.length === 0 && <Menu.Item><div className='text-sm p-2 text-gray-500'>No notifications found.</div></Menu.Item>
+                }
+              </div>
+            </Menu.Items>
+          </Transition>
+        </Menu>
+      </div>
+      {/* Details Modal */}
+      {
+        (showDetailsModal && documentDetails) && (
+          <DetailsModal
+            documentData={documentDetails}
+            hideModal={() => setShowDetailsModal(false)}/>
+        )
+      }
+    </>
   )
 }
 export default Notifications

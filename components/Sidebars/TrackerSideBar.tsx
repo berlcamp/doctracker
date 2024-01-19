@@ -44,7 +44,7 @@ const TrackerSideBar = () => {
   }, [recountStatus])
   return (
     <>
-      <ul className="pt-8 mt-4 space-y-2 border-gray-700">
+      <ul className="pt-8 mt-6 space-y-2 border-gray-700">
         <li>
           <div className='flex items-center text-gray-500 items-centers space-x-1 px-2'>
             <DocumentDuplicateIcon className='w-5 h-5'/>

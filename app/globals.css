@@ -132,7 +132,7 @@
   @apply mt-1 text-xs text-red-600 font-bold
 }
 .app__modal_wrapper {
-  @apply z-40 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50
+  @apply z-50 fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto bg-gray-900 bg-opacity-50
 }
 .app__modal_wrapper2 {
   @apply sm:h-[calc(100%-3rem)] max-w-lg my-6 mx-auto relative w-auto pointer-events-none

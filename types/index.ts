@@ -46,7 +46,7 @@ export interface NotificationTypes {
   url: string
   type: string
   user_id: string
-  dum_document_tracker_id?: string
+  dum_document_tracker_id: string
   reference_table?: string
   is_read?: boolean
 }

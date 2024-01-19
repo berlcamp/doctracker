@@ -22,7 +22,7 @@ import UserBlock from './UserBlock'
 import TopBarDark from './TopBarDark'
 import LandingPage from './LandingPage'
 import LoginBox from './LoginBox'
-import StatusFlow from './StatusFlow'
+import StatusFlow from './Tracker/StatusFlow'
 
 export {
   Login,

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 'use client'
 import { format } from 'date-fns'
-import Remarks from './(remarks)/Remarks'
+import Remarks from './Remarks/Remarks'
 import { useSupabase } from '@/context/SupabaseProvider'
 import TwoColTableLoading from '@/components/Loading/TwoColTableLoading'
 import React, { useCallback, useEffect, useRef, useState } from 'react'

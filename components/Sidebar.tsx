@@ -17,7 +17,7 @@ function Sidebar ({ children }: { children: React.ReactNode }) {
         </svg>
       </button>
 
-      <aside className={`${!viewSidebar ? '' : '-translate-x-full lg:translate-x-0'} fixed top-0 left-0 z-30 w-64 h-screen transition-transform`} aria-label="Sidebar">
+      <aside className={`${!viewSidebar ? '' : '-translate-x-full lg:translate-x-0'} fixed top-0 left-0 z-30 w-64 h-screen`} aria-label="Sidebar">
         <div className="h-full px-1 py-4 overflow-y-auto bg-gray-800">
             <ul className="space-y-2">
               <li>
