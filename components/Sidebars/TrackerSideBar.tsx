@@ -120,7 +120,7 @@ const TrackerSideBar = () => {
           <Link
             href="/tracker?filter=following"
             className={`app__menu_link ${filter === 'following' ? 'app_menu_link_active' : ''}`}>
-            <span className="flex-1 ml-3 whitespace-nowrap">Following</span>
+            <span className="flex-1 ml-3 whitespace-nowrap">Followed</span>
             {
               followingCount > 0 &&
                 <span className='inline-flex items-center justify-center rounded-full bg-gray-300 w-5 h-5'>
