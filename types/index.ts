@@ -112,6 +112,7 @@ export interface RemarksTypes {
   message: string
   is_private: boolean
   reply_type: string
+  files: string[] | null
   dum_users: AccountTypes
   dum_remarks_comments: CommentsTypes[]
 }

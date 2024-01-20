@@ -16,10 +16,53 @@ import { updateRemarksList } from '@/GlobalRedux/Features/remarksSlice'
 import type { AccountTypes, DocumentTypes, RemarksTypes } from '@/types'
 import Image from 'next/image'
 import Avatar from 'react-avatar'
+import { PaperClipIcon } from '@heroicons/react/20/solid'
 
 interface ModalProps {
   reply: RemarksTypes
   document: DocumentTypes
+}
+
+function Attachment ({ id, file }: { id: string, file: string }) {
+  const [downloading, setDownloading] = useState(false)
+  const { supabase } = useSupabase()
+
+  const handleDownloadFile = async (file: string) => {
+    if (downloading) return
+
+    setDownloading(true)
+
+    const { data, error } = await supabase
+      .storage
+      .from('dum_document_remarks')
+      .download(`${id}/${file}`)
+
+    if (error) console.error(error)
+
+    const url = window.URL.createObjectURL(new Blob([data]))
+
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', file)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+
+    setDownloading(false)
+  }
+
+  return (
+    <div
+      onClick={() => handleDownloadFile(file)}
+      className={`flex space-x-2 items-center ${downloading ? '' : 'cursor-pointer'}`}>
+      <PaperClipIcon
+        className='w-4 h-4 text-blue-700 '/>
+      <span className='text-blue-700 font-medium text-[10px]'>
+        {file}
+        {downloading ? ' downloading...' : ''}
+      </span>
+    </div>
+  )
 }
 
 export default function RemarksList ({ reply, document }: ModalProps) {
@@ -210,6 +253,16 @@ export default function RemarksList ({ reply, document }: ModalProps) {
                       </button>
                     </div>
                   </div>
+              }
+            </div>
+            {/* Attachments */}
+            <div className='mt-2'>
+              {
+                reply.files?.map((file, index) => (
+                  <div key={index} className='flex items-center space-x-2 justify-start'>
+                    <Attachment id={reply.id} file={file}/>
+                  </div>
+                ))
               }
             </div>
           </div>

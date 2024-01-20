@@ -25,6 +25,48 @@ interface ModalProps {
   documentData: DocumentTypes
 }
 
+function Attachment ({ id, file }: { id: string, file: string }) {
+  const [downloading, setDownloading] = useState(false)
+  const { supabase } = useSupabase()
+
+  const handleDownloadFile = async (file: string) => {
+    if (downloading) return
+
+    setDownloading(true)
+
+    const { data, error } = await supabase
+      .storage
+      .from('dum_documents')
+      .download(`${id}/${file}`)
+
+    if (error) console.error(error)
+
+    const url = window.URL.createObjectURL(new Blob([data]))
+
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', file)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+
+    setDownloading(false)
+  }
+
+  return (
+    <div
+      onClick={() => handleDownloadFile(file)}
+      className={`flex space-x-2 items-center ${downloading ? '' : 'cursor-pointer'}`}>
+      <PaperClipIcon
+        className='w-4 h-4 text-blue-700 '/>
+      <span className='text-blue-700 font-medium text-[10px]'>
+        {file}
+        {downloading ? ' downloading...' : ''}
+      </span>
+    </div>
+  )
+}
+
 export default function DetailsModal ({ hideModal, documentData: originalData }: ModalProps) {
   const [documentData, setDocumentData] = useState<DocumentTypes>(originalData)
   const [attachments, setAttachments] = useState<AttachmentTypes[] | []>([])
@@ -363,24 +405,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
     } catch (e) {
       console.error(e)
     }
-  }
-
-  const handleDownloadFile = async (file: string) => {
-    const { data, error } = await supabase
-      .storage
-      .from('dum_documents')
-      .download(`${documentData.id}/${file}`)
-
-    if (error) console.error(error)
-
-    const url = window.URL.createObjectURL(new Blob([data]))
-
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', file)
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
   }
 
   const fetchAttachments = async () => {
@@ -781,23 +805,12 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                             {
                               attachments?.map((file, index) => (
                                 <div key={index} className='flex items-center space-x-2 justify-start'>
-                                  <div
-                                    onClick={() => handleDownloadFile(file.name)}
-                                    className='flex space-x-2 items-center cursor-pointer'>
-                                    <PaperClipIcon
-                                      className='w-4 h-4 text-green-700 '/>
-                                    <span className='text-green-700 font-medium text-xs'>{file.name}</span>
-                                  </div>
-                                  {/* <span
-                                    onClick={() => handleDeleteClick(file.name)}
-                                    className='text-red-600 cursor-pointer text-xs font-bold'>
-                                    [Delete This File]
-                                  </span> */}
+                                  <Attachment file={file.name} id={documentData.id} />
                                 </div>
                               ))
                             }
                             </div>
-                            <div className="hidden flex-auto overflow-y-auto relative p-4">
+                            <div className="hidden flex-auto overflow-y-auto relative mt-4">
                               <div className='grid grid-cols-1 gap-4'>
                                 <div className='w-full'>
                                   <div {...getRootProps()} className='cursor-pointer border-dashed border-2 bg-gray-100 text-gray-600 px-4 py-10'>

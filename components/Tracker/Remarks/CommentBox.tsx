@@ -25,6 +25,10 @@ export default function CommentBox ({ reply, document }: ModalProps) {
   const globalremarks = useSelector((state: any) => state.remarks.value)
   const dispatch = useDispatch()
 
+  const handleCancel = () => {
+    setShowCommentInput(false)
+    setComment('')
+  }
   const handleSubmitReply = async () => {
     if (saving) return
 
@@ -174,7 +178,7 @@ export default function CommentBox ({ reply, document }: ModalProps) {
                   type="button"
                   >Submit</button>
                   <button
-                  onClick={() => setShowCommentInput(false)}
+                  onClick={handleCancel}
                   className="bg-gray-500 hover:bg-gray-600 border border-gray-600 font-bold px-2 py-1 text-xs text-white rounded-sm"
                   type="button"
                   >Cancel</button>
