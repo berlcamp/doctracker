@@ -11,6 +11,8 @@ const TrackerSideBar = () => {
   const [receiveCount, setReceiveCount] = useState(0)
   const [forwardedCount, setForwardedCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
+  const [incomingCount, setIncomingCount] = useState(0)
+
   const searchParams = useSearchParams()
 
   const filter = searchParams.get('filter')
@@ -29,7 +31,15 @@ const TrackerSideBar = () => {
       .eq('current_status', 'Forwarded')
       .eq('current_department_id', user.department_id)
 
-    setReceiveCount(count)
+    setIncomingCount(count)
+
+    const { count: received }: { count: number } = await supabase
+      .from('dum_document_trackers')
+      .select('*', { count: 'exact' })
+      .eq('current_status', 'Received')
+      .eq('current_department_id', user.department_id)
+
+    setReceiveCount(received)
 
     const { count: forwarded }: { count: number } = await supabase
       .from('dum_document_trackers')
@@ -69,13 +79,26 @@ const TrackerSideBar = () => {
         </li>
         <li>
           <Link
-            href="/tracker?filter=receive"
-            className={`app__menu_link ${filter === 'receive' ? 'app_menu_link_active' : ''}`}>
-            <span className="flex-1 ml-3 whitespace-nowrap">Receive</span>
+            href="/tracker?filter=received"
+            className={`app__menu_link ${filter === 'received' ? 'app_menu_link_active' : ''}`}>
+            <span className="flex-1 ml-3 whitespace-nowrap">Received</span>
             {
               receiveCount > 0 &&
+                <span className='inline-flex items-center justify-center rounded-full bg-gray-300 w-5 h-5'>
+                  <span className='rounded-full px-1 text-gray-900 text-xs'>{receiveCount}</span>
+                </span>
+            }
+          </Link>
+        </li>
+        <li>
+          <Link
+            href="/tracker?filter=incoming"
+            className={`app__menu_link ${filter === 'incoming' ? 'app_menu_link_active' : ''}`}>
+            <span className="flex-1 ml-3 whitespace-nowrap">Incoming</span>
+            {
+              incomingCount > 0 &&
                 <span className='inline-flex items-center justify-center rounded-full bg-red-500 w-5 h-5'>
-                  <span className='rounded-full px-1 text-white text-xs'>{receiveCount}</span>
+                  <span className='rounded-full px-1 text-white text-xs'>{incomingCount}</span>
                 </span>
             }
           </Link>
