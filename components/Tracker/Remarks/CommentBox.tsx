@@ -4,7 +4,7 @@ import React, { Fragment, useState } from 'react'
 import { useSupabase } from '@/context/SupabaseProvider'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateRemarksList } from '@/GlobalRedux/Features/remarksSlice'
-import type { AccountTypes, DepartmentTypes, DocumentTypes, FollowersTypes, NotificationTypes, RemarksTypes } from '@/types'
+import type { AccountTypes, DepartmentTypes, DocumentTypes, NotificationTypes, RemarksTypes } from '@/types'
 
 interface ModalProps {
   reply: RemarksTypes
@@ -79,51 +79,12 @@ export default function CommentBox ({ reply, document }: ModalProps) {
   const handleNotify = async () => {
     //
     try {
-      const userIds: string[] = []
-
-      // Followers
-      const { data: followers } = await supabase
-        .from('dum_document_followers')
-        .select('user_id')
-        .eq('tracker_id', document.id)
-
-      followers.forEach((user: FollowersTypes) => {
-        userIds.push(user.user_id.toString())
-      })
-
-      const deptIds: string[] = [document.current_department_id, document.origin_department_id]
-
-      // Get Department ID within Tracker Flow
-      // const { data: trackerFlow } = await supabase
-      //   .from('dum_tracker_flow')
-      //   .select('department_id')
-      //   .eq('tracker_id', document.id)
-
-      // trackerFlow.forEach((item: FlowListTypes) => {
-      //   deptIds.push(item.department_id)
-      // })
-
-      // Get the User assigned to these Department IDs
-      const { data: dumUsers } = await supabase
-        .from('dum_users')
-        .select('id')
-        .in('department_id', deptIds)
-
-      dumUsers.forEach((item: AccountTypes) => {
-        userIds.push(item.id.toString())
-      })
-
-      // Remove the duplicated IDs
-      const uniqueIds = userIds.reduce((accumulator: string[], currentValue: string) => {
-        if (!accumulator.includes(currentValue)) {
-          accumulator.push(currentValue)
-        }
-        return accumulator
-      }, [])
+      // Send notification to remarks author
+      const userIds: string[] = [reply.sender_id]
 
       const notificationData: NotificationTypes[] = []
 
-      uniqueIds.forEach((userId) => {
+      userIds.forEach((userId) => {
         notificationData.push({
           message: `${user.name} from ${dept.name} office added comment to Document ${document.routing_slip_no}.`,
           url: `/tracker?code=${document.routing_slip_no}`,

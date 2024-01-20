@@ -272,7 +272,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
       <div className='border-l ml-20'>
         {/* Only receiving department can make comments */}
         {
-          (!reply.is_private && document.current_status === 'Received' && document.current_department_id === user.department_id) &&
+          !reply.is_private &&
             <CommentBox document={document} reply={reply}/>
         }
         {/* Comments */}
