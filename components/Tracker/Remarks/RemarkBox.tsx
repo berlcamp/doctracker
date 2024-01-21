@@ -211,6 +211,7 @@ export default function RemarkBox ({ document }: ModalProps) {
         onChange={e => setRemarks(e.target.value)}
         value={remarks}
         disabled={saving}
+        placeholder='Write your remarks here..'
         className='w-full h-20 border resize-none focus:ring-0 focus:outline-none p-2 text-sm text-gray-700 dark:bg-gray-900 dark:text-gray-300'></textarea>
       <div className='flex items-start'>
 

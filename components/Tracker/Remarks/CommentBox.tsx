@@ -111,7 +111,7 @@ export default function CommentBox ({ reply, document }: ModalProps) {
   }
 
   return (
-    <div className='w-full flex-col space-y-2 px-4 mt-4 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
+    <div className='w-full flex-col space-y-2 px-4 my-4 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
       {
         !showCommentInput &&
           <button
@@ -130,6 +130,7 @@ export default function CommentBox ({ reply, document }: ModalProps) {
               type="text"
               value={comment}
               onChange={e => setComment(e.target.value)}
+              placeholder='Write your comment here..'
               className='w-full border focus:ring-0 focus:outline-none p-1 text-sm text-gray-700 dark:bg-gray-900 dark:text-gray-300'/>
 
               <div className='flex items-center space-x-2 justify-start'>
