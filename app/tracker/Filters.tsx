@@ -253,7 +253,7 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
       {
         applyFilter &&
           <div className='app__warning_text items-center space-x-1 mt-4 text-xs text-gray-600'>
-            <span className='inline-flex app__warning_title'>Showing filters for:</span>
+            <span className='inline-flex app__warning_title'>Showing results for filter:</span>
               {
                 keyword !== '' && <span className='inline-flex'>{keyword}, </span>
               }
