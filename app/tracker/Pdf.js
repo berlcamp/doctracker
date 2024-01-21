@@ -40,7 +40,7 @@ export async function Pdf (item) {
   doc.setFont('helvetica', 'normal')
   doc.text('Date:', 122, y, 'left')
   doc.setFont('helvetica', 'bold')
-  doc.text(`${item.date}`, 131, y, 'left')
+  doc.text(`${item.date_created}`, 131, y, 'left')
   y += 5
   doc.setFont('helvetica', 'normal')
   doc.text('Particulars:', 61, y, 'left')
