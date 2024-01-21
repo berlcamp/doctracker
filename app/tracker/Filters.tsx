@@ -3,6 +3,7 @@ import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon, MagnifyingGlassIcon, TagIcon, UsersIcon } from '@heroicons/react/20/solid'
 import { CustomButton, FilterDateRange } from '@/components'
 import { docTypes, statusList } from '@/constants/TrackerConstants'
+import { format } from 'date-fns'
 
 interface PropTypes {
   setFilterKeyword: (keyword: string) => void
@@ -21,7 +22,11 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
   const [dateFrom, setDateFrom] = useState<string>('')
   const [dateTo, setDateTo] = useState<string>('')
 
+  const [applyFilter, setApplyFilter] = useState(false)
+
   const handleApply = () => {
+    if (keyword.trim() === '' && agency.trim() === '' && dateFrom.trim() === '' && dateTo.trim() === '' && selectedTypes.length === 0) return
+
     // pass filter values to parent
     setFilterKeyword(keyword)
     setFilterAgency(agency)
@@ -29,10 +34,14 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
     setFilterStatus(status)
     setFilterDateFrom(dateFrom)
     setFilterDateTo(dateTo)
+
+    setApplyFilter(true)
   }
 
   const handleEnter = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
+      if (keyword.trim() === '' && agency.trim() === '' && dateFrom.trim() === '' && dateTo.trim() === '' && selectedTypes.length === 0) return
+
       // pass filter values to parent
       setFilterKeyword(keyword)
       setFilterAgency(agency)
@@ -40,21 +49,27 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
       setFilterStatus(status)
       setFilterDateFrom(dateFrom)
       setFilterDateTo(dateTo)
+
+      setApplyFilter(true)
     }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (keyword.trim() === '' && agency.trim() === '') return
+    if (keyword.trim() === '' && agency.trim() === '' && dateFrom.trim() === '' && dateTo.trim() === '' && selectedTypes.length === 0) return
 
     // pass filter values to parent
     setFilterKeyword(keyword)
     setFilterAgency(agency)
+
+    setApplyFilter(true)
   }
 
   // clear all filters
   const handleClear = () => {
+    if (keyword.trim() === '' && agency.trim() === '' && dateFrom.trim() === '' && dateTo.trim() === '' && selectedTypes.length === 0) return
+
     setFilterKeyword('')
     setKeyword('')
     setFilterTypes([])
@@ -67,6 +82,8 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
     setFilterDateTo('')
     setDateFrom('')
     setDateTo('')
+
+    setApplyFilter(false)
   }
 
   return (
@@ -233,6 +250,32 @@ const Filters = ({ setFilterKeyword, setFilterAgency, setFilterTypes, setFilterS
             handleClick={handleClear}
           />
       </div>
+      {
+        applyFilter &&
+          <div className='app__warning_text items-center space-x-1 mt-4 text-xs text-gray-600'>
+            <span className='inline-flex app__warning_title'>Showing filters for:</span>
+              {
+                keyword !== '' && <span className='inline-flex'>{keyword}, </span>
+              }
+              {
+                dateFrom !== '' && <span className='inline-flex'>From {format(new Date(dateFrom), 'MMM dd, yyyy')}, </span>
+              }
+              {
+                dateTo !== '' && <span className='inline-flex'>To {format(new Date(dateTo), 'MMM dd, yyyy')}, </span>
+              }
+              {
+                selectedTypes.length > 0 && (
+                  <>
+                    {
+                      selectedTypes.map((type, index) => (
+                        <span className='inline-flex' key={index}>{type}, </span>
+                      ))
+                    }
+                  </>
+                )
+              }
+          </div>
+      }
     </div>
   )
 }

@@ -1,14 +1,19 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { jsPDF } from 'jspdf'
 import 'jspdf-autotable'
 import type { DocumentTypes } from '@/types'
 import { AiOutlineFilePdf } from 'react-icons/ai'
 
 const DownloadPdf = ({ documents }: { documents: DocumentTypes[] | [] }) => {
-  //
+  const [downloading, setDownloading] = useState(false)
+
   // Generate payroll summary PDF
   const handleDownload = () => {
+    if (downloading) return
+
+    setDownloading(true)
+
     // Create a new jsPDF instance
     // eslint-disable-next-line new-cap
     const doc = new jsPDF({
@@ -85,6 +90,8 @@ const DownloadPdf = ({ documents }: { documents: DocumentTypes[] | [] }) => {
 
     // Save the PDF with a unique name
     doc.save('Receiving.pdf')
+
+    setDownloading(false)
   }
 
   return (

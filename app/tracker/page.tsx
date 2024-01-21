@@ -203,7 +203,8 @@ const Page: React.FC = () => {
           {/* Download Excel */}
           {
             !isDataEmpty &&
-              <div className='flex justify-end space-x-4 mb-2'>
+              <div className='hidden md:flex justify-end items-center space-x-2 mb-2 px-2'>
+                <span className='text-xs text-gray-500'>Download the listed trackers to: </span>
                 <DownloadExcelButton documents={list}/>
                 <DownloadPdf documents={list}/>
               </div>

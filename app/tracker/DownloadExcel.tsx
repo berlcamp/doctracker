@@ -48,7 +48,7 @@ const DownloadExcelButton = ({ documents }: { documents: DocumentTypes[] | [] })
   return (
     <button
       className='flex items-center justify-end space-x-1 font-bold py-1 text-xs text-gray-500 rounded-sm'
-      onClick={handleDownload}><span>Excel</span> <ImFileExcel className='h-5 w-5'/></button>
+      onClick={handleDownload}><span>Excel</span> <ImFileExcel className='h-4 w-4'/></button>
   )
 }
 

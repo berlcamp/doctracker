@@ -33,12 +33,6 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
 
   const user: AccountTypes = systemUsers.find((user: AccountTypes) => user.id === session.user.id)
 
-  const now = new Date()
-  const year = now.getFullYear().toString()
-  const month = (now.getMonth() + 1).toString().padStart(2, '0')
-  const day = now.getDate().toString().padStart(2, '0')
-  const dateString = year + '-' + month + '-' + day
-
   // Redux staff
   const globallist = useSelector((state: any) => state.list.value)
   const dispatch = useDispatch()
@@ -99,7 +93,6 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
         purchase_request_number: formdata.purchase_request_number,
         agency: formdata.agency,
         name: formdata.name,
-        date_created: dateString,
         particulars: formdata.particulars,
         user_id: session.user.id,
         origin_department_id: user.department_id,

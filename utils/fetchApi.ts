@@ -47,10 +47,10 @@ export async function fetchDocuments (filters: DocumentFilterTypes, filterUrl: s
 
     // Filter Date
     if (typeof filters.filterDateFrom !== 'undefined' && filters.filterDateFrom !== '') {
-      query = query.gte('date', filters.filterDateFrom)
+      query = query.gte('date_created', filters.filterDateFrom)
     }
     if (typeof filters.filterDateTo !== 'undefined' && filters.filterDateTo !== '') {
-      query = query.lte('date', filters.filterDateTo)
+      query = query.lte('date_created', filters.filterDateTo)
     }
 
     // Filter type
