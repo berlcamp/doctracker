@@ -58,6 +58,7 @@ export default function RemarkBox ({ document }: ModalProps) {
 
     if (remarks.trim() === '') {
       setRemarks('')
+      setToast('error', 'Please write remarks')
       return
     }
 
