@@ -272,7 +272,7 @@ const Page: React.FC = () => {
                                   </div>
                                 </Menu.Item>
                                 {
-                                  session.user.id.toString() === item.user_id.toString() &&
+                                  (session.user.id.toString() === item.user_id.toString() && item.status === 'Tracker Created') &&
                                     <Menu.Item>
                                       <div
                                           onClick={ () => handleDelete(item.id) }
