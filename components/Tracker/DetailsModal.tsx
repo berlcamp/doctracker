@@ -591,9 +591,6 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
         <div className="app__modal_wrapper2_large">
           <div className="app__modal_wrapper3">
             <div className="app__modal_header_tracker">
-              <h5 className="app__modal_header_text">
-                {documentData.routing_slip_no}
-              </h5>
               <div className="flex flex-1 space-x-2 items-center justify-center">
                 {
                   ((documentData.current_status === 'Received' || documentData.current_status === 'Tracker Created') && user.department_id === documentData.current_department_id) &&
@@ -629,38 +626,32 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     />
                 }
               </div>
-              {
-                !hideStickyButton &&
-                  <>
-                    <StarIcon onClick={() => handleAddToStickies(documentData)} className='cursor-pointer w-7 h-7 text-yellow-500' data-tooltip-id="stickies-tooltip" data-tooltip-content="Add to Stickies"/>
-                    <Tooltip id="stickies-tooltip" place='bottom-end'/>
-                  </>
-              }
-              {
-                !hideFollowButton
-                  ? <CustomButton
-                      containerStyles='app__btn_blue flex space-x-2'
-                      btnType='button'
-                      isDisabled={saving}
-                      title={saving ? 'Saving...' : 'Follow'}
-                      handleClick={handleFollow}
-                      rightIcon={<BellAlertIcon className='w-4 h-4 text-white'/>}
-                    />
-                  : <CustomButton
-                      containerStyles='app__btn_blue flex space-x-2'
-                      btnType='button'
-                      isDisabled={saving}
-                      title={saving ? 'Saving...' : 'Unfollow'}
-                      handleClick={handleUnfollow}
-                      rightIcon={<BellSlashIcon className='w-4 h-4 text-white'/>}
-                    />
-              }
-              <CustomButton
-                containerStyles='app__btn_gray'
-                title='Close'
-                btnType='button'
-                handleClick={hideModal}
-              />
+              <div className='mb-6 sm:mb-0 flex space-x-4 items-center'>
+                {
+                  !hideStickyButton &&
+                    <>
+                      <StarIcon onClick={() => handleAddToStickies(documentData)} className='cursor-pointer outline-none w-6 h-6 text-yellow-500' data-tooltip-id="add-sticky-tooltip" data-tooltip-content="Add to Stickies"/>
+                      <Tooltip id="add-sticky-tooltip" place='bottom-end'/>
+                    </>
+                }
+                {
+                  !hideFollowButton
+                    ? <>
+                        <BellSlashIcon onClick={handleFollow} className='w-6 h-6 text-blue-700 cursor-pointer outline-none' data-tooltip-id="follow-tooltip" data-tooltip-content="Follow/Unfollow"/>
+                        <Tooltip id="follow-tooltip" place='bottom-end'/>
+                      </>
+                    : <>
+                        <BellAlertIcon onClick={handleUnfollow} className='w-6 h-6 text-blue-700 cursor-pointer outline-none' data-tooltip-id="follow-tooltip" data-tooltip-content="Follow/Unfollow"/>
+                        <Tooltip id="follow-tooltip" place='bottom-end'/>
+                      </>
+                }
+                <CustomButton
+                  containerStyles='app__btn_gray'
+                  title='Close'
+                  btnType='button'
+                  handleClick={hideModal}
+                />
+              </div>
             </div>
 
             <div className="modal-body relative overflow-x-scroll">
@@ -671,6 +662,12 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                     <table className='w-full'>
                       <thead><tr><th className='w-40'></th><th></th></tr></thead>
                       <tbody>
+                        <tr>
+                          <td className='px-2 py-2 font-light text-right'>Routing No:</td>
+                          <td>
+                            <span className='font-medium text-sm'>{documentData.routing_slip_no}</span>
+                          </td>
+                        </tr>
                         <tr>
                           <td className='px-2 py-2 font-light text-right'>Current Status:</td>
                           <td>
