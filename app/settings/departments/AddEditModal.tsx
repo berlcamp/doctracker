@@ -153,6 +153,7 @@ const AddEditModal = ({ hideModal, editData }: ModalProps) => {
     const fetchDocTypes = async () => {
       const { data }: { data: DocTypes[] } = await supabase
         .from('dum_document_types')
+        .order('type', { ascending: true })
         .select()
 
       // set checked types
