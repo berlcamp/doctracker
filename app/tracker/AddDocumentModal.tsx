@@ -187,6 +187,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
 
       const { data }: { data: DocTypes[] } = await supabase
         .from('dum_document_types')
+        .order('type', { ascending: true })
         .select()
 
       // filter only allowed doc types
