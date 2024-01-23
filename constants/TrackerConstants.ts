@@ -14,6 +14,7 @@ export const docTypes = [
   { type: 'Memorandum Order', shortcut: 'MEMO' },
   { type: 'Memorandum Order for Activities', shortcut: 'MEMO-ORDR' },
   { type: 'Notice', shortcut: 'NOTICE' },
+  { type: 'Notice of Meeting', shortcut: 'NOTI-MEETING' },
   { type: 'Notice of Violation', shortcut: 'NOTI-VIOL' },
   { type: 'OBR', shortcut: 'OBR' },
   { type: 'Office Order', shortcut: 'OFC-ORD' },

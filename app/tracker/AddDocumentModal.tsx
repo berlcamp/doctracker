@@ -272,7 +272,7 @@ export default function AddDocumentModal ({ hideModal }: ModalProps) {
                       </div>
                   }
                   {
-                    ['Letters', 'Memorandum Order for Activities'].includes(type) &&
+                    ['Letters', 'Memorandum Order for Activities', 'Notice of Meeting'].includes(type) &&
                       <>
                         <div className='grid grid-cols-1 gap-4 mb-4'>
                           <div className='w-full'>
