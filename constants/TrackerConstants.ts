@@ -44,5 +44,5 @@ export const superAdmins = [
   'berlcamp@gmail.com',
   'berlcampomanes@gmail.com',
   'arfelbomes@gmail.com',
-  'raphaelclaude@gmail.com'
+  'raphael@gmail.com'
 ]
