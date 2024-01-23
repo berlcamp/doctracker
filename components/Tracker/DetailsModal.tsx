@@ -737,7 +737,7 @@ export default function DetailsModal ({ hideModal, documentData: originalData }:
                         {
                           ((documentData.purchase_request_number && documentData.purchase_request_number.trim() !== '') || user.department_id.toString() === '4') &&
                             <tr>
-                              <td className='px-2 py-2 font-light text-right'>PO No:</td>
+                              <td className='px-2 py-2 font-light text-right'>PR No:</td>
                               <td className='text-sm font-medium'>
                                 {
                                   // GSO only
