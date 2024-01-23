@@ -80,6 +80,7 @@ export default function LoginBox () {
               <CustomButton
                   containerStyles="app__btn_green_sm w-full"
                   btnType="submit"
+                  isDisabled={signingIn}
                   title={signingIn ? 'Signing In...' : 'Login'}
                   />
             </div>
