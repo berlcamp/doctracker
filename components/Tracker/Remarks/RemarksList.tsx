@@ -182,7 +182,7 @@ export default function RemarksList ({ reply, document }: ModalProps) {
           {/* Only receiving department can delete remarks */}
           {
             ((document.current_status === 'Received' || document.current_status === 'Tracker Created') && document.current_department_id === user.department_id) &&
-              <div className={`${(isAuthor) ? 'hidden group-hover:flex' : 'hidden'} items-center space-x-2`}>
+              <div className={`${(isAuthor) ? 'group-hover:flex' : 'hidden'} items-center space-x-2`}>
                 <Menu as="div" className="relative inline-block text-left mr-2">
                   <div>
                     <Menu.Button className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">

@@ -75,7 +75,7 @@ export default function CommentsList ({ document, comment, reply }: ModalProps) 
 
   return (
     <>
-      <div className='w-full group flex-col space-y-2 px-4 pt-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
+      <div className='w-full group flex-col space-y-2 pl-4 pt-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400'>
         <div className='flex items-start space-x-2'>
           <div className='flex flex-1 items-start space-x-2'>
             {
@@ -96,7 +96,7 @@ export default function CommentsList ({ document, comment, reply }: ModalProps) 
           {/* Only receiving department can delete comments */}
           {
             ((document.current_status === 'Received' || document.current_status === 'Tracker Created') && document.current_department_id === user.department_id) &&
-              <div className={`${isAuthor ? 'hidden group-hover:flex' : 'hidden'} items-start space-x-2`}>
+              <div className={`${isAuthor ? 'group-hover:flex' : 'hidden'} items-start space-x-2`}>
                 <Menu as="div" className="relative inline-block text-left mr-2">
                   <div>
                     <Menu.Button className="text-gray-500  focus:ring-0 focus:outline-none text-xs text-left inline-flex items-center">
